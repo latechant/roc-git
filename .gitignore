@@ -3,3 +3,12 @@ dist/
 unpackage/
 .DS_Store
 artifacts/
+
+# 本地环境与工具产物（不入库）
+.env
+.env.*
+!.env.example
+*.log
+.idea/
+.vscode/
+Thumbs.db
