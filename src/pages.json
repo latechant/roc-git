@@ -1,0 +1,57 @@
+{
+  "pages": [
+    {
+      "path": "pages/home/home",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "ROC-git",
+        "disableScroll": true
+      }
+    },
+    {
+      "path": "pages/project/project",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "项目协作空间",
+        "disableScroll": true
+      }
+    },
+    {
+      "path": "pages/create/create",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "创建项目",
+        "disableScroll": true
+      }
+    },
+    {
+      "path": "pages/meeting/meeting",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "研讨记录",
+        "disableScroll": true
+      }
+    },
+    {
+      "path": "pages/messages/messages",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "协作消息",
+        "disableScroll": true
+      }
+    },
+    {
+      "path": "pages/profile/profile",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "个人空间",
+        "disableScroll": true
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationStyle": "custom",
+    "backgroundColor": "#F8FAFC",
+    "backgroundTextStyle": "light"
+  }
+}

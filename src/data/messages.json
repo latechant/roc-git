@@ -1,0 +1,1736 @@
+{
+  "records": [
+    {
+      "id": "n0",
+      "tag": "div",
+      "parent": null,
+      "attrs": {
+        "class": "w-full h-full max-w-[393px] max-h-[852px] flex flex-col bg-white overflow-hidden shadow-2xl"
+      },
+      "className": "w-full h-full max-w-[393px] max-h-[852px] flex flex-col bg-white overflow-hidden shadow-2xl",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n1"
+        },
+        {
+          "id": "n13"
+        },
+        {
+          "id": "n78"
+        }
+      ]
+    },
+    {
+      "id": "n1",
+      "tag": "header",
+      "parent": "n0",
+      "attrs": {
+        "class": "shrink-0 px-5 pt-12 pb-3 bg-white"
+      },
+      "className": "shrink-0 px-5 pt-12 pb-3 bg-white",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n2"
+        },
+        {
+          "id": "n7"
+        }
+      ]
+    },
+    {
+      "id": "n2",
+      "tag": "div",
+      "parent": "n1",
+      "attrs": {
+        "class": "flex items-center justify-between"
+      },
+      "className": "flex items-center justify-between",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n3"
+        },
+        {
+          "id": "n6"
+        }
+      ]
+    },
+    {
+      "id": "n3",
+      "tag": "div",
+      "parent": "n2",
+      "attrs": {},
+      "className": "",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n4"
+        },
+        {
+          "id": "n5"
+        }
+      ]
+    },
+    {
+      "id": "n4",
+      "tag": "h1",
+      "parent": "n3",
+      "attrs": {
+        "class": "text-[22px] font-semibold text-slate-900"
+      },
+      "className": "text-[22px] font-semibold text-slate-900",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "消息"
+        }
+      ]
+    },
+    {
+      "id": "n5",
+      "tag": "p",
+      "parent": "n3",
+      "attrs": {
+        "class": "text-[12px] text-slate-400 mt-0.5"
+      },
+      "className": "text-[12px] text-slate-400 mt-0.5",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "5 条变更"
+        }
+      ]
+    },
+    {
+      "id": "n6",
+      "tag": "button",
+      "parent": "n2",
+      "attrs": {
+        "onclick": "markRead()",
+        "class": "text-[12px] text-blue-600 font-medium"
+      },
+      "className": "text-[12px] text-blue-600 font-medium",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "全部已读"
+        }
+      ]
+    },
+    {
+      "id": "n7",
+      "tag": "div",
+      "parent": "n1",
+      "attrs": {
+        "class": "mt-4 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      },
+      "className": "mt-4 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n8"
+        },
+        {
+          "id": "n9"
+        },
+        {
+          "id": "n10"
+        },
+        {
+          "id": "n11"
+        },
+        {
+          "id": "n12"
+        }
+      ]
+    },
+    {
+      "id": "n8",
+      "tag": "button",
+      "parent": "n7",
+      "attrs": {
+        "class": "msg-tab shrink-0 px-3.5 py-1.5 rounded-full bg-blue-600 text-white text-[12px] font-medium",
+        "data-cat": "all",
+        "onclick": "filter('all')"
+      },
+      "className": "msg-tab shrink-0 px-3.5 py-1.5 rounded-full bg-blue-600 text-white text-[12px] font-medium",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "全部"
+        }
+      ]
+    },
+    {
+      "id": "n9",
+      "tag": "button",
+      "parent": "n7",
+      "attrs": {
+        "class": "msg-tab shrink-0 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-600 text-[12px] font-medium",
+        "data-cat": "review",
+        "onclick": "filter('review')"
+      },
+      "className": "msg-tab shrink-0 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-600 text-[12px] font-medium",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "待审核"
+        }
+      ]
+    },
+    {
+      "id": "n10",
+      "tag": "button",
+      "parent": "n7",
+      "attrs": {
+        "class": "msg-tab shrink-0 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-600 text-[12px] font-medium",
+        "data-cat": "deadline",
+        "onclick": "filter('deadline')"
+      },
+      "className": "msg-tab shrink-0 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-600 text-[12px] font-medium",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "截止"
+        }
+      ]
+    },
+    {
+      "id": "n11",
+      "tag": "button",
+      "parent": "n7",
+      "attrs": {
+        "class": "msg-tab shrink-0 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-600 text-[12px] font-medium",
+        "data-cat": "version",
+        "onclick": "filter('version')"
+      },
+      "className": "msg-tab shrink-0 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-600 text-[12px] font-medium",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "成果"
+        }
+      ]
+    },
+    {
+      "id": "n12",
+      "tag": "button",
+      "parent": "n7",
+      "attrs": {
+        "class": "msg-tab shrink-0 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-600 text-[12px] font-medium",
+        "data-cat": "meeting",
+        "onclick": "filter('meeting')"
+      },
+      "className": "msg-tab shrink-0 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-600 text-[12px] font-medium",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "研讨"
+        }
+      ]
+    },
+    {
+      "id": "n13",
+      "tag": "div",
+      "parent": "n0",
+      "attrs": {
+        "class": "flex-1 overflow-y-auto pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      },
+      "className": "flex-1 overflow-y-auto pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n14"
+        },
+        {
+          "id": "n18"
+        },
+        {
+          "id": "n51"
+        },
+        {
+          "id": "n68"
+        },
+        {
+          "id": "n77"
+        }
+      ]
+    },
+    {
+      "id": "n14",
+      "tag": "div",
+      "parent": "n13",
+      "attrs": {
+        "class": "px-5 mt-3"
+      },
+      "className": "px-5 mt-3",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n15"
+        }
+      ]
+    },
+    {
+      "id": "n15",
+      "tag": "div",
+      "parent": "n14",
+      "attrs": {
+        "class": "bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-4"
+      },
+      "className": "bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-4",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n16"
+        },
+        {
+          "id": "n17"
+        }
+      ]
+    },
+    {
+      "id": "n16",
+      "tag": "p",
+      "parent": "n15",
+      "attrs": {
+        "class": "text-[13px] font-medium text-white"
+      },
+      "className": "text-[13px] font-medium text-white",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "本周 5 条项目变更"
+        }
+      ]
+    },
+    {
+      "id": "n17",
+      "tag": "p",
+      "parent": "n15",
+      "attrs": {
+        "class": "text-[11px] text-blue-100 mt-1"
+      },
+      "className": "text-[11px] text-blue-100 mt-1",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "2 待审核 · 2 截止 · 1 成果更新"
+        }
+      ]
+    },
+    {
+      "id": "n18",
+      "tag": "div",
+      "parent": "n13",
+      "attrs": {
+        "class": "px-5 mt-6"
+      },
+      "className": "px-5 mt-6",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n19"
+        },
+        {
+          "id": "n20"
+        }
+      ]
+    },
+    {
+      "id": "n19",
+      "tag": "p",
+      "parent": "n18",
+      "attrs": {
+        "class": "text-[11px] font-semibold text-slate-400 uppercase mb-2"
+      },
+      "className": "text-[11px] font-semibold text-slate-400 uppercase mb-2",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "今天 · 9月10日"
+        }
+      ]
+    },
+    {
+      "id": "n20",
+      "tag": "div",
+      "parent": "n18",
+      "attrs": {
+        "class": "space-y-2"
+      },
+      "className": "space-y-2",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n21"
+        },
+        {
+          "id": "n31"
+        },
+        {
+          "id": "n41"
+        }
+      ]
+    },
+    {
+      "id": "n21",
+      "tag": "a",
+      "parent": "n20",
+      "attrs": {
+        "href": "project.html",
+        "class": "notice flex items-start gap-3 bg-white rounded-2xl p-3.5 border border-amber-100",
+        "data-cat": "review"
+      },
+      "className": "notice flex items-start gap-3 bg-white rounded-2xl p-3.5 border border-amber-100",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n22"
+        },
+        {
+          "id": "n24"
+        },
+        {
+          "id": "n30"
+        }
+      ]
+    },
+    {
+      "id": "n22",
+      "tag": "div",
+      "parent": "n21",
+      "attrs": {
+        "class": "w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center shrink-0"
+      },
+      "className": "w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center shrink-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n23"
+        }
+      ]
+    },
+    {
+      "id": "n23",
+      "tag": "iconify-icon",
+      "parent": "n22",
+      "attrs": {
+        "icon": "lucide:file-up",
+        "width": "17",
+        "class": "text-amber-600"
+      },
+      "className": "text-amber-600",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [],
+      "iconFile": "file-up--amber-600"
+    },
+    {
+      "id": "n24",
+      "tag": "div",
+      "parent": "n21",
+      "attrs": {
+        "class": "flex-1 min-w-0"
+      },
+      "className": "flex-1 min-w-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n25"
+        },
+        {
+          "id": "n28"
+        },
+        {
+          "id": "n29"
+        }
+      ]
+    },
+    {
+      "id": "n25",
+      "tag": "div",
+      "parent": "n24",
+      "attrs": {
+        "class": "flex items-center justify-between gap-2"
+      },
+      "className": "flex items-center justify-between gap-2",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n26"
+        },
+        {
+          "id": "n27"
+        }
+      ]
+    },
+    {
+      "id": "n26",
+      "tag": "p",
+      "parent": "n25",
+      "attrs": {
+        "class": "text-[13px] font-medium text-slate-900 truncate"
+      },
+      "className": "text-[13px] font-medium text-slate-900 truncate",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "许萌提交了访谈记录"
+        }
+      ]
+    },
+    {
+      "id": "n27",
+      "tag": "span",
+      "parent": "n25",
+      "attrs": {
+        "class": "text-[10px] font-semibold text-amber-600 shrink-0"
+      },
+      "className": "text-[10px] font-semibold text-amber-600 shrink-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "待审核"
+        }
+      ]
+    },
+    {
+      "id": "n28",
+      "tag": "p",
+      "parent": "n24",
+      "attrs": {
+        "class": "text-[11px] text-slate-500 mt-1 leading-relaxed"
+      },
+      "className": "text-[11px] text-slate-500 mt-1 leading-relaxed",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "访谈录音转写稿.docx · 请尽快审核入库"
+        }
+      ]
+    },
+    {
+      "id": "n29",
+      "tag": "p",
+      "parent": "n24",
+      "attrs": {
+        "class": "text-[11px] text-slate-400 mt-1"
+      },
+      "className": "text-[11px] text-slate-400 mt-1",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "10:18 · 社区调研报告"
+        }
+      ]
+    },
+    {
+      "id": "n30",
+      "tag": "span",
+      "parent": "n21",
+      "attrs": {
+        "class": "w-2 h-2 bg-rose-500 rounded-full mt-2 shrink-0"
+      },
+      "className": "w-2 h-2 bg-rose-500 rounded-full mt-2 shrink-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": []
+    },
+    {
+      "id": "n31",
+      "tag": "a",
+      "parent": "n20",
+      "attrs": {
+        "href": "project.html",
+        "class": "notice flex items-start gap-3 bg-white rounded-2xl p-3.5 border border-rose-100",
+        "data-cat": "deadline"
+      },
+      "className": "notice flex items-start gap-3 bg-white rounded-2xl p-3.5 border border-rose-100",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n32"
+        },
+        {
+          "id": "n34"
+        },
+        {
+          "id": "n40"
+        }
+      ]
+    },
+    {
+      "id": "n32",
+      "tag": "div",
+      "parent": "n31",
+      "attrs": {
+        "class": "w-9 h-9 rounded-xl bg-rose-50 flex items-center justify-center shrink-0"
+      },
+      "className": "w-9 h-9 rounded-xl bg-rose-50 flex items-center justify-center shrink-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n33"
+        }
+      ]
+    },
+    {
+      "id": "n33",
+      "tag": "iconify-icon",
+      "parent": "n32",
+      "attrs": {
+        "icon": "lucide:clock",
+        "width": "17",
+        "class": "text-rose-600"
+      },
+      "className": "text-rose-600",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [],
+      "iconFile": "clock--rose-600"
+    },
+    {
+      "id": "n34",
+      "tag": "div",
+      "parent": "n31",
+      "attrs": {
+        "class": "flex-1 min-w-0"
+      },
+      "className": "flex-1 min-w-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n35"
+        },
+        {
+          "id": "n38"
+        },
+        {
+          "id": "n39"
+        }
+      ]
+    },
+    {
+      "id": "n35",
+      "tag": "div",
+      "parent": "n34",
+      "attrs": {
+        "class": "flex items-center justify-between gap-2"
+      },
+      "className": "flex items-center justify-between gap-2",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n36"
+        },
+        {
+          "id": "n37"
+        }
+      ]
+    },
+    {
+      "id": "n36",
+      "tag": "p",
+      "parent": "n35",
+      "attrs": {
+        "class": "text-[13px] font-medium text-slate-900 truncate"
+      },
+      "className": "text-[13px] font-medium text-slate-900 truncate",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "资料归集还剩 4 天"
+        }
+      ]
+    },
+    {
+      "id": "n37",
+      "tag": "span",
+      "parent": "n35",
+      "attrs": {
+        "class": "text-[10px] font-semibold text-rose-600 shrink-0"
+      },
+      "className": "text-[10px] font-semibold text-rose-600 shrink-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "临期"
+        }
+      ]
+    },
+    {
+      "id": "n38",
+      "tag": "p",
+      "parent": "n34",
+      "attrs": {
+        "class": "text-[11px] text-slate-500 mt-1 leading-relaxed"
+      },
+      "className": "text-[11px] text-slate-500 mt-1 leading-relaxed",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "请确认资料完整性，按时推进"
+        }
+      ]
+    },
+    {
+      "id": "n39",
+      "tag": "p",
+      "parent": "n34",
+      "attrs": {
+        "class": "text-[11px] text-slate-400 mt-1"
+      },
+      "className": "text-[11px] text-slate-400 mt-1",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "09:00 · 社区调研报告"
+        }
+      ]
+    },
+    {
+      "id": "n40",
+      "tag": "span",
+      "parent": "n31",
+      "attrs": {
+        "class": "w-2 h-2 bg-rose-500 rounded-full mt-2 shrink-0"
+      },
+      "className": "w-2 h-2 bg-rose-500 rounded-full mt-2 shrink-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": []
+    },
+    {
+      "id": "n41",
+      "tag": "a",
+      "parent": "n20",
+      "attrs": {
+        "href": "project.html",
+        "class": "notice flex items-start gap-3 bg-white rounded-2xl p-3.5 border border-violet-100",
+        "data-cat": "version"
+      },
+      "className": "notice flex items-start gap-3 bg-white rounded-2xl p-3.5 border border-violet-100",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n42"
+        },
+        {
+          "id": "n44"
+        },
+        {
+          "id": "n50"
+        }
+      ]
+    },
+    {
+      "id": "n42",
+      "tag": "div",
+      "parent": "n41",
+      "attrs": {
+        "class": "w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center shrink-0"
+      },
+      "className": "w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center shrink-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n43"
+        }
+      ]
+    },
+    {
+      "id": "n43",
+      "tag": "iconify-icon",
+      "parent": "n42",
+      "attrs": {
+        "icon": "lucide:refresh-cw",
+        "width": "17",
+        "class": "text-violet-600"
+      },
+      "className": "text-violet-600",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [],
+      "iconFile": "refresh-cw--violet-600"
+    },
+    {
+      "id": "n44",
+      "tag": "div",
+      "parent": "n41",
+      "attrs": {
+        "class": "flex-1 min-w-0"
+      },
+      "className": "flex-1 min-w-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n45"
+        },
+        {
+          "id": "n48"
+        },
+        {
+          "id": "n49"
+        }
+      ]
+    },
+    {
+      "id": "n45",
+      "tag": "div",
+      "parent": "n44",
+      "attrs": {
+        "class": "flex items-center justify-between gap-2"
+      },
+      "className": "flex items-center justify-between gap-2",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n46"
+        },
+        {
+          "id": "n47"
+        }
+      ]
+    },
+    {
+      "id": "n46",
+      "tag": "p",
+      "parent": "n45",
+      "attrs": {
+        "class": "text-[13px] font-medium text-slate-900 truncate"
+      },
+      "className": "text-[13px] font-medium text-slate-900 truncate",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "王宁更新了成果大纲"
+        }
+      ]
+    },
+    {
+      "id": "n47",
+      "tag": "span",
+      "parent": "n45",
+      "attrs": {
+        "class": "text-[10px] font-semibold text-violet-600 shrink-0"
+      },
+      "className": "text-[10px] font-semibold text-violet-600 shrink-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "v3→v4"
+        }
+      ]
+    },
+    {
+      "id": "n48",
+      "tag": "p",
+      "parent": "n44",
+      "attrs": {
+        "class": "text-[11px] text-slate-500 mt-1 leading-relaxed"
+      },
+      "className": "text-[11px] text-slate-500 mt-1 leading-relaxed",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "新增问题分析章节，已生成版本"
+        }
+      ]
+    },
+    {
+      "id": "n49",
+      "tag": "p",
+      "parent": "n44",
+      "attrs": {
+        "class": "text-[11px] text-slate-400 mt-1"
+      },
+      "className": "text-[11px] text-slate-400 mt-1",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "10:36 · 社区调研报告"
+        }
+      ]
+    },
+    {
+      "id": "n50",
+      "tag": "span",
+      "parent": "n41",
+      "attrs": {
+        "class": "w-2 h-2 bg-rose-500 rounded-full mt-2 shrink-0"
+      },
+      "className": "w-2 h-2 bg-rose-500 rounded-full mt-2 shrink-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": []
+    },
+    {
+      "id": "n51",
+      "tag": "div",
+      "parent": "n13",
+      "attrs": {
+        "class": "px-5 mt-6"
+      },
+      "className": "px-5 mt-6",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n52"
+        },
+        {
+          "id": "n53"
+        }
+      ]
+    },
+    {
+      "id": "n52",
+      "tag": "p",
+      "parent": "n51",
+      "attrs": {
+        "class": "text-[11px] font-semibold text-slate-400 uppercase mb-2"
+      },
+      "className": "text-[11px] font-semibold text-slate-400 uppercase mb-2",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "昨天"
+        }
+      ]
+    },
+    {
+      "id": "n53",
+      "tag": "div",
+      "parent": "n51",
+      "attrs": {
+        "class": "space-y-2"
+      },
+      "className": "space-y-2",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n54"
+        },
+        {
+          "id": "n61"
+        }
+      ]
+    },
+    {
+      "id": "n54",
+      "tag": "a",
+      "parent": "n53",
+      "attrs": {
+        "href": "project.html",
+        "class": "notice flex items-start gap-3 bg-white rounded-2xl p-3.5 border border-emerald-100",
+        "data-cat": "meeting"
+      },
+      "className": "notice flex items-start gap-3 bg-white rounded-2xl p-3.5 border border-emerald-100",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n55"
+        },
+        {
+          "id": "n57"
+        }
+      ]
+    },
+    {
+      "id": "n55",
+      "tag": "div",
+      "parent": "n54",
+      "attrs": {
+        "class": "w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0"
+      },
+      "className": "w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n56"
+        }
+      ]
+    },
+    {
+      "id": "n56",
+      "tag": "iconify-icon",
+      "parent": "n55",
+      "attrs": {
+        "icon": "lucide:users",
+        "width": "17",
+        "class": "text-emerald-600"
+      },
+      "className": "text-emerald-600",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [],
+      "iconFile": "users--emerald-600"
+    },
+    {
+      "id": "n57",
+      "tag": "div",
+      "parent": "n54",
+      "attrs": {
+        "class": "flex-1 min-w-0"
+      },
+      "className": "flex-1 min-w-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n58"
+        },
+        {
+          "id": "n59"
+        },
+        {
+          "id": "n60"
+        }
+      ]
+    },
+    {
+      "id": "n58",
+      "tag": "p",
+      "parent": "n57",
+      "attrs": {
+        "class": "text-[13px] font-medium text-slate-900"
+      },
+      "className": "text-[13px] font-medium text-slate-900",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "第 3 次线上研讨已记录"
+        }
+      ]
+    },
+    {
+      "id": "n59",
+      "tag": "p",
+      "parent": "n57",
+      "attrs": {
+        "class": "text-[11px] text-slate-500 mt-1 leading-relaxed"
+      },
+      "className": "text-[11px] text-slate-500 mt-1 leading-relaxed",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "访谈提纲修订，新增第 5 题"
+        }
+      ]
+    },
+    {
+      "id": "n60",
+      "tag": "p",
+      "parent": "n57",
+      "attrs": {
+        "class": "text-[11px] text-slate-400 mt-1"
+      },
+      "className": "text-[11px] text-slate-400 mt-1",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "19:30 · 社区调研报告"
+        }
+      ]
+    },
+    {
+      "id": "n61",
+      "tag": "a",
+      "parent": "n53",
+      "attrs": {
+        "href": "project.html",
+        "class": "notice flex items-start gap-3 bg-white rounded-2xl p-3.5 border border-amber-100",
+        "data-cat": "deadline"
+      },
+      "className": "notice flex items-start gap-3 bg-white rounded-2xl p-3.5 border border-amber-100",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n62"
+        },
+        {
+          "id": "n64"
+        }
+      ]
+    },
+    {
+      "id": "n62",
+      "tag": "div",
+      "parent": "n61",
+      "attrs": {
+        "class": "w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center shrink-0"
+      },
+      "className": "w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center shrink-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n63"
+        }
+      ]
+    },
+    {
+      "id": "n63",
+      "tag": "iconify-icon",
+      "parent": "n62",
+      "attrs": {
+        "icon": "lucide:bell",
+        "width": "17",
+        "class": "text-amber-600"
+      },
+      "className": "text-amber-600",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [],
+      "iconFile": "bell--amber-600"
+    },
+    {
+      "id": "n64",
+      "tag": "div",
+      "parent": "n61",
+      "attrs": {
+        "class": "flex-1 min-w-0"
+      },
+      "className": "flex-1 min-w-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n65"
+        },
+        {
+          "id": "n66"
+        },
+        {
+          "id": "n67"
+        }
+      ]
+    },
+    {
+      "id": "n65",
+      "tag": "p",
+      "parent": "n64",
+      "attrs": {
+        "class": "text-[13px] font-medium text-slate-900"
+      },
+      "className": "text-[13px] font-medium text-slate-900",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "许萌的访谈整理即将到期"
+        }
+      ]
+    },
+    {
+      "id": "n66",
+      "tag": "p",
+      "parent": "n64",
+      "attrs": {
+        "class": "text-[11px] text-slate-500 mt-1 leading-relaxed"
+      },
+      "className": "text-[11px] text-slate-500 mt-1 leading-relaxed",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "将于 09/12 截止"
+        }
+      ]
+    },
+    {
+      "id": "n67",
+      "tag": "p",
+      "parent": "n64",
+      "attrs": {
+        "class": "text-[11px] text-slate-400 mt-1"
+      },
+      "className": "text-[11px] text-slate-400 mt-1",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "08:00 · 系统提醒"
+        }
+      ]
+    },
+    {
+      "id": "n68",
+      "tag": "div",
+      "parent": "n13",
+      "attrs": {
+        "class": "px-5 mt-6"
+      },
+      "className": "px-5 mt-6",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n69"
+        },
+        {
+          "id": "n70"
+        }
+      ]
+    },
+    {
+      "id": "n69",
+      "tag": "p",
+      "parent": "n68",
+      "attrs": {
+        "class": "text-[11px] font-semibold text-slate-400 uppercase mb-2"
+      },
+      "className": "text-[11px] font-semibold text-slate-400 uppercase mb-2",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "更早"
+        }
+      ]
+    },
+    {
+      "id": "n70",
+      "tag": "div",
+      "parent": "n68",
+      "attrs": {
+        "class": "notice flex items-start gap-3 bg-slate-50 rounded-2xl p-3.5 opacity-70",
+        "data-cat": "review"
+      },
+      "className": "notice flex items-start gap-3 bg-slate-50 rounded-2xl p-3.5 opacity-70",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n71"
+        },
+        {
+          "id": "n73"
+        }
+      ]
+    },
+    {
+      "id": "n71",
+      "tag": "div",
+      "parent": "n70",
+      "attrs": {
+        "class": "w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0"
+      },
+      "className": "w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n72"
+        }
+      ]
+    },
+    {
+      "id": "n72",
+      "tag": "iconify-icon",
+      "parent": "n71",
+      "attrs": {
+        "icon": "lucide:check",
+        "width": "17",
+        "class": "text-emerald-600"
+      },
+      "className": "text-emerald-600",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [],
+      "iconFile": "check--emerald-600"
+    },
+    {
+      "id": "n73",
+      "tag": "div",
+      "parent": "n70",
+      "attrs": {
+        "class": "flex-1"
+      },
+      "className": "flex-1",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n74"
+        },
+        {
+          "id": "n75"
+        },
+        {
+          "id": "n76"
+        }
+      ]
+    },
+    {
+      "id": "n74",
+      "tag": "p",
+      "parent": "n73",
+      "attrs": {
+        "class": "text-[13px] font-medium text-slate-900"
+      },
+      "className": "text-[13px] font-medium text-slate-900",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "你确认了「选题与分工」成果"
+        }
+      ]
+    },
+    {
+      "id": "n75",
+      "tag": "p",
+      "parent": "n73",
+      "attrs": {
+        "class": "text-[11px] text-slate-500 mt-1"
+      },
+      "className": "text-[11px] text-slate-500 mt-1",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "记录已归档"
+        }
+      ]
+    },
+    {
+      "id": "n76",
+      "tag": "p",
+      "parent": "n73",
+      "attrs": {
+        "class": "text-[11px] text-slate-400 mt-1"
+      },
+      "className": "text-[11px] text-slate-400 mt-1",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "9月03日 · 社区调研报告"
+        }
+      ]
+    },
+    {
+      "id": "n77",
+      "tag": "div",
+      "parent": "n13",
+      "attrs": {
+        "class": "h-4"
+      },
+      "className": "h-4",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": []
+    },
+    {
+      "id": "n78",
+      "tag": "nav",
+      "parent": "n0",
+      "attrs": {
+        "class": "shrink-0 flex border-t border-slate-100"
+      },
+      "className": "shrink-0 flex border-t border-slate-100",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n79"
+        },
+        {
+          "id": "n82"
+        },
+        {
+          "id": "n85"
+        }
+      ]
+    },
+    {
+      "id": "n79",
+      "tag": "a",
+      "parent": "n78",
+      "attrs": {
+        "href": "home.html",
+        "class": "flex-1 flex flex-col items-center py-3 text-slate-400"
+      },
+      "className": "flex-1 flex flex-col items-center py-3 text-slate-400",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n80"
+        },
+        {
+          "id": "n81"
+        }
+      ]
+    },
+    {
+      "id": "n80",
+      "tag": "iconify-icon",
+      "parent": "n79",
+      "attrs": {
+        "icon": "lucide:home",
+        "width": "22"
+      },
+      "className": "",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [],
+      "iconFile": "home--slate-400"
+    },
+    {
+      "id": "n81",
+      "tag": "span",
+      "parent": "n79",
+      "attrs": {
+        "class": "text-[10px] mt-1"
+      },
+      "className": "text-[10px] mt-1",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "首页"
+        }
+      ]
+    },
+    {
+      "id": "n82",
+      "tag": "a",
+      "parent": "n78",
+      "attrs": {
+        "href": "messages.html",
+        "class": "flex-1 flex flex-col items-center py-3 text-blue-600"
+      },
+      "className": "flex-1 flex flex-col items-center py-3 text-blue-600",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n83"
+        },
+        {
+          "id": "n84"
+        }
+      ]
+    },
+    {
+      "id": "n83",
+      "tag": "iconify-icon",
+      "parent": "n82",
+      "attrs": {
+        "icon": "lucide:bell",
+        "width": "22",
+        "fill": "currentColor"
+      },
+      "className": "",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [],
+      "iconFile": "bell--blue-600"
+    },
+    {
+      "id": "n84",
+      "tag": "span",
+      "parent": "n82",
+      "attrs": {
+        "class": "text-[10px] mt-1 font-medium"
+      },
+      "className": "text-[10px] mt-1 font-medium",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "消息"
+        }
+      ]
+    },
+    {
+      "id": "n85",
+      "tag": "a",
+      "parent": "n78",
+      "attrs": {
+        "href": "profile.html",
+        "class": "flex-1 flex flex-col items-center py-3 text-slate-400"
+      },
+      "className": "flex-1 flex flex-col items-center py-3 text-slate-400",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "id": "n86"
+        },
+        {
+          "id": "n87"
+        }
+      ]
+    },
+    {
+      "id": "n86",
+      "tag": "iconify-icon",
+      "parent": "n85",
+      "attrs": {
+        "icon": "lucide:user",
+        "width": "22"
+      },
+      "className": "",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [],
+      "iconFile": "user--slate-400"
+    },
+    {
+      "id": "n87",
+      "tag": "span",
+      "parent": "n85",
+      "attrs": {
+        "class": "text-[10px] mt-1"
+      },
+      "className": "text-[10px] mt-1",
+      "style": {},
+      "removed": false,
+      "value": "",
+      "checked": false,
+      "children": [
+        {
+          "text": "我的"
+        }
+      ]
+    }
+  ],
+  "roots": [
+    {
+      "id": "n0"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+import data from '../data/messages.json'
+import { createPageController } from '../utils/page-controller.js'
+
+// Original prototype actions operate on reactive Vue state through adapters.
+// No browser DOM, inline JavaScript or eval is required in the mini program.
+export default function () {
+  const controller = createPageController(data)
+  const { document, location, navigator, setTimeout } = controller.adapters
+  
+  function markRead(){document.querySelectorAll('.notice span.bg-rose-500').forEach(function(d){d.classList.add('hidden')})}
+  function filter(cat){
+    document.querySelectorAll('.msg-tab').forEach(function(b){
+      b.className='msg-tab shrink-0 px-3.5 py-1.5 rounded-full text-[12px] font-medium '+(b.dataset.cat===cat?'bg-blue-600 text-white':'bg-slate-100 text-slate-600');
+    });
+    document.querySelectorAll('.notice').forEach(function(n){
+      n.classList.toggle('hidden',cat!=='all'&&n.dataset.cat!==cat);
+    });
+  }
+
+  controller.setHandlers({
+n6: function(event) { markRead() },
+n8: function(event) { filter('all') },
+n9: function(event) { filter('review') },
+n10: function(event) { filter('deadline') },
+n11: function(event) { filter('version') },
+n12: function(event) { filter('meeting') }
+  })
+  return controller
+}
