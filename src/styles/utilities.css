@@ -399,44 +399,52 @@ page, view, text, button, input, textarea, picker, scroll-view, image, view::bef
 .u97 {
     gap: 16px
 }
-.u98 > :nth-child(n+2) {
-    --tw-space-x-reverse: 0;
-    margin-right: calc(-8px * var(--tw-space-x-reverse));
-    margin-left: calc(-8px * calc(1 - var(--tw-space-x-reverse)))
+
+.u98 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    column-gap: 0;
 }
-.u99 > :nth-child(n+2) {
-    --tw-space-y-reverse: 0;
-    margin-top: calc(0px * calc(1 - var(--tw-space-y-reverse)));
-    margin-bottom: calc(0px * var(--tw-space-y-reverse))
+
+.u99 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0;
 }
-.u100 > :nth-child(n+2) {
-    --tw-space-y-reverse: 0;
-    margin-top: calc(4px * calc(1 - var(--tw-space-y-reverse)));
-    margin-bottom: calc(4px * var(--tw-space-y-reverse))
+
+.u100 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 4px;
 }
-.u101 > :nth-child(n+2) {
-    --tw-space-y-reverse: 0;
-    margin-top: calc(6px * calc(1 - var(--tw-space-y-reverse)));
-    margin-bottom: calc(6px * var(--tw-space-y-reverse))
+
+.u101 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 6px;
 }
-.u102 > :nth-child(n+2) {
-    --tw-space-y-reverse: 0;
-    margin-top: calc(8px * calc(1 - var(--tw-space-y-reverse)));
-    margin-bottom: calc(8px * var(--tw-space-y-reverse))
+
+.u102 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
 }
-.u103 > :nth-child(n+2) {
-    --tw-space-y-reverse: 0;
-    margin-top: calc(12px * calc(1 - var(--tw-space-y-reverse)));
-    margin-bottom: calc(12px * var(--tw-space-y-reverse))
+
+.u103 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 12px;
 }
-.u104 > :nth-child(n+2) {
-    --tw-divide-y-reverse: 0;
-    border-top-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
-    border-bottom-width: calc(1px * var(--tw-divide-y-reverse))
+
+.u104 {
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: #f1f5f9;
 }
-.u105 > :nth-child(n+2) {
-    --tw-divide-opacity: 1;
-    border-color: rgb(241 245 249 / var(--tw-divide-opacity, 1))
+
+.u105 {
+    border-color: #f1f5f9;
 }
 .u106 {
     overflow: hidden
