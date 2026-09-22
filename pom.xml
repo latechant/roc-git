@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.18</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.rocgit</groupId>
+    <artifactId>knife4j-spring</artifactId>
+    <version>1.0.0</version>
+
+    <!--
+        【关键】packaging = war
+
+        为什么用 war 而不用 jar？
+
+        Spring Boot 的 war 包天然支持两种运行方式：
+
+        ┌─────────────────────────────────────────────────────────┐
+        │  方式 1：java -jar 本地开发（默认）                      │
+        │  mvn package -DskipTests                               │
+        │  java -jar knife4j-spring-1.0.0.war                  │
+        │  → Spring Boot 自动检测内嵌 Tomcat，正常启动              │
+        └─────────────────────────────────────────────────────────┘
+
+        ┌─────────────────────────────────────────────────────────┐
+        │  方式 2：部署到外部 Tomcat（需要切换 profile）           │
+        │  mvn clean package -DskipTests -Pwar                   │
+        │  把 knife4j-spring-1.0.0.war 丢到 Tomcat webapps/     │
+        └─────────────────────────────────────────────────────────┘
+    -->
+    <packaging>war</packaging>
+    <name>knife4j-spring</name>
+    <description>ROC-git Knife4j API Documentation</description>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <knife4j.version>4.4.0</knife4j.version>
+        <jjwt.version>0.11.5</jjwt.version>
+    </properties>
+
+    <dependencies>
+        <!-- Spring Boot Web（含内嵌 Tomcat） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Spring Boot 校验 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- Knife4j 官方 OpenAPI3 Spring Boot Starter（4.4.0 兼容 javax） -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-spring-boot-starter</artifactId>
+            <version>${knife4j.version}</version>
+        </dependency>
+
+        <!-- JWT -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Servlet API（编译时需要，外部 Tomcat 已提供） -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- 测试 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>knife4j-spring-${project.version}</finalName>
+
+        <plugins>
+            <!--
+                Spring Boot Maven Plugin：
+                - repackage 目标会把 war 重新打包成可执行的 Fat WAR
+                - 这样 "java -jar xxx.war" 就能直接启动（自动检测内嵌 Tomcat）
+                - 不需要 -Pwar 时：正常打包成可执行 WAR
+            -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                    <!-- war 模式下跳过 repackage（外部 Tomcat 不需要） -->
+                    <excludeDevtools>true</excludeDevtools>
+                </configuration>
+            </plugin>
+
+            <!-- WAR 打包插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!--
+        Profile 说明：
+
+        【默认】无参数（java -jar 模式）
+            - 打包成可执行的 Fat WAR
+            - spring-boot-starter-tomcat 正常打包
+            - java -jar knife4j-spring-1.0.0.war 即可启动
+            → 本地开发用这个
+
+        【WAR 部署】mvn package -DskipTests -Pwar
+            - spring-boot-starter-tomcat scope → provided（不打入 WAR）
+            - spring-boot-maven-plugin repackage → 跳过（不重新打包）
+            - 产出标准 WAR，可丢到 Tomcat webapps/
+            → 发给队友部署用这个
+    -->
+    <profiles>
+        <!-- WAR 部署 Profile：发给队友部署到外部 Tomcat -->
+        <profile>
+            <id>war</id>
+            <dependencies>
+                <!--
+                    war 模式下，把内嵌 Tomcat 改为 provided
+                    外部 Tomcat 会作为 Servlet 容器
+                -->
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <!-- war 模式下跳过 repackage，避免覆盖原始 WAR -->
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </exclude>
+                            </excludes>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <version>3.4.0</version>
+                        <configuration>
+                            <failOnMissingWebXml>false</failOnMissingWebXml>
+                            <!-- 排除内嵌 Tomcat 的 jar，避免与外部 Tomcat 冲突 -->
+                            <packagingExcludes>
+                                WEB-INF/lib/spring-boot-starter-tomcat-*.jar,
+                                WEB-INF/lib/tomcat-embed-*.jar,
+                                WEB-INF/lib/tomcat-annotations-api-*.jar
+                            </packagingExcludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
