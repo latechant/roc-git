@@ -1,0 +1,208 @@
+/**
+ * api.js - ROC-git 前端真实接口请求层
+ *
+ * 设计说明：
+ *  - 基于 uni.request 封装，H5 与微信小程序双端通用。
+ *  - baseURL 使用相对路径 '/api'，在 H5 部署时由 nginx 反向代理到后端 8080；
+ *    小程序端可通过 manifest 配置或此处覆盖为完整域名。
+ *  - 后端 JWT 拦截器要求除 health/config/login 外均需携带 token，
+ *    本层在登录后自动把 token 存入缓存并在每次请求注入 Authorization。
+ *  - 后端统一返回 { code, message, data }，code === 0 表示成功。
+ */
+
+// 可用环境变量覆盖 baseURL（如生产小程序需填 https://your-domain/api）
+const BASE_URL = '/api'
+// 演示：前端默认登录所用昵称/头像（后端 login 接口会原样回显）
+const DEMO_NICKNAME = '林知行'
+const DEMO_AVATAR = 'https://cdn.rocgit.com/avatar/demo.png'
+
+const TOKEN_KEY = 'rocgit_token'
+const USER_KEY = 'rocgit_user'
+
+function getToken() {
+  try { return uni.getStorageSync(TOKEN_KEY) || '' } catch (e) { return '' }
+}
+function setToken(token) {
+  try { uni.setStorageSync(TOKEN_KEY, token) } catch (e) { /* ignore */ }
+}
+function getCachedUser() {
+  try { return uni.getStorageSync(USER_KEY) || null } catch (e) { return null }
+}
+function setCachedUser(user) {
+  try { uni.setStorageSync(USER_KEY, user) } catch (e) { /* ignore */ }
+}
+
+/**
+ * 核心请求方法
+ * @param {Object} opts { url, method, data, params, silent }
+ * @returns {Promise<any>} 解析后的 data 字段；HTTP 失败或 code!=0 时 reject
+ */
+function request(opts = {}) {
+  const { url, method = 'GET', data = null, params = null, silent = false } = opts
+
+  let query = ''
+  if (params && Object.keys(params).length) {
+    const qs = Object.keys(params)
+      .filter(k => params[k] !== undefined && params[k] !== null && params[k] !== '')
+      .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
+      .join('&')
+    if (qs) query = '?' + qs
+  }
+
+  return new Promise((resolve, reject) => {
+    uni.request({
+      url: BASE_URL + url + query,
+      method,
+      data,
+      header: {
+        'Content-Type': 'application/json',
+        Authorization: getToken() ? `Bearer ${getToken()}` : ''
+      },
+      success: (res) => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          const body = res.data
+          if (body && typeof body === 'object' && 'code' in body) {
+            if (body.code === 0) {
+              resolve(body.data)
+            } else {
+              const msg = body.message || '请求失败'
+              if (!silent) uni.showToast({ title: String(msg), icon: 'none' })
+              reject(new Error(msg))
+            }
+          } else {
+            // 非标准结构，原样返回
+            resolve(body)
+          }
+        } else {
+          if (!silent) uni.showToast({ title: `请求失败(${res.statusCode})`, icon: 'none' })
+          reject(new Error(`HTTP ${res.statusCode}`))
+        }
+      },
+      fail: (err) => {
+        if (!silent) uni.showToast({ title: '网络异常，请检查服务是否可用', icon: 'none' })
+        reject(err)
+      }
+    })
+  })
+}
+
+// ============ 认证 ============
+/**
+ * 微信登录（演示：前端直接调用后端 login 获取 token）
+ * @returns {Promise<Object>} LoginVO { token, userId, nickname, ... }
+ */
+function login(payload = {}) {
+  const body = {
+    nickname: payload.nickname || DEMO_NICKNAME,
+    avatarUrl: payload.avatarUrl || DEMO_AVATAR,
+    code: payload.code || 'demo-code'
+  }
+  return request({ url: '/v1/user/login', method: 'POST', data: body, silent: true })
+    .then(user => {
+      if (user && user.token) {
+        setToken(user.token)
+        setCachedUser(user)
+      }
+      return user
+    })
+}
+
+/** 确保已有有效 token（首次调用自动登录） */
+function ensureLogin() {
+  if (getToken()) return Promise.resolve(getCachedUser() || { token: getToken() })
+  return login()
+}
+
+// ============ 通用 ============
+function health() { return request({ url: '/v1/health', silent: true }) }
+function getConfig() { return request({ url: '/v1/config', silent: true }) }
+function upload() { return request({ url: '/v1/upload', method: 'POST', silent: true }) }
+
+// ============ 用户 ============
+function getProfile() { return request({ url: '/v1/user/profile' }) }
+function updateProfile(data) { return request({ url: '/v1/user/profile', method: 'PUT', data }) }
+function loginHistory() { return request({ url: '/v1/user/login-history' }) }
+function contributionStats() { return request({ url: '/v1/user/contribution-stats' }) }
+
+// ============ 小组 ============
+function myGroups() { return request({ url: '/v1/group/my-list' }) }
+function groupDetail(groupId) { return request({ url: `/v1/group/${groupId}` }) }
+function groupStats(groupId) { return request({ url: `/v1/group/${groupId}/stats` }) }
+function groupMembers(groupId, params) { return request({ url: `/v1/group/${groupId}/members`, params }) }
+function groupMemberStats(groupId) { return request({ url: `/v1/group/${groupId}/member-stats` }) }
+function createGroup(data) { return request({ url: '/v1/group/create', method: 'POST', data }) }
+function joinGroup(data) { return request({ url: '/v1/group/join', method: 'POST', data }) }
+function validateInviteCode(data) { return request({ url: '/v1/group/validate-invite-code', method: 'POST', data }) }
+
+// ============ 项目 ============
+function projectList(groupId) { return request({ url: '/v1/project/list', params: { groupId } }) }
+function projectDetail(projectId) { return request({ url: `/v1/project/${projectId}` }) }
+function projectProgress(projectId) { return request({ url: `/v1/project/${projectId}/progress` }) }
+function projectActivities(projectId, params) { return request({ url: `/v1/project/${projectId}/activities`, params }) }
+function projectTaskStats(projectId) { return request({ url: `/v1/project/${projectId}/task-stats` }) }
+function projectStages(projectId) { return request({ url: `/v1/project/${projectId}/stage` }) }
+function projectTemplateList() { return request({ url: '/v1/project/template/list' }) }
+function createProject(data) { return request({ url: '/v1/project/create', method: 'POST', data }) }
+
+// ============ 任务 ============
+function myTasks(params) { return request({ url: '/v1/task/my-tasks', params }) }
+function taskList(projectId, params) { return request({ url: '/v1/task/list', params: Object.assign({ projectId }, params) }) }
+function taskDetail(taskId) { return request({ url: `/v1/task/${taskId}` }) }
+function dueSoonTasks(days) { return request({ url: '/v1/task/due-soon', params: { days } }) }
+function createTask(data) { return request({ url: '/v1/task/create', method: 'POST', data }) }
+function completeTask(taskId, data) { return request({ url: `/v1/task/${taskId}/complete`, method: 'POST', data: data || {} }) }
+
+// ============ 消息 ============
+function unreadCount() { return request({ url: '/v1/message/unread-count' }) }
+function messageList(params) { return request({ url: '/v1/message/list', params }) }
+function readAll() { return request({ url: '/v1/message/read-all', method: 'POST' }) }
+
+// ============ 研讨/决策/公告（扩展，接口已预留） ============
+function discussionList(projectId, params) { return request({ url: '/v1/discussion/list', params: Object.assign({ projectId }, params) }) }
+function decisionList(projectId, params) { return request({ url: '/v1/decision/list', params: Object.assign({ projectId }, params) }) }
+function announcementList(params) { return request({ url: '/v1/announcement/list', params }) }
+
+export default {
+  BASE_URL,
+  getToken,
+  setToken,
+  getCachedUser,
+  request,
+  login,
+  ensureLogin,
+  health,
+  getConfig,
+  upload,
+  getProfile,
+  updateProfile,
+  loginHistory,
+  contributionStats,
+  myGroups,
+  groupDetail,
+  groupStats,
+  groupMembers,
+  groupMemberStats,
+  createGroup,
+  joinGroup,
+  validateInviteCode,
+  projectList,
+  projectDetail,
+  projectProgress,
+  projectActivities,
+  projectTaskStats,
+  projectStages,
+  projectTemplateList,
+  createProject,
+  myTasks,
+  taskList,
+  taskDetail,
+  dueSoonTasks,
+  createTask,
+  completeTask,
+  unreadCount,
+  messageList,
+  readAll,
+  discussionList,
+  decisionList,
+  announcementList
+}

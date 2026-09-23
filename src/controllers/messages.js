@@ -1,11 +1,15 @@
 import data from '../data/messages.json'
 import { createPageController } from '../utils/page-controller.js'
+import { loadMessages } from '../utils/bind-api.js'
 
 // Original prototype actions operate on reactive Vue state through adapters.
 // No browser DOM, inline JavaScript or eval is required in the mini program.
 export default function () {
   const controller = createPageController(data)
   const { document, location, navigator, setTimeout } = controller.adapters
+
+  // 接入真实接口：后端未读数/消息列表覆盖原型数据
+  loadMessages(controller)
   
   function markRead(){document.querySelectorAll('.notice span.bg-rose-500').forEach(function(d){d.classList.add('hidden')})}
   function filter(cat){

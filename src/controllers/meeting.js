@@ -1,11 +1,15 @@
 import data from '../data/meeting.json'
 import { createPageController } from '../utils/page-controller.js'
+import { loadMeeting } from '../utils/bind-api.js'
 
 // Original prototype actions operate on reactive Vue state through adapters.
 // No browser DOM, inline JavaScript or eval is required in the mini program.
 export default function () {
   const controller = createPageController(data)
   const { document, location, navigator, setTimeout } = controller.adapters
+
+  // 接入真实接口：后端研讨记录覆盖原型数据（无路由参数，默认项目 1）
+  loadMeeting(controller, 1)
   
   function switchMTab(name){
     document.querySelectorAll('.m-tab').forEach(function(b){

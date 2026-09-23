@@ -1,11 +1,15 @@
 import data from '../data/profile.json'
 import { createPageController } from '../utils/page-controller.js'
+import { loadProfile } from '../utils/bind-api.js'
 
 // Original prototype actions operate on reactive Vue state through adapters.
 // No browser DOM, inline JavaScript or eval is required in the mini program.
 export default function () {
   const controller = createPageController(data)
   const { document, location, navigator, setTimeout } = controller.adapters
+
+  // 接入真实接口：后端个人资料/统计覆盖原型数据
+  loadProfile(controller)
   
   function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');setTimeout(function(){t.classList.add('hidden')},1500)}
   function toggleSwitch(btn){

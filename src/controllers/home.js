@@ -1,11 +1,15 @@
 import data from '../data/home.json'
 import { createPageController } from '../utils/page-controller.js'
+import { loadHome } from '../utils/bind-api.js'
 
 // Original prototype actions operate on reactive Vue state through adapters.
 // No browser DOM, inline JavaScript or eval is required in the mini program.
 export default function () {
   const controller = createPageController(data)
   const { document, location, navigator, setTimeout } = controller.adapters
+
+  // 接入真实接口：后端数据覆盖原型文本
+  loadHome(controller)
   
   function showToast(msg) {
     var t = document.getElementById('toast');

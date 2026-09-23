@@ -1,12 +1,14 @@
 package com.rocgit.knife4j.controller;
 
 import com.rocgit.knife4j.common.Result;
+import com.rocgit.knife4j.config.JwtUtil;
 import com.rocgit.knife4j.dto.user.*;
 import com.rocgit.knife4j.entity.user.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -26,6 +28,9 @@ import java.util.Map;
 @SecurityRequirement(name = "Bearer")
 public class UserController {
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @Operation(
             summary = "微信登录",
             description = "通过微信 code 换取 JWT Token，首次登录会自动注册"
@@ -33,7 +38,7 @@ public class UserController {
     @PostMapping("/login")
     public Result<LoginVO> login(@Valid @RequestBody LoginRequest request) {
         LoginVO data = new LoginVO();
-        data.setToken("eyJhbGciOiJIUzI1NiJ9.example.token");
+        data.setToken(jwtUtil.generateToken(String.valueOf(10001L), request.getNickname()));
         data.setUserId(10001L);
         data.setOpenid("oUpF8uMuAJ...");
         data.setNickname(request.getNickname());

@@ -1,11 +1,15 @@
 import data from '../data/project.json'
 import { createPageController } from '../utils/page-controller.js'
+import { loadProject } from '../utils/bind-api.js'
 
 // Original prototype actions operate on reactive Vue state through adapters.
 // No browser DOM, inline JavaScript or eval is required in the mini program.
 export default function () {
   const controller = createPageController(data)
   const { document, location, navigator, setTimeout } = controller.adapters
+
+  // 接入真实接口：后端项目详情覆盖原型数据（无路由参数，默认项目 1）
+  loadProject(controller, 1)
   
   function switchTab(name) {
     document.querySelectorAll('.tab-content').forEach(function(i){i.classList.add('hidden')});

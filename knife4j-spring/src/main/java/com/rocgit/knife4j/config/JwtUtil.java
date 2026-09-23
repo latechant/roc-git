@@ -3,8 +3,10 @@ package com.rocgit.knife4j.config;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +25,9 @@ public class JwtUtil {
     /** Token 有效期：7 天 */
     private static final long EXPIRATION = 7 * 24 * 60 * 60 * 1000L;
 
+    /** 密钥串长度 39 字节，HS256（>=32 字节）可用；HS512 需 64 字节会抛异常 */
+    private static final Key SIGNING_KEY = Keys.hmacShaKeyFor(SECRET.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
     /**
      * 生成 JWT Token
      */
@@ -34,7 +39,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(SignatureAlgorithm.HS512, SECRET)
+                .signWith(SIGNING_KEY, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -43,7 +48,7 @@ public class JwtUtil {
      */
     public Claims parseToken(String token) {
         return Jwts.parser()
-                .setSigningKey(SECRET)
+                .setSigningKey(SIGNING_KEY)
                 .parseClaimsJws(token)
                 .getBody();
     }
