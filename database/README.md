@@ -62,8 +62,8 @@ mysql -u root -p < database/seed.sql
 
 1. **后端对接**：后端按技术选型文档使用 **SpringBoot + MyBatis-Plus + MySQL**。按本目录表结构生成实体与 Mapper；字段名统一 `下划线命名`，MyBatis-Plus 开启 `map-underscore-to-camel-case` 自动映射驼峰。实体/接口命名与表一一对应（User/Course/Project/ProjectMember/Stage/StageTemplate/Task/File/FileVersion/FileReview/Meeting/MeetingAction/Message/OperationLog/Archive）。
 2. **前端联调切换**：
-   - uni-app 端（`repository/roc-git/src/utils`）与小程序端（`miniprogram/utils/api.js`）目前均为 **mock 数据**；
-   - 后端就绪后，将 `useMock` 置为 `false`、`baseUrl` 改为真实后端 HTTPS 地址，接口路径已按 `/api/...` 预留，无需改页面代码。
+   - uni-app 端（`repository/roc-git/src/utils/api.js`）**已接入真实接口**（登录/鉴权为真实 JWT，H5 页面数据来自后端真实 HTTP 调用）；当前后端为接口文档服务（未落库），返回演示数据；
+   - 原生小程序端（`miniprogram/utils/api.js`）仍为 **mock 数据**；后端接入数据库后，将 `api.js` 的 `BASE_URL` 改为真实后端 HTTPS 地址即可，接口路径已按 `/api/...` 预留。
 3. **字段变更纪律**：任何对表结构的增删改，**必须同步**修改 `schema.sql` 与实验报告 2.4 节；涉及状态枚举的变更同步更新本 README「四、关键状态机」。
 4. **权限分层**：管理员（系统级）→ 教师（课程/项目过程性评价、查阅全部过程材料）→ 组长（发布任务、编辑阶段、协同审核）→ 组员（上传资料、提交成果、参与审核），后端按 `user.role` + `project_member.role_in_project` 双重校验。
 5. **进度提醒**：截止预警与阶段提醒由后端定时任务扫描 `task.deadline`、`stage.end_date` 生成 `message` 记录，前端消息页直接读取。
@@ -74,3 +74,4 @@ mysql -u root -p < database/seed.sql
 | 日期 | 变更 |
 | --- | --- |
 | 2026-09-16 | 初始建库：15 张表 + 阶段模板 seed + 本说明文档 |
+| 2026-09-23 | 更新「六、接续开发指引」第 2 条：uni-app 端已接入真实接口（非 mock），小程序端仍为 mock |
