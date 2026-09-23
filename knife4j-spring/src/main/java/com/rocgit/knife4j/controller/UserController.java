@@ -1,26 +1,20 @@
 package com.rocgit.knife4j.controller;
 
 import com.rocgit.knife4j.common.Result;
-import com.rocgit.knife4j.config.JwtUtil;
 import com.rocgit.knife4j.dto.user.*;
 import com.rocgit.knife4j.entity.user.*;
+import com.rocgit.knife4j.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
- * 用户模块 Controller - 完整 DTO 版本
- *
- * 每个接口都有严格的入参类型、出参类型、Swagger 注解
+ * 用户模块 Controller - 接入真实 MySQL
  */
 @RestController
 @RequestMapping("/api/v1/user")
@@ -29,61 +23,36 @@ import java.util.Map;
 public class UserController {
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private UserService userService;
 
-    @Operation(
-            summary = "微信登录",
-            description = "通过微信 code 换取 JWT Token，首次登录会自动注册"
-    )
+    @Operation(summary = "微信登录", description = "通过微信 code 换取 JWT Token，首次登录会自动注册")
     @PostMapping("/login")
     public Result<LoginVO> login(@Valid @RequestBody LoginRequest request) {
-        LoginVO data = new LoginVO();
-        data.setToken(jwtUtil.generateToken(String.valueOf(10001L), request.getNickname()));
-        data.setUserId(10001L);
-        data.setOpenid("oUpF8uMuAJ...");
-        data.setNickname(request.getNickname());
-        data.setAvatarUrl(request.getAvatarUrl());
-        data.setIsNewUser(true);
+        LoginVO data = userService.login(request.getCode(), request.getNickname(), request.getAvatarUrl());
         return Result.success(data);
     }
 
-    @Operation(
-            summary = "获取个人信息",
-            description = "通过 JWT Token 获取当前登录用户信息"
-    )
+    @Operation(summary = "获取个人信息", description = "通过 JWT Token 获取当前登录用户信息")
     @GetMapping("/profile")
-    public Result<ProfileVO> getProfile() {
-        ProfileVO data = new ProfileVO();
-        data.setUserId(10001L);
-        data.setOpenid("oUpF8uMuAJ...");
-        data.setNickname("张三");
-        data.setAvatarUrl("https://cdn.rocgit.com/avatar/1.jpg");
-        data.setCreatedAt(java.time.LocalDateTime.now());
-        data.setGroupCount(3);
-        data.setProjectCount(5);
+    public Result<ProfileVO> getProfile(@RequestAttribute("userId") String userId) {
+        ProfileVO data = userService.getProfile(Long.parseLong(userId));
         return Result.success(data);
     }
 
     @Operation(summary = "更新个人信息", description = "更新昵称、头像等")
     @PutMapping("/profile")
-    public Result<Void> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
+    public Result<Void> updateProfile(@RequestAttribute("userId") String userId,
+                                      @Valid @RequestBody UpdateProfileRequest request) {
+        userService.updateProfile(Long.parseLong(userId), request.getNickname(), request.getAvatarUrl());
         return Result.success("更新成功", null);
     }
 
-    @Operation(summary = "登录历史", description = "查询近 30 天登录记录")
+    @Operation(summary = "登录历史", description = "查询近 30 天登录记录（演示接口，暂无登录日志表）")
     @GetMapping("/login-history")
     public Result<Map<String, Object>> loginHistory() {
-        LoginHistoryVO h1 = new LoginHistoryVO();
-        h1.setLoginTime(java.time.LocalDateTime.now().minusDays(1));
-        h1.setDevice("iPhone 15 Pro");
-        h1.setIp("192.168.1.1");
-        LoginHistoryVO h2 = new LoginHistoryVO();
-        h2.setLoginTime(java.time.LocalDateTime.now().minusDays(3));
-        h2.setDevice("Chrome/Windows");
-        h2.setIp("192.168.1.2");
         Map<String, Object> data = new HashMap<>();
-        data.put("total", 2);
-        data.put("list", Arrays.asList(h1, h2));
+        data.put("total", 0);
+        data.put("list", new ArrayList<>());
         return Result.success(data);
     }
 
@@ -93,29 +62,23 @@ public class UserController {
         return Result.success("已退出登录", null);
     }
 
-    @Operation(summary = "刷新 Token", description = "使用 refreshToken 换取新 Token")
+    @Operation(summary = "刷新 Token", description = "使用 refreshToken 换取新 Token（演示接口）")
     @PostMapping("/refresh-token")
     public Result<RefreshTokenVO> refreshToken(@RequestBody Map<String, String> body) {
         RefreshTokenVO data = new RefreshTokenVO();
-        data.setToken("eyJhbGciOiJIUzI1NiJ9.newtoken");
+        data.setToken("");
         data.setExpiresIn(7200);
         return Result.success(data);
     }
 
     @Operation(summary = "贡献统计", description = "获取当前用户的贡献数据")
     @GetMapping("/contribution-stats")
-    public Result<ContributionStatsVO> contributionStats() {
-        ContributionStatsVO data = new ContributionStatsVO();
-        data.setUploadedFiles(28);
-        data.setApprovedFiles(25);
-        data.setCompletedTasks(12);
-        data.setDiscussions(8);
-        data.setJoinDays(365);
-        data.setLastActiveTime(java.time.LocalDateTime.now());
+    public Result<ContributionStatsVO> contributionStats(@RequestAttribute("userId") String userId) {
+        ContributionStatsVO data = userService.getContributionStats(Long.parseLong(userId));
         return Result.success(data);
     }
 
-    @Operation(summary = "绑定微信", description = "绑定微信 openId 到当前账号")
+    @Operation(summary = "绑定微信", description = "绑定微信 openId 到当前账号（演示接口）")
     @PostMapping("/bind-wechat")
     public Result<Void> bindWechat(@Valid @RequestBody BindWechatRequest request) {
         return Result.success("绑定成功", null);

@@ -92,6 +92,20 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- MyBatis-Plus（Spring Boot 2.7 兼容，javax 命名空间） -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.5.5</version>
+        </dependency>
+
+        <!-- MySQL 驱动 -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Servlet API（编译时需要，外部 Tomcat 已提供） -->
         <dependency>
             <groupId>javax.servlet</groupId>

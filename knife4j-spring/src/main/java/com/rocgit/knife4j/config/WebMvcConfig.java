@@ -26,9 +26,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/v1/health",
                         "/api/v1/config",
                         "/api/v1/user/login",
-                        "/share/validate",     // 分享链接访客校验
-                        "/share/{shareToken}", // 访客访问
-                        "/share/{shareToken}/**"
+                        "/api/v1/share/validate",     // 分享链接访客校验
+                        "/api/v1/share/{shareToken}", // 访客访问
+                        "/api/v1/share/{shareToken}/**"
                 );
     }
 
