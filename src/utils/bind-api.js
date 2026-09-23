@@ -24,6 +24,16 @@ function safe(fn) {
   })
 }
 
+/** 检查登录状态，未登录则跳转登录页。返回 true=已登录，false=未登录已跳转 */
+async function requireLogin() {
+  const user = await api.ensureLogin()
+  if (!user) {
+    uni.reLaunch({ url: '/pages/login/login' })
+    return false
+  }
+  return true
+}
+
 // ==================== 首页 ====================
 // 节点映射（home.vue）：
 //   n5   昵称
@@ -33,7 +43,8 @@ function safe(fn) {
 //   n104 研讨记录标题        n126/n133 临期任务  n145/n152 待审核
 export function loadHome(controller) {
   return safe(async () => {
-    await api.ensureLogin()
+    const ok = await requireLogin()
+    if (!ok) return
 
     // 个人信息（昵称）
     const profile = await api.getProfile()
@@ -44,7 +55,13 @@ export function loadHome(controller) {
     const gid = groups && groups.length ? groups[0].groupId : 1
     const projects = await api.projectList(gid)
 
-    if (projects && projects.length) {
+    // 空态处理：无项目时清空原型假项目名
+    if (!projects || !projects.length) {
+      const clearIds = ['n42', 'n41', 'n47', 'n60', 'n59', 'n65', 'n77', 'n82']
+      clearIds.forEach((id) => {
+        if (controller.ui[id]) controller.ui[id].textContent = ''
+      })
+    } else {
       const p0 = projects[0]
       setText(controller, 'n42', p0.name)           // 当前项目名称
       setText(controller, 'n41', `进度 ${p0.progress}%`)
@@ -77,7 +94,8 @@ export function loadHome(controller) {
 //   n13  总体进度   n23  资料数   n24  待审数   n25  版本数
 export function loadProject(controller, projectId) {
   return safe(async () => {
-    await api.ensureLogin()
+    const ok = await requireLogin()
+    if (!ok) return
 
     const detail = await api.projectDetail(projectId)
     if (detail) {
@@ -101,7 +119,8 @@ export function loadProject(controller, projectId) {
 //   n9   昵称          n18  文件数   n21  版本数   n24  待审数
 export function loadProfile(controller) {
   return safe(async () => {
-    await api.ensureLogin()
+    const ok = await requireLogin()
+    if (!ok) return
 
     const profile = await api.getProfile()
     if (profile) {
@@ -123,7 +142,8 @@ export function loadProfile(controller) {
 //   n5   汇总条数  n16 分组条数  n26/n103 消息标题
 export function loadMessages(controller) {
   return safe(async () => {
-    await api.ensureLogin()
+    const ok = await requireLogin()
+    if (!ok) return
 
     const unread = await api.unreadCount()
     if (unread) {
@@ -143,7 +163,8 @@ export function loadMessages(controller) {
 // 节点映射（meeting.vue）：研讨记录标题等
 export function loadMeeting(controller, projectId) {
   return safe(async () => {
-    await api.ensureLogin()
+    const ok = await requireLogin()
+    if (!ok) return
     const list = await api.discussionList(projectId || 1, { pageNum: 1, pageSize: 10 })
     if (list && list.length) {
       // 列表节点为多节点结构，此处预留；首个标题尽力绑定

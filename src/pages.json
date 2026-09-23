@@ -1,6 +1,14 @@
 {
   "pages": [
     {
+      "path": "pages/login/login",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "登录",
+        "disableScroll": true
+      }
+    },
+    {
       "path": "pages/home/home",
       "style": {
         "navigationStyle": "custom",

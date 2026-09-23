@@ -95,7 +95,7 @@ function login(payload = {}) {
   const body = {
     nickname: payload.nickname || DEMO_NICKNAME,
     avatarUrl: payload.avatarUrl || DEMO_AVATAR,
-    code: payload.code || 'demo-code'
+    code: payload.code || ('wx_user_' + Date.now())
   }
   return request({ url: '/v1/user/login', method: 'POST', data: body, silent: true })
     .then(user => {
@@ -107,10 +107,21 @@ function login(payload = {}) {
     })
 }
 
-/** 确保已有有效 token（首次调用自动登录） */
+/** 确保已有有效 token；无 token 时返回 null（不再自动登录） */
 function ensureLogin() {
   if (getToken()) return Promise.resolve(getCachedUser() || { token: getToken() })
-  return login()
+  return Promise.resolve(null)
+}
+
+/** 是否已登录 */
+function isLoggedIn() {
+  return !!getToken()
+}
+
+/** 退出登录，清除 token 和用户缓存 */
+function logout() {
+  try { uni.removeStorageSync(TOKEN_KEY) } catch (e) { /* ignore */ }
+  try { uni.removeStorageSync(USER_KEY) } catch (e) { /* ignore */ }
 }
 
 // ============ 通用 ============
@@ -170,6 +181,8 @@ export default {
   request,
   login,
   ensureLogin,
+  isLoggedIn,
+  logout,
   health,
   getConfig,
   upload,
