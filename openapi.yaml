@@ -1,0 +1,5385 @@
+# ROC-git 课程小组文档协作管理平台 - OpenAPI 3.0 文档
+
+openapi: 3.0.3
+info:
+  title: ROC-git 课程小组协作管理平台 API
+  description: |
+    ROC-git 是一个面向高校学生课程小组的轻量化协作管理平台。
+    
+    ## 核心功能
+    - 小组管理：创建、加入、邀请成员
+    - 项目协作：多阶段项目、任务分配、文件管理
+    - 审核机制：首创"挂单审核"模式
+    - 版本控制：文件版本追溯与回溯
+    - 结项分享：生成分享链接展示协作过程
+    
+    ## 认证方式
+    - JWT Token 认证
+    - Header: `Authorization: Bearer <token>`
+    
+    ## 通用响应格式
+    ```json
+    {
+      "code": 0,
+      "message": "success",
+      "data": {},
+      "timestamp": 1694697600000
+    }
+    ```
+    
+    ## 错误码说明
+    | 错误码 | 含义 |
+    |:------:|------|
+    | 0 | 成功 |
+    | 400 | 请求参数错误 |
+    | 401 | 未认证 |
+    | 403 | 无权限 |
+    | 404 | 资源不存在 |
+    | 409 | 资源冲突 |
+    | 429 | 请求频繁 |
+    | 500 | 服务器错误 |
+  version: 1.0.0
+  contact:
+    name: ROC-git Team
+    email: support@rocgit.com
+
+servers:
+  - url: https://api.rocgit.com/api/v1
+    description: 生产环境
+  - url: https://api-test.rocgit.com/api/v1
+    description: 测试环境
+  - url: http://localhost:8080/api/v1
+    description: 本地开发
+
+tags:
+  - name: 通用
+    description: 通用接口（健康检查、配置、上传等）
+  - name: 用户
+    description: 用户认证与个人信息
+  - name: 小组
+    description: 小组管理相关接口
+  - name: 项目
+    description: 项目管理相关接口
+  - name: 文件
+    description: 文件上传、预览、审核等
+  - name: 版本
+    description: 文件版本管理
+  - name: 任务
+    description: 任务分配与管理
+  - name: 协作
+    description: 研讨记录、决策、成果等
+  - name: 消息
+    description: 消息通知与订阅
+  - name: 分享
+    description: 结项分享相关接口
+
+paths:
+  # ============================================
+  # 通用接口
+  # ============================================
+  /health:
+    get:
+      tags:
+        - 通用
+      summary: 健康检查
+      description: 接口健康检查，返回服务状态
+      operationId: healthCheck
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+      security: []
+
+  /config:
+    get:
+      tags:
+        - 通用
+      summary: 获取服务端配置
+      description: 获取前端需要的配置信息
+      operationId: getConfig
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+      security: []
+
+  /upload:
+    post:
+      tags:
+        - 通用
+      summary: 文件上传
+      description: 通用文件上传接口，支持文件、头像、海报等类型
+      operationId: uploadFile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+
+  /upload/credentials:
+    post:
+      tags:
+        - 通用
+      summary: 获取上传凭证
+      description: 获取直传到OSS的分片上传凭证
+      operationId: getUploadCredentials
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadCredentialsResponse'
+
+  # ============================================
+  # 用户接口
+  # ============================================
+  /user/login:
+    post:
+      tags:
+        - 用户
+      summary: 微信登录
+      description: 用户通过微信code登录，获取JWT Token
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+
+  /user/profile:
+    get:
+      tags:
+        - 用户
+      summary: 获取个人信息
+      operationId: getProfile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+    put:
+      tags:
+        - 用户
+      summary: 更新个人信息
+      operationId: updateProfile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /user/login-history:
+    get:
+      tags:
+        - 用户
+      summary: 获取登录历史
+      operationId: getLoginHistory
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginHistoryResponse'
+
+  /user/logout:
+    post:
+      tags:
+        - 用户
+      summary: 退出登录
+      operationId: logout
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /user/refresh-token:
+    post:
+      tags:
+        - 用户
+      summary: 刷新Token
+      description: 使用refreshToken换取新的accessToken
+      operationId: refreshToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+                  description: 刷新Token
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+
+  /user/contribution-stats:
+    get:
+      tags:
+        - 用户
+      summary: 获取用户贡献统计
+      operationId: getContributionStats
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContributionStatsResponse'
+
+  /user/bind-wechat:
+    post:
+      tags:
+        - 用户
+      summary: 绑定微信信息
+      description: 绑定额外微信信息（如有多个小程序）
+      operationId: bindWechat
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BindWechatRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /feedback:
+    post:
+      tags:
+        - 用户
+      summary: 意见反馈
+      operationId: submitFeedback
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  # ============================================
+  # 小组接口
+  # ============================================
+  /group/create:
+    post:
+      tags:
+        - 小组
+      summary: 创建小组
+      operationId: createGroup
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGroupRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupResponse'
+
+  /group/join:
+    post:
+      tags:
+        - 小组
+      summary: 加入小组
+      operationId: joinGroup
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - inviteCode
+              properties:
+                inviteCode:
+                  type: string
+                  description: 8位邀请码
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /group/validate-invite-code:
+    post:
+      tags:
+        - 小组
+      summary: 验证邀请码
+      description: 加入前预览小组信息
+      operationId: validateInviteCode
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - inviteCode
+              properties:
+                inviteCode:
+                  type: string
+                  description: 邀请码
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateInviteCodeResponse'
+
+  /group/my-list:
+    get:
+      tags:
+        - 小组
+      summary: 获取我的小组列表
+      operationId: getMyGroups
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupListResponse'
+
+  /group/{groupId}:
+    get:
+      tags:
+        - 小组
+      summary: 获取小组详情
+      operationId: getGroupDetail
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/GroupId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupDetailResponse'
+    put:
+      tags:
+        - 小组
+      summary: 修改小组信息
+      operationId: updateGroup
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/GroupId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGroupRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - 小组
+      summary: 解散小组
+      description: 组长解散小组，需二次确认
+      operationId: deleteGroup
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/GroupId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - confirmText
+              properties:
+                confirmText:
+                  type: string
+                  description: 输入"确认解散"
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /group/{groupId}/leave:
+    post:
+      tags:
+        - 小组
+      summary: 退出小组
+      operationId: leaveGroup
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/GroupId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /group/{groupId}/members:
+    get:
+      tags:
+        - 小组
+      summary: 获取小组成员列表
+      operationId: getGroupMembers
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/GroupId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberListResponse'
+    delete:
+      tags:
+        - 小组
+      summary: 移除成员
+      description: 组长移除组员
+      operationId: removeMember
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/GroupId'
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            description: 用户ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /group/{groupId}/member/{userId}/remark:
+    put:
+      tags:
+        - 小组
+      summary: 设置成员备注
+      description: 组长给成员设置备注名
+      operationId: setMemberRemark
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/GroupId'
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - remark
+              properties:
+                remark:
+                  type: string
+                  description: 备注名（1-10字）
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /group/{groupId}/transfer-leader:
+    put:
+      tags:
+        - 小组
+      summary: 变更组长
+      description: 组长权限转移
+      operationId: transferLeader
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/GroupId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newLeaderId
+              properties:
+                newLeaderId:
+                  type: integer
+                  format: int64
+                  description: 新组长用户ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /group/{groupId}/invite-code:
+    put:
+      tags:
+        - 小组
+      summary: 重新生成邀请码
+      operationId: regenerateInviteCode
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/GroupId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegenerateInviteCodeResponse'
+
+  /group/{groupId}/stats:
+    get:
+      tags:
+        - 小组
+      summary: 获取小组统计
+      operationId: getGroupStats
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/GroupId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupStatsResponse'
+
+  /group/{groupId}/member-stats:
+    get:
+      tags:
+        - 小组
+      summary: 获取成员贡献统计
+      operationId: getMemberStats
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/GroupId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberStatsResponse'
+
+  # ============================================
+  # 项目接口
+  # ============================================
+  /project/create:
+    post:
+      tags:
+        - 项目
+      summary: 创建项目
+      operationId: createProject
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+
+  /project/list:
+    get:
+      tags:
+        - 项目
+      summary: 获取项目列表
+      operationId: getProjectList
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: groupId
+          in: query
+          schema:
+            type: integer
+            format: int64
+          description: 筛选小组
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, completed, archived]
+          description: 筛选状态
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListResponse'
+
+  /project/{projectId}:
+    get:
+      tags:
+        - 项目
+      summary: 获取项目详情
+      operationId: getProjectDetail
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDetailResponse'
+    put:
+      tags:
+        - 项目
+      summary: 更新项目
+      operationId: updateProject
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - 项目
+      summary: 删除项目
+      operationId: deleteProject
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /project/{projectId}/copy:
+    post:
+      tags:
+        - 项目
+      summary: 复制项目
+      operationId: copyProject
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopyProjectRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+
+  /project/{projectId}/complete:
+    post:
+      tags:
+        - 项目
+      summary: 项目结项
+      operationId: completeProject
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /project/{projectId}/progress:
+    get:
+      tags:
+        - 项目
+      summary: 获取项目进度
+      operationId: getProjectProgress
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectProgressResponse'
+
+  /project/{projectId}/activities:
+    get:
+      tags:
+        - 项目
+      summary: 获取项目操作记录
+      description: 获取项目动态（聚合操作日志+系统事件）
+      operationId: getProjectActivities
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [file, task, stage, member]
+          description: 筛选类型
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityListResponse'
+
+  /project/{projectId}/task-stats:
+    get:
+      tags:
+        - 项目
+      summary: 获取项目任务统计
+      operationId: getTaskStats
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskStatsResponse'
+
+  # 阶段管理
+  /project/{projectId}/stage:
+    post:
+      tags:
+        - 项目
+      summary: 添加阶段
+      operationId: addStage
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddStageRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StageResponse'
+
+  /project/{projectId}/stage/order:
+    put:
+      tags:
+        - 项目
+      summary: 排序阶段
+      description: 调整阶段的顺序
+      operationId: reorderStages
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - stageIds
+              properties:
+                stageIds:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+                  description: 阶段ID数组（按新顺序排列）
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /project/{projectId}/stage/{stageId}:
+    get:
+      tags:
+        - 项目
+      summary: 获取阶段详情
+      operationId: getStageDetail
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/StageId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StageDetailResponse'
+    put:
+      tags:
+        - 项目
+      summary: 更新阶段
+      operationId: updateStage
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/StageId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStageRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - 项目
+      summary: 删除阶段
+      operationId: deleteStage
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/StageId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fileAction
+              properties:
+                fileAction:
+                  type: string
+                  enum: [transfer, delete]
+                  description: transfer-转移 delete-删除
+                targetStageId:
+                  type: integer
+                  format: int64
+                  description: 转移目标阶段ID（fileAction=transfer时必填）
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  # 模板管理
+  /project/template/list:
+    get:
+      tags:
+        - 项目
+      summary: 获取阶段模板列表
+      operationId: getTemplateList
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateListResponse'
+
+  /project/template/{templateId}:
+    get:
+      tags:
+        - 项目
+      summary: 获取模板详情
+      operationId: getTemplateDetail
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateDetailResponse'
+
+  /project/template:
+    post:
+      tags:
+        - 项目
+      summary: 创建自定义模板
+      operationId: createTemplate
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  # ============================================
+  # 文件接口
+  # ============================================
+  /file/upload:
+    post:
+      tags:
+        - 文件
+      summary: 上传文件
+      description: 上传文件到项目指定阶段
+      operationId: uploadFileToStage
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileUploadRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+
+  /file/list:
+    get:
+      tags:
+        - 文件
+      summary: 获取文件列表
+      description: 获取项目文件列表（支持多条件筛选）
+      operationId: getFileList
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: stageId
+          in: query
+          schema:
+            type: integer
+            format: int64
+          description: 按阶段筛选
+        - name: type
+          in: query
+          schema:
+            type: string
+          description: 按文件类型
+        - name: uploaderId
+          in: query
+          schema:
+            type: integer
+            format: int64
+          description: 按上传者
+        - name: keyword
+          in: query
+          schema:
+            type: string
+          description: 文件名关键词
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+          description: 审核状态
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 开始日期
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 结束日期
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileListResponse'
+
+  /file/{fileId}:
+    get:
+      tags:
+        - 文件
+      summary: 获取文件详情
+      operationId: getFileDetail
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDetailResponse'
+    delete:
+      tags:
+        - 文件
+      summary: 删除文件
+      operationId: deleteFile
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /file/{fileId}/preview:
+    get:
+      tags:
+        - 文件
+      summary: 预览文件
+      operationId: previewFile
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilePreviewResponse'
+
+  /file/{fileId}/download:
+    get:
+      tags:
+        - 文件
+      summary: 下载文件
+      operationId: downloadFile
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /file/{fileId}/move:
+    put:
+      tags:
+        - 文件
+      summary: 移动文件
+      description: 移动文件到指定阶段
+      operationId: moveFile
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - targetStageId
+              properties:
+                targetStageId:
+                  type: integer
+                  format: int64
+                  description: 目标阶段ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /file/{fileId}/rename:
+    put:
+      tags:
+        - 文件
+      summary: 重命名文件
+      operationId: renameFile
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: 新文件名
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /file/{fileId}/favorite:
+    put:
+      tags:
+        - 文件
+      summary: 收藏/取消收藏
+      operationId: toggleFavorite
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /file/{fileId}/approve:
+    post:
+      tags:
+        - 文件
+      summary: 审核通过
+      operationId: approveFile
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /file/{fileId}/reject:
+    post:
+      tags:
+        - 文件
+      summary: 审核驳回
+      operationId: rejectFile
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  minLength: 5
+                  maxLength: 200
+                  description: 驳回原因（5-200字）
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /file/{fileId}/resubmit:
+    post:
+      tags:
+        - 文件
+      summary: 重新上传被驳回文件
+      operationId: resubmitFile
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 新文件
+                remark:
+                  type: string
+                  description: 上传说明
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+
+  /file/{fileId}/audit-logs:
+    get:
+      tags:
+        - 文件
+      summary: 获取审核日志
+      operationId: getAuditLogs
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogsResponse'
+
+  /file/{fileId}/download-records:
+    get:
+      tags:
+        - 文件
+      summary: 获取文件下载记录
+      operationId: getDownloadRecords
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DownloadRecordsResponse'
+
+  /file/pending-audit:
+    get:
+      tags:
+        - 文件
+      summary: 获取待审核文件列表
+      operationId: getPendingAuditFiles
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileListResponse'
+
+  /file/batch-audit:
+    post:
+      tags:
+        - 文件
+      summary: 批量审核
+      operationId: batchAudit
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchAuditRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /file/batch-move:
+    put:
+      tags:
+        - 文件
+      summary: 批量移动文件
+      operationId: batchMoveFiles
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fileIds
+                - targetStageId
+              properties:
+                fileIds:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+                  maxItems: 50
+                  description: 文件ID列表（≤50）
+                targetStageId:
+                  type: integer
+                  format: int64
+                  description: 目标阶段ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /file/batch-delete:
+    delete:
+      tags:
+        - 文件
+      summary: 批量删除文件
+      operationId: batchDeleteFiles
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fileIds
+              properties:
+                fileIds:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+                  maxItems: 20
+                  description: 文件ID列表（≤20）
+                reason:
+                  type: string
+                  description: 删除原因
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /file/favorites:
+    get:
+      tags:
+        - 文件
+      summary: 获取我的收藏列表
+      operationId: getFavorites
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileListResponse'
+
+  /file/my-uploads:
+    get:
+      tags:
+        - 文件
+      summary: 获取我上传的文件列表
+      operationId: getMyUploads
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileListResponse'
+
+  /file/{projectId}/type-stats:
+    get:
+      tags:
+        - 文件
+      summary: 获取文件类型统计
+      operationId: getFileTypeStats
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileTypeStatsResponse'
+
+  /file/{projectId}/export:
+    post:
+      tags:
+        - 文件
+      summary: 导出文件清单
+      operationId: exportFileList
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                format:
+                  type: string
+                  enum: [xlsx, csv]
+                  default: xlsx
+                stageId:
+                  type: integer
+                  format: int64
+                includeVersions:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+  # ============================================
+  # 版本接口
+  # ============================================
+  /version/list:
+    get:
+      tags:
+        - 版本
+      summary: 获取版本列表
+      description: 获取文件的所有历史版本
+      operationId: getVersionList
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: fileId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionListResponse'
+
+  /version/compare:
+    get:
+      tags:
+        - 版本
+      summary: 版本对比
+      operationId: compareVersions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: fileId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: versionA
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 版本A
+        - name: versionB
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 版本B
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionCompareResponse'
+
+  /version/{fileId}/rollback:
+    post:
+      tags:
+        - 版本
+      summary: 版本回溯
+      description: 恢复到指定版本
+      operationId: rollbackVersion
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - targetVersionId
+              properties:
+                targetVersionId:
+                  type: integer
+                  format: int64
+                  description: 目标版本ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  # ============================================
+  # 任务接口
+  # ============================================
+  /task/create:
+    post:
+      tags:
+        - 任务
+      summary: 创建任务
+      operationId: createTask
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+
+  /task/list:
+    get:
+      tags:
+        - 任务
+      summary: 获取任务列表
+      operationId: getTaskList
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: assigneeId
+          in: query
+          schema:
+            type: integer
+            format: int64
+          description: 按负责人筛选
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, completed]
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+
+  /task/my-tasks:
+    get:
+      tags:
+        - 任务
+      summary: 获取我负责的任务
+      operationId: getMyTasks
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, completed]
+        - name: overdue
+          in: query
+          schema:
+            type: boolean
+          description: 只看已过期任务
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+
+  /task/due-soon:
+    get:
+      tags:
+        - 任务
+      summary: 获取即将到期任务
+      description: 获取截止日期临近的任务（未来N天内）
+      operationId: getDueSoonTasks
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 7
+          description: 天数，默认7
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+
+  /task/{taskId}:
+    get:
+      tags:
+        - 任务
+      summary: 获取任务详情
+      operationId: getTaskDetail
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDetailResponse'
+    put:
+      tags:
+        - 任务
+      summary: 更新任务
+      operationId: updateTask
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - 任务
+      summary: 删除任务
+      operationId: deleteTask
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /task/{taskId}/complete:
+    post:
+      tags:
+        - 任务
+      summary: 完成任务
+      operationId: completeTask
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                remark:
+                  type: string
+                  description: 完成说明
+                proofFiles:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+                  description: 完成凭证文件ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /task/{taskId}/abandon:
+    put:
+      tags:
+        - 任务
+      summary: 放弃任务
+      description: 负责人放弃任务（需组长审核）
+      operationId: abandonTask
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  description: 放弃原因
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /task/{taskId}/transfer:
+    put:
+      tags:
+        - 任务
+      summary: 转交任务
+      description: 将任务转交给其他成员
+      operationId: transferTask
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newAssigneeId
+              properties:
+                newAssigneeId:
+                  type: integer
+                  format: int64
+                  description: 新负责人ID
+                reason:
+                  type: string
+                  description: 转交原因
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /task/{taskId}/progress:
+    get:
+      tags:
+        - 任务
+      summary: 获取任务进度
+      operationId: getTaskProgress
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskProgressResponse'
+
+  # ============================================
+  # 协作接口
+  # ============================================
+  /discussion/create:
+    post:
+      tags:
+        - 协作
+      summary: 创建研讨记录
+      operationId: createDiscussion
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDiscussionRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionResponse'
+
+  /discussion/list:
+    get:
+      tags:
+        - 协作
+      summary: 获取研讨记录列表
+      operationId: getDiscussionList
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionListResponse'
+
+  /discussion/{discussionId}:
+    get:
+      tags:
+        - 协作
+      summary: 获取研讨详情
+      operationId: getDiscussionDetail
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: discussionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionDetailResponse'
+    put:
+      tags:
+        - 协作
+      summary: 更新研讨记录
+      operationId: updateDiscussion
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: discussionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDiscussionRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - 协作
+      summary: 删除研讨记录
+      operationId: deleteDiscussion
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: discussionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /decision/create:
+    post:
+      tags:
+        - 协作
+      summary: 创建决策记录
+      operationId: createDecision
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDecisionRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionResponse'
+
+  /decision/list:
+    get:
+      tags:
+        - 协作
+      summary: 获取决策列表
+      operationId: getDecisionList
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: discussionId
+          in: query
+          schema:
+            type: integer
+            format: int64
+          description: 按关联研讨筛选
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionListResponse'
+
+  /decision/{decisionId}:
+    get:
+      tags:
+        - 协作
+      summary: 获取决策详情
+      operationId: getDecisionDetail
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: decisionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionDetailResponse'
+    put:
+      tags:
+        - 协作
+      summary: 更新决策
+      operationId: updateDecision
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: decisionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDecisionRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - 协作
+      summary: 删除决策
+      operationId: deleteDecision
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: decisionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /achievement/create:
+    post:
+      tags:
+        - 协作
+      summary: 创建/更新阶段成果
+      operationId: createAchievement
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAchievementRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AchievementResponse'
+
+  /achievement/list:
+    get:
+      tags:
+        - 协作
+      summary: 获取成果列表
+      operationId: getAchievementList
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: stageId
+          in: query
+          schema:
+            type: integer
+            format: int64
+          description: 按阶段筛选
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AchievementListResponse'
+
+  /achievement/{achievementId}:
+    get:
+      tags:
+        - 协作
+      summary: 获取成果详情
+      operationId: getAchievementDetail
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: achievementId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AchievementDetailResponse'
+    put:
+      tags:
+        - 协作
+      summary: 更新成果
+      operationId: updateAchievement
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: achievementId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAchievementRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - 协作
+      summary: 删除成果
+      operationId: deleteAchievement
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: achievementId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /log/list:
+    get:
+      tags:
+        - 协作
+      summary: 获取操作日志
+      operationId: getOperationLogs
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: userId
+          in: query
+          schema:
+            type: integer
+            format: int64
+          description: 按用户筛选
+        - name: action
+          in: query
+          schema:
+            type: string
+          description: 按操作类型
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationLogListResponse'
+
+  /log/{logId}:
+    get:
+      tags:
+        - 协作
+      summary: 获取操作日志详情
+      operationId: getOperationLogDetail
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: logId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationLogDetailResponse'
+
+  /project/{projectId}/log-stats:
+    get:
+      tags:
+        - 协作
+      summary: 获取操作类型统计
+      operationId: getLogStats
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogStatsResponse'
+
+  # ============================================
+  # 消息接口
+  # ============================================
+  /message/list:
+    get:
+      tags:
+        - 消息
+      summary: 获取消息列表
+      operationId: getMessageList
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [audit, task, member, stage, system]
+          description: 消息类型
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageListResponse'
+
+  /message/unread-count:
+    get:
+      tags:
+        - 消息
+      summary: 获取未读消息数
+      operationId: getUnreadCount
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnreadCountResponse'
+
+  /message/{messageId}:
+    get:
+      tags:
+        - 消息
+      summary: 获取消息详情
+      operationId: getMessageDetail
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageDetailResponse'
+
+  /message/{messageId}/read:
+    put:
+      tags:
+        - 消息
+      summary: 标记已读
+      operationId: markAsRead
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /message/read-all:
+    put:
+      tags:
+        - 消息
+      summary: 全部已读
+      operationId: markAllAsRead
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /message/{messageId}:
+    delete:
+      tags:
+        - 消息
+      summary: 删除消息
+      operationId: deleteMessage
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /message/read:
+    delete:
+      tags:
+        - 消息
+      summary: 清空已读消息
+      operationId: clearReadMessages
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /message/subscribe:
+    post:
+      tags:
+        - 消息
+      summary: 提交订阅授权
+      description: 保存用户的微信订阅授权
+      operationId: subscribe
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - templateId
+                - isAccept
+              properties:
+                templateId:
+                  type: string
+                  description: 订阅消息模板ID
+                isAccept:
+                  type: boolean
+                  description: 是否接受
+                isLongTerm:
+                  type: boolean
+                  description: 是否长期订阅
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /message/subscription:
+    get:
+      tags:
+        - 消息
+      summary: 获取订阅设置
+      operationId: getSubscription
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionResponse'
+    put:
+      tags:
+        - 消息
+      summary: 更新订阅设置
+      operationId: updateSubscription
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSubscriptionRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /announcement/list:
+    get:
+      tags:
+        - 消息
+      summary: 获取系统公告列表
+      operationId: getAnnouncementList
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnouncementListResponse'
+
+  /announcement/{announcementId}/read:
+    put:
+      tags:
+        - 消息
+      summary: 标记公告已读
+      operationId: markAnnouncementRead
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: announcementId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  # ============================================
+  # 分享接口
+  # ============================================
+  /share/create:
+    post:
+      tags:
+        - 分享
+      summary: 生成分享链接
+      operationId: createShare
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - projectId
+                - permissionLevel
+              properties:
+                projectId:
+                  type: integer
+                  format: int64
+                  description: 项目ID
+                permissionLevel:
+                  type: string
+                  enum: [flow_only, flow_preview, flow_download]
+                  description: 权限级别
+                expiresAt:
+                  type: string
+                  format: date-time
+                  description: 过期时间
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareCreateResponse'
+
+  /share/list:
+    get:
+      tags:
+        - 分享
+      summary: 获取分享列表
+      operationId: getShareList
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareListResponse'
+
+  /share/{shareId}:
+    delete:
+      tags:
+        - 分享
+      summary: 取消分享
+      operationId: cancelShare
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: shareId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    put:
+      tags:
+        - 分享
+      summary: 更新分享权限
+      operationId: updateSharePermission
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: shareId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permissionLevel:
+                  type: string
+                  enum: [flow_only, flow_preview, flow_download]
+                expiresAt:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /share/{shareId}/regenerate:
+    put:
+      tags:
+        - 分享
+      summary: 重新生成分享链接
+      operationId: regenerateShare
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: shareId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareCreateResponse'
+
+  /share/{shareId}/stats:
+    get:
+      tags:
+        - 分享
+      summary: 获取分享统计
+      operationId: getShareStats
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: shareId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareStatsResponse'
+
+  /share/{shareId}/access-logs:
+    get:
+      tags:
+        - 分享
+      summary: 获取分享访问日志
+      operationId: getAccessLogs
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: shareId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessLogResponse'
+
+  /share/{shareId}/poster:
+    post:
+      tags:
+        - 分享
+      summary: 生成分享海报
+      operationId: createSharePoster
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: shareId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                style:
+                  type: string
+                  enum: [poster, card]
+                  default: poster
+                title:
+                  type: string
+                  description: 自定义标题
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharePosterResponse'
+
+  /share/validate:
+    post:
+      tags:
+        - 分享
+      summary: 验证分享Token
+      description: 验证分享Token有效性
+      operationId: validateShareToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - shareToken
+              properties:
+                shareToken:
+                  type: string
+                  description: 分享Token
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareValidateResponse'
+
+  /share/{shareToken}:
+    get:
+      tags:
+        - 分享
+      summary: 获取分享数据（访客访问）
+      description: 访客通过Token获取分享数据
+      operationId: getShareData
+      security: []
+      parameters:
+        - name: shareToken
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareDataResponse'
+
+  /share/{shareToken}/overview:
+    get:
+      tags:
+        - 分享
+      summary: 获取分享项目概览（访客）
+      description: 轻量接口
+      operationId: getShareOverview
+      security: []
+      parameters:
+        - name: shareToken
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareOverviewResponse'
+
+  /share/{shareToken}/timeline:
+    get:
+      tags:
+        - 分享
+      summary: 获取分享协作过程（访客）
+      operationId: getShareTimeline
+      security: []
+      parameters:
+        - name: shareToken
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimelineResponse'
+
+  /share/{shareToken}/files:
+    get:
+      tags:
+        - 分享
+      summary: 获取分享文件列表（访客）
+      operationId: getShareFiles
+      security: []
+      parameters:
+        - name: shareToken
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: stageId
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareFileListResponse'
+
+  /share/{shareToken}/file/{fileId}/preview:
+    get:
+      tags:
+        - 分享
+      summary: 访客文件预览
+      operationId: shareFilePreview
+      security: []
+      parameters:
+        - name: shareToken
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilePreviewResponse'
+
+  /share/{shareToken}/file/{fileId}/download:
+    get:
+      tags:
+        - 分享
+      summary: 访客文件下载
+      operationId: shareFileDownload
+      security: []
+      parameters:
+        - name: shareToken
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /share/{shareToken}/discussions:
+    get:
+      tags:
+        - 分享
+      summary: 获取分享研讨记录（访客）
+      operationId: getShareDiscussions
+      security: []
+      parameters:
+        - name: shareToken
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareDiscussionListResponse'
+
+  /share/{shareToken}/decisions:
+    get:
+      tags:
+        - 分享
+      summary: 获取分享决策列表（访客）
+      operationId: getShareDecisions
+      security: []
+      parameters:
+        - name: shareToken
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareDecisionListResponse'
+
+# ============================================
+# 组件定义
+# ============================================
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Token 认证
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+      description: 页码
+
+    PageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+      description: 每页大小
+
+    GroupId:
+      name: groupId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+    StageId:
+      name: stageId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+    FileId:
+      name: fileId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+  schemas:
+    # 通用响应
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: success
+        data:
+          type: object
+          nullable: true
+        timestamp:
+          type: integer
+          format: int64
+
+    # 健康检查
+    HealthResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                status:
+                  type: string
+                version:
+                  type: string
+                uptime:
+                  type: integer
+                db:
+                  type: string
+                redis:
+                  type: string
+
+    # 配置
+    ConfigResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                uploadMaxSize:
+                  type: integer
+                  example: 52428800
+                allowedFileTypes:
+                  type: array
+                  items:
+                    type: string
+                versionTemplate:
+                  type: string
+                announcement:
+                  type: string
+
+    # 上传相关
+    UploadRequest:
+      type: object
+      required:
+        - file
+      properties:
+        file:
+          type: string
+          format: binary
+        type:
+          type: string
+          enum: [file, avatar, poster]
+        projectId:
+          type: integer
+          format: int64
+
+    UploadResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                fileId:
+                  type: string
+                url:
+                  type: string
+                filename:
+                  type: string
+                size:
+                  type: integer
+                type:
+                  type: string
+
+    UploadCredentialsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                uploadId:
+                  type: string
+                uploadUrl:
+                  type: string
+                expiresIn:
+                  type: integer
+
+    # 用户相关
+    LoginRequest:
+      type: object
+      required:
+        - code
+        - nickname
+        - avatarUrl
+      properties:
+        code:
+          type: string
+          description: 微信登录code
+        nickname:
+          type: string
+          description: 用户昵称
+        avatarUrl:
+          type: string
+          description: 用户头像URL
+
+    LoginResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                token:
+                  type: string
+                userId:
+                  type: integer
+                  format: int64
+                openid:
+                  type: string
+                nickname:
+                  type: string
+                avatarUrl:
+                  type: string
+                isNewUser:
+                  type: boolean
+
+    ProfileResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  format: int64
+                openid:
+                  type: string
+                nickname:
+                  type: string
+                avatarUrl:
+                  type: string
+                createdAt:
+                  type: string
+                  format: date-time
+                groupCount:
+                  type: integer
+                projectCount:
+                  type: integer
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        nickname:
+          type: string
+        avatarUrl:
+          type: string
+
+    LoginHistoryResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                list:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      loginTime:
+                        type: string
+                        format: date-time
+                      device:
+                        type: string
+                      ip:
+                        type: string
+
+    RefreshTokenResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                token:
+                  type: string
+                expiresIn:
+                  type: integer
+
+    ContributionStatsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                uploadedFiles:
+                  type: integer
+                approvedFiles:
+                  type: integer
+                completedTasks:
+                  type: integer
+                discussions:
+                  type: integer
+                joinDays:
+                  type: integer
+                lastActiveTime:
+                  type: string
+                  format: date-time
+
+    BindWechatRequest:
+      type: object
+      required:
+        - code
+        - nickname
+        - avatarUrl
+      properties:
+        code:
+          type: string
+        nickname:
+          type: string
+        avatarUrl:
+          type: string
+
+    FeedbackRequest:
+      type: object
+      required:
+        - type
+        - content
+      properties:
+        type:
+          type: string
+          enum: [bug, suggestion, complaint]
+        content:
+          type: string
+          minLength: 5
+          maxLength: 500
+        images:
+          type: array
+          items:
+            type: string
+          maxItems: 3
+        contact:
+          type: string
+
+    # 小组相关
+    CreateGroupRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 20
+          description: 小组名称
+        description:
+          type: string
+          description: 小组描述
+
+    GroupResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                groupId:
+                  type: integer
+                  format: int64
+                name:
+                  type: string
+                leaderId:
+                  type: integer
+                  format: int64
+                inviteCode:
+                  type: string
+                qrCodeUrl:
+                  type: string
+                createdAt:
+                  type: string
+                  format: date-time
+
+    GroupListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                list:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/GroupResponse'
+
+    GroupDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                groupId:
+                  type: integer
+                  format: int64
+                name:
+                  type: string
+                description:
+                  type: string
+                leaderId:
+                  type: integer
+                  format: int64
+                leaderName:
+                  type: string
+                memberCount:
+                  type: integer
+                projectCount:
+                  type: integer
+                createdAt:
+                  type: string
+                  format: date-time
+                inviteCode:
+                  type: string
+                qrCodeUrl:
+                  type: string
+
+    UpdateGroupRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 20
+        description:
+          type: string
+
+    ValidateInviteCodeResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                valid:
+                  type: boolean
+                groupName:
+                  type: string
+                memberCount:
+                  type: integer
+                leaderName:
+                  type: string
+
+    MemberListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                members:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      userId:
+                        type: integer
+                        format: int64
+                      nickname:
+                        type: string
+                      avatarUrl:
+                        type: string
+                      role:
+                        type: string
+                        enum: [leader, member]
+                      joinedAt:
+                        type: string
+                        format: date-time
+                      status:
+                        type: string
+                        enum: [active, inactive]
+                      remark:
+                        type: string
+
+    RegenerateInviteCodeResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                inviteCode:
+                  type: string
+                qrCodeUrl:
+                  type: string
+
+    GroupStatsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                memberCount:
+                  type: integer
+                projectCount:
+                  type: integer
+                activeProjectCount:
+                  type: integer
+                completedProjectCount:
+                  type: integer
+                totalFileCount:
+                  type: integer
+                totalTaskCount:
+                  type: integer
+                completedTaskCount:
+                  type: integer
+
+    MemberStatsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  userId:
+                    type: integer
+                    format: int64
+                  nickname:
+                    type: string
+                  uploadedFiles:
+                    type: integer
+                  completedTasks:
+                    type: integer
+                  discussions:
+                    type: integer
+
+    # 项目相关
+    CreateProjectRequest:
+      type: object
+      required:
+        - groupId
+        - name
+      properties:
+        groupId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        templateId:
+          type: integer
+          format: int64
+        stages:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              orderNum:
+                type: integer
+        auditRule:
+          type: object
+          properties:
+            requireAudit:
+              type: boolean
+            auditorRole:
+              type: string
+        reminderRule:
+          type: object
+          properties:
+            taskReminderDays:
+              type: array
+              items:
+                type: integer
+
+    ProjectResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                projectId:
+                  type: integer
+                  format: int64
+                groupId:
+                  type: integer
+                  format: int64
+                name:
+                  type: string
+                description:
+                  type: string
+                status:
+                  type: string
+                createdAt:
+                  type: string
+                  format: date-time
+
+    ProjectListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                list:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ProjectResponse'
+
+    ProjectDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                projectId:
+                  type: integer
+                  format: int64
+                groupId:
+                  type: integer
+                  format: int64
+                name:
+                  type: string
+                description:
+                  type: string
+                currentStage:
+                  type: string
+                progress:
+                  type: integer
+                status:
+                  type: string
+                stages:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/StageResponse'
+                memberCount:
+                  type: integer
+                fileCount:
+                  type: integer
+                taskCount:
+                  type: integer
+                completedTaskCount:
+                  type: integer
+                createdAt:
+                  type: string
+                  format: date-time
+
+    UpdateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        auditRule:
+          type: object
+        reminderRule:
+          type: object
+
+    CopyProjectRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        includeFiles:
+          type: boolean
+        includeTasks:
+          type: boolean
+
+    ProjectProgressResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                overall:
+                  type: integer
+                stages:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      progress:
+                        type: integer
+                      status:
+                        type: string
+                fileStats:
+                  type: object
+                  properties:
+                    total:
+                      type: integer
+                    approved:
+                      type: integer
+                taskStats:
+                  type: object
+                  properties:
+                    total:
+                      type: integer
+                    completed:
+                      type: integer
+
+    ActivityListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                list:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: int64
+                      type:
+                        type: string
+                      action:
+                        type: string
+                      userId:
+                        type: integer
+                        format: int64
+                      userName:
+                        type: string
+                      targetId:
+                        type: integer
+                        format: int64
+                      targetName:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+
+    TaskStatsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                pending:
+                  type: integer
+                inProgress:
+                  type: integer
+                completed:
+                  type: integer
+                overdue:
+                  type: integer
+                completionRate:
+                  type: integer
+                memberStats:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      userId:
+                        type: integer
+                        format: int64
+                      nickname:
+                        type: string
+                      total:
+                        type: integer
+                      completed:
+                        type: integer
+
+    # 阶段相关
+    AddStageRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        orderNum:
+          type: integer
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+
+    StageResponse:
+      type: object
+      properties:
+        stageId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        orderNum:
+          type: integer
+        status:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+
+    StageDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/StageResponse'
+                - type: object
+                  properties:
+                    fileCount:
+                      type: integer
+                    taskCount:
+                      type: integer
+                    completedTaskCount:
+                      type: integer
+
+    UpdateStageRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        orderNum:
+          type: integer
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+
+    # 模板相关
+    TemplateListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  templateId:
+                    type: integer
+                    format: int64
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  stageCount:
+                    type: integer
+
+    TemplateDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                templateId:
+                  type: integer
+                  format: int64
+                name:
+                  type: string
+                description:
+                  type: string
+                stages:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      orderNum:
+                        type: integer
+
+    CreateTemplateRequest:
+      type: object
+      required:
+        - name
+        - stages
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        stages:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              orderNum:
+                type: integer
+        isPublic:
+          type: boolean
+
+    # 文件相关
+    FileUploadRequest:
+      type: object
+      required:
+        - file
+      properties:
+        file:
+          type: string
+          format: binary
+        projectId:
+          type: integer
+          format: int64
+        stageId:
+          type: integer
+          format: int64
+        remark:
+          type: string
+
+    FileUploadResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                fileId:
+                  type: integer
+                  format: int64
+                name:
+                  type: string
+                url:
+                  type: string
+                size:
+                  type: integer
+                type:
+                  type: string
+                status:
+                  type: string
+                version:
+                  type: integer
+                uploadedAt:
+                  type: string
+                  format: date-time
+
+    FileListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                list:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FileUploadResponse'
+
+    FileDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                fileId:
+                  type: integer
+                  format: int64
+                name:
+                  type: string
+                url:
+                  type: string
+                size:
+                  type: integer
+                type:
+                  type: string
+                status:
+                  type: string
+                version:
+                  type: integer
+                projectId:
+                  type: integer
+                  format: int64
+                stageId:
+                  type: integer
+                  format: int64
+                stageName:
+                  type: string
+                uploader:
+                  type: object
+                  properties:
+                    userId:
+                      type: integer
+                      format: int64
+                    nickname:
+                      type: string
+                isFavorite:
+                  type: boolean
+                createdAt:
+                  type: string
+                  format: date-time
+                updatedAt:
+                  type: string
+                  format: date-time
+
+    FilePreviewResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                url:
+                  type: string
+                type:
+                  type: string
+
+    AuditLogsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                logs:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      logId:
+                        type: integer
+                        format: int64
+                      action:
+                        type: string
+                      reason:
+                        type: string
+                      auditor:
+                        type: object
+                        properties:
+                          userId:
+                            type: integer
+                            format: int64
+                          nickname:
+                            type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+
+    DownloadRecordsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  visitorId:
+                    type: string
+                  accessTime:
+                    type: string
+                    format: date-time
+                  ip:
+                    type: string
+
+    BatchAuditRequest:
+      type: object
+      required:
+        - fileIds
+        - action
+      properties:
+        fileIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          maxItems: 20
+        action:
+          type: string
+          enum: [approve, reject]
+        reason:
+          type: string
+
+    FileTypeStatsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                stats:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      count:
+                        type: integer
+                      label:
+                        type: string
+
+    # 版本相关
+    VersionListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  versionId:
+                    type: integer
+                    format: int64
+                  version:
+                    type: string
+                  remark:
+                    type: string
+                  size:
+                    type: integer
+                  uploader:
+                    type: object
+                    properties:
+                      userId:
+                        type: integer
+                        format: int64
+                      nickname:
+                        type: string
+                  isCurrent:
+                    type: boolean
+                  createdAt:
+                    type: string
+                    format: date-time
+
+    VersionCompareResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                versionA:
+                  type: string
+                versionB:
+                  type: string
+                diff:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum: [add, delete, modify]
+                      lineNum:
+                        type: integer
+                      content:
+                        type: string
+
+    # 任务相关
+    CreateTaskRequest:
+      type: object
+      required:
+        - projectId
+        - name
+        - assigneeId
+        - deadline
+      properties:
+        projectId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        assigneeId:
+          type: integer
+          format: int64
+        deadline:
+          type: string
+          format: date-time
+        priority:
+          type: string
+          enum: [high, normal, low]
+        relatedFileIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+
+    TaskResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                taskId:
+                  type: integer
+                  format: int64
+                projectId:
+                  type: integer
+                  format: int64
+                name:
+                  type: string
+                description:
+                  type: string
+                assigneeId:
+                  type: integer
+                  format: int64
+                assigneeName:
+                  type: string
+                deadline:
+                  type: string
+                  format: date-time
+                priority:
+                  type: string
+                status:
+                  type: string
+                createdAt:
+                  type: string
+                  format: date-time
+
+    TaskListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                tasks:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TaskResponse'
+
+    TaskDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/TaskResponse'
+                - type: object
+                  properties:
+                    projectName:
+                      type: string
+                    relatedFiles:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          fileId:
+                            type: integer
+                            format: int64
+                          name:
+                            type: string
+                    completedAt:
+                      type: string
+                      format: date-time
+                    completionRemark:
+                      type: string
+
+    UpdateTaskRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        assigneeId:
+          type: integer
+          format: int64
+        deadline:
+          type: string
+          format: date-time
+        priority:
+          type: string
+          enum: [high, normal, low]
+
+    TaskProgressResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                progress:
+                  type: integer
+                checkpoints:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      completed:
+                        type: boolean
+
+    # 协作相关
+    CreateDiscussionRequest:
+      type: object
+      required:
+        - projectId
+        - topic
+        - content
+        - meetingTime
+      properties:
+        projectId:
+          type: integer
+          format: int64
+        topic:
+          type: string
+        content:
+          type: string
+        meetingTime:
+          type: string
+          format: date-time
+        attendees:
+          type: array
+          items:
+            type: integer
+            format: int64
+
+    DiscussionResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                discussionId:
+                  type: integer
+                  format: int64
+                topic:
+                  type: string
+                content:
+                  type: string
+                meetingTime:
+                  type: string
+                  format: date-time
+                attendees:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      userId:
+                        type: integer
+                        format: int64
+                      nickname:
+                        type: string
+                createdAt:
+                  type: string
+                  format: date-time
+
+    DiscussionListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                list:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DiscussionResponse'
+
+    DiscussionDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/DiscussionResponse'
+                - type: object
+                  properties:
+                    creator:
+                      type: object
+                      properties:
+                        userId:
+                          type: integer
+                          format: int64
+                        nickname:
+                          type: string
+
+    UpdateDiscussionRequest:
+      type: object
+      properties:
+        topic:
+          type: string
+        content:
+          type: string
+        meetingTime:
+          type: string
+          format: date-time
+        attendees:
+          type: array
+          items:
+            type: integer
+            format: int64
+
+    CreateDecisionRequest:
+      type: object
+      required:
+        - projectId
+        - title
+        - content
+      properties:
+        projectId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        content:
+          type: string
+        discussionId:
+          type: integer
+          format: int64
+
+    DecisionResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                decisionId:
+                  type: integer
+                  format: int64
+                title:
+                  type: string
+                content:
+                  type: string
+                discussionId:
+                  type: integer
+                  format: int64
+                createdAt:
+                  type: string
+                  format: date-time
+
+    DecisionListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/DecisionResponse'
+
+    DecisionDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/DecisionResponse'
+                - type: object
+                  properties:
+                    relatedDiscussion:
+                      type: object
+                      properties:
+                        topic:
+                          type: string
+
+    UpdateDecisionRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+
+    CreateAchievementRequest:
+      type: object
+      required:
+        - projectId
+        - stageId
+        - title
+        - description
+      properties:
+        projectId:
+          type: integer
+          format: int64
+        stageId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+        relatedFileIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+
+    AchievementResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                achievementId:
+                  type: integer
+                  format: int64
+                stageId:
+                  type: integer
+                  format: int64
+                title:
+                  type: string
+                description:
+                  type: string
+                relatedFiles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      fileId:
+                        type: integer
+                        format: int64
+                      name:
+                        type: string
+                createdAt:
+                  type: string
+                  format: date-time
+
+    AchievementListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/AchievementResponse'
+
+    AchievementDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/AchievementResponse'
+                - type: object
+                  properties:
+                    stageName:
+                      type: string
+
+    UpdateAchievementRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        relatedFileIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+
+    OperationLogListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                list:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      logId:
+                        type: integer
+                        format: int64
+                      action:
+                        type: string
+                      userId:
+                        type: integer
+                        format: int64
+                      userName:
+                        type: string
+                      targetType:
+                        type: string
+                      targetId:
+                        type: integer
+                        format: int64
+                      targetName:
+                        type: string
+                      detail:
+                        type: string
+                      ip:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+
+    OperationLogDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                logId:
+                  type: integer
+                  format: int64
+                action:
+                  type: string
+                userId:
+                  type: integer
+                  format: int64
+                userName:
+                  type: string
+                targetType:
+                  type: string
+                targetId:
+                  type: integer
+                  format: int64
+                targetName:
+                  type: string
+                detail:
+                  type: string
+                beforeValue:
+                  type: string
+                afterValue:
+                  type: string
+                ip:
+                  type: string
+                userAgent:
+                  type: string
+                createdAt:
+                  type: string
+                  format: date-time
+
+    LogStatsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                byType:
+                  type: object
+                  additionalProperties:
+                    type: integer
+
+    # 消息相关
+    MessageListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                list:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      messageId:
+                        type: integer
+                        format: int64
+                      type:
+                        type: string
+                      title:
+                        type: string
+                      content:
+                        type: string
+                      isRead:
+                        type: boolean
+                      relatedId:
+                        type: integer
+                        format: int64
+                      createdAt:
+                        type: string
+                        format: date-time
+
+    UnreadCountResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                byType:
+                  type: object
+                  additionalProperties:
+                    type: integer
+
+    MessageDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                messageId:
+                  type: integer
+                  format: int64
+                type:
+                  type: string
+                title:
+                  type: string
+                content:
+                  type: string
+                isRead:
+                  type: boolean
+                relatedType:
+                  type: string
+                relatedId:
+                  type: integer
+                  format: int64
+                createdAt:
+                  type: string
+                  format: date-time
+
+    SubscriptionResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                auditNotify:
+                  type: boolean
+                taskRemind:
+                  type: boolean
+                memberNotify:
+                  type: boolean
+                stageNotify:
+                  type: boolean
+
+    UpdateSubscriptionRequest:
+      type: object
+      properties:
+        auditNotify:
+          type: boolean
+        taskRemind:
+          type: boolean
+        memberNotify:
+          type: boolean
+        stageNotify:
+          type: boolean
+
+    AnnouncementListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                list:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      announcementId:
+                        type: integer
+                        format: int64
+                      title:
+                        type: string
+                      content:
+                        type: string
+                      isRead:
+                        type: boolean
+                      createdAt:
+                        type: string
+                        format: date-time
+
+    # 分享相关
+    ShareCreateResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                shareId:
+                  type: integer
+                  format: int64
+                shareToken:
+                  type: string
+                shareUrl:
+                  type: string
+                qrCodeUrl:
+                  type: string
+                permissionLevel:
+                  type: string
+                viewCount:
+                  type: integer
+                expiresAt:
+                  type: string
+                  format: date-time
+
+    ShareListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/ShareCreateResponse'
+
+    ShareStatsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                totalViews:
+                  type: integer
+                uniqueVisitors:
+                  type: integer
+                viewTrend:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      date:
+                        type: string
+                        format: date
+                      views:
+                        type: integer
+
+    AccessLogResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                logs:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      visitorId:
+                        type: string
+                      accessTime:
+                        type: string
+                        format: date-time
+                      ip:
+                        type: string
+                      action:
+                        type: string
+                      fileId:
+                        type: integer
+                        format: int64
+
+    SharePosterResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                posterUrl:
+                  type: string
+
+    ShareValidateResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                valid:
+                  type: boolean
+                projectName:
+                  type: string
+                permissionLevel:
+                  type: string
+                expiresAt:
+                  type: string
+                  format: date-time
+
+    ShareDataResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                projectInfo:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    description:
+                      type: string
+                    currentStage:
+                      type: string
+                    progress:
+                      type: integer
+                    completedAt:
+                      type: string
+                      format: date-time
+                members:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      nickname:
+                        type: string
+                      role:
+                        type: string
+                stages:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      achievements:
+                        type: array
+                        items:
+                          type: string
+                permissionLevel:
+                  type: string
+                isPreview:
+                  type: boolean
+                isDownload:
+                  type: boolean
+
+    ShareOverviewResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                projectName:
+                  type: string
+                description:
+                  type: string
+                progress:
+                  type: integer
+                memberCount:
+                  type: integer
+                currentStage:
+                  type: string
+                completedAt:
+                  type: string
+                  format: date-time
+                thumbnail:
+                  type: string
+
+    TimelineResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                list:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: int64
+                      type:
+                        type: string
+                      action:
+                        type: string
+                      userName:
+                        type: string
+                      targetName:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+
+    ShareFileListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                total:
+                  type: integer
+                list:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      fileId:
+                        type: integer
+                        format: int64
+                      name:
+                        type: string
+                      stageName:
+                        type: string
+                      uploaderName:
+                        type: string
+                      uploadedAt:
+                        type: string
+                        format: date-time
+
+    ShareDiscussionListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  discussionId:
+                    type: integer
+                    format: int64
+                  topic:
+                    type: string
+                  meetingTime:
+                    type: string
+                    format: date-time
+                  content:
+                    type: string
+
+    ShareDecisionListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  decisionId:
+                    type: integer
+                    format: int64
+                  title:
+                    type: string
+                  content:
+                    type: string
