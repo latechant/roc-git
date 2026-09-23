@@ -9,6 +9,8 @@
 ```
 roc-git/
 ├── src/                     # uni-app + Vue 3 前端源码（H5 / 微信小程序双端）
+│   ├── utils/api.js         #   真实接口请求层（token 管理、/api 反代）
+│   └── utils/bind-api.js    #   后端数据绑定层（页面节点渲染）
 ├── database/                # MySQL 数据库层（建库建表 + 种子数据 + 说明）
 │   ├── schema.sql           #   建库建表脚本（MySQL 8.0，15 张表，可重复执行）
 │   ├── seed.sql             #   初始化数据（默认阶段模板）
@@ -39,12 +41,12 @@ roc-git/
 
 | 端 | 位置 | 技术 | 状态 |
 |---|---|---|---|
-| 前端 A | `src/` | uni-app + Vue 3 + Vite | 已迁移，可编译 H5 / 微信小程序 |
+| 前端 A | `src/` | uni-app + Vue 3 + Vite | 已迁移，可编译 H5 / 微信小程序；H5 已接入真实后端接口 |
 | 前端 B | 主目录 `miniprogram/` | 原生微信小程序 | 原型，mock 数据 |
-| 后端 | `knife4j-spring/` | Spring Boot + Knife4j | 接口文档后端 |
+| 后端 | `knife4j-spring/` | Spring Boot + Knife4j | 接口文档后端，已部署，鉴权链路可用 |
 | 数据库 | `database/` | MySQL 8.0 | schema + seed 就绪 |
 
-两端前端（uni-app 与原生小程序）均通过 `utils/api.js` + `mock.js` 预留接口：后端就绪后将 `useMock` 置为 `false`、`baseUrl` 指向真实后端即可，接口路径已按 `/api/...` 预留，无需改动页面代码。
+uni-app 端（前端 A）通过 `src/utils/api.js`（真实请求层）+ `src/utils/bind-api.js`（数据绑定层）接入后端真实接口：`api.js` 统一管理 token、以相对 `/api` 走 nginx 反向代理，页面控制器创建后调用 `bind-api` 把后端数据渲染进对应节点，无需改动原型布局。原生小程序端仍为 mock。接口路径统一按 `/api/...` 预留。
 
 ---
 
@@ -52,7 +54,7 @@ roc-git/
 
 原有 6 个 HTML 页面已迁移为 **uni-app + Vue 3 + Vite**，支持 H5 和微信小程序。原文字、示例数据、颜色、字号、卡片尺寸、导航及弹层内容保留。原 HTML 已备份到桌面的 `快速UI-原始HTML备份-20260916-180046` 文件夹，并从项目中删除。新项目源码在 `src`；根目录 `index.html` 是 Vite 的 H5 入口，需要保留。
 
-这是前端原型迁移，原项目没有后端。原来仅弹出提示的上传、审核、邀请、版本恢复、归档等操作仍保留原型行为，没有接入真实登录、文件存储、数据库或业务 API。原 README 提到 `teacher.html`，但实际没有该文件；“我指导的小组”和“过程性评价”入口保留，目标页面仍缺失，没有编造新内容。首页原本引用未定义的 `showFileSearch()`，迁移后保留其进入项目页的导航。
+这是前端原型迁移，原项目没有后端。原来仅弹出提示的上传、审核、邀请、版本恢复、归档等操作仍保留原型行为。本次已为前端新增真实接口接入层，H5 部署后页面数据来自真实后端接口（详见下方「线上部署与真实接口接入」），但后端当前为接口文档演示服务（无数据库），返回演示数据；登录/鉴权链路为真实 JWT。原 README 提到 `teacher.html`，但实际没有该文件；“我指导的小组”和“过程性评价”入口保留，目标页面仍缺失，没有编造新内容。首页原本引用未定义的 `showFileSearch()`，迁移后保留其进入项目页的导航。
 
 ### VS Code 预览
 
@@ -94,7 +96,7 @@ npm.cmd run build:mp-weixin
 
 微信开发者工具导入 **`dist/build/mp-weixin`**，编译并检查页面，点击“上传”，填写版本号和备注。随后登录微信公众平台，在“版本管理”中将开发版本提交审核，审核通过后再发布。小程序代码通过此流程发布，无需把 Vue 源码上传到网页服务器。
 
-目前没有网络业务接口，演示界面无需配置业务服务器。将来接入后端时，要在公众平台配置 HTTPS 合法域名（request、uploadFile、downloadFile 等），并实现真实登录、上传、权限和数据持久化。
+目前 H5 端已接入真实后端接口（见「线上部署与真实接口接入」）；小程序端如需发布上线，需在微信公众平台配置 HTTPS 合法域名（request、uploadFile、downloadFile 等），并实现真实登录、上传、权限和数据持久化。小程序端接口已通过 `src/utils/api.js` 预留，`BASE_URL` 指向完整域名即可复用。
 
 微信状态栏、右上角胶囊和原生选择器弹出界面由微信控制，无法与 HTML 浏览器逐像素相同；本项目采用自定义导航和本地样式保留原布局。发布前请在自己的手机检查顶部按钮与胶囊、底部导航是否重叠。
 
@@ -122,6 +124,8 @@ npm.cmd run build:mp-weixin
 - `src/controllers/`：各页面原型操作。
 - `src/data/`：页面初始状态、样式映射。
 - `src/utils/page-controller.js`：Vue 响应式状态适配器，以及 uni-app 导航、剪贴板、定时器适配，没有浏览器 DOM 或 eval。
+- `src/utils/api.js`：真实接口请求层，基于 `uni.request`，自动管理 JWT token、以相对 `/api` 走 nginx 反向代理（H5 部署时）。涵盖认证、小组、项目、任务、消息、研讨等全部后端接口封装。
+- `src/utils/bind-api.js`：数据绑定层，将后端接口返回的数据渲染进各页面 DOM 节点，保留原型布局与交互；页面控制器创建后调用对应 `load*` 函数。
 - `src/components/NativeFragment.vue`：新增成员、阶段、任务和研讨落地项的原生表单行。
 - `src/components/NativeDate.vue`：仅 H5 使用的浏览器日期输入，小程序使用 `picker`。
 - `docs/original-readme.md`、`docx_content.txt`：保留原说明和需求材料。
@@ -152,6 +156,43 @@ mvn clean package -DskipTests        # 默认 Fat WAR
 java -jar target/knife4j-spring-1.0.0.war
 # 访问 http://localhost:8080/doc.html
 ```
+
+> 注：本项目用 **JDK 17** 编译运行。若本机是 JDK 23，编译会因 Spring Boot 2.7.18 默认的 Lombok 1.18.30 不兼容而失败（Lombok 不生成 getter/setter），已在 `pom.xml` 通过 `<lombok.version>1.18.36</lombok.version>` 覆盖解决。
+
+---
+
+## 线上部署与真实接口接入
+
+当前已部署至公网服务器（Ubuntu 22.04），前后端链路为真实 HTTP 调用。**访问地址：http://116.62.81.113/ （前端）、http://116.62.81.113:8080/doc.html （接口文档）。**
+
+### 架构
+
+```
+用户 ── :80 nginx ──┬─ 静态前端 /opt/roc-git/h5（uni-app H5 构建产物）
+                    └─ /api/* 反向代理 ── :8080 Spring Boot 后端（systemd 服务 rocgit）
+```
+
+### 部署要点
+
+| 项 | 说明 |
+|---|---|
+| 后端 | `knife4j-spring-1.0.0.war`（Fat WAR）置于 `/opt/roc-git`，由 systemd 服务 `rocgit` 守护，开机自启、崩溃自动重启 |
+| 前端 | `npm run build:h5` 产物上传至 `/opt/roc-git/h5`，nginx 托管并做 `/api` 反向代理到本地 8080 |
+| 登录放行 | `WebMvcConfig` 将 `/api/v1/user/login` 加入 JWT 拦截器白名单（原误写为不存在的 `/api/v1/login`） |
+| JWT | `JwtUtil` 以 `Keys.hmacShaKeyFor` + HS256 真实签发 token（原 HS512 base64 解析字符串密钥会抛异常）；`UserController.login` 返回真实 token |
+
+### 前端接入方式
+
+前端新增两层，实现"不改动原型布局、真实调用后端"：
+
+- `src/utils/api.js`：封装全部后端接口，自动存储/注入 `Bearer` token；`baseUrl` 默认相对 `/api`（H5 经 nginx 反代），小程序端可覆盖为完整域名。
+- `src/utils/bind-api.js`：给页面节点 `ui['nX'].textContent` 赋值即覆盖原型文本（模板优先渲染 `textContent`），保留布局与交互。每个页面控制器创建后调用对应 `load*` 函数异步拉取并渲染。
+
+已接入页面：首页（登录、个人资料、小组、项目列表、未读数）、项目详情、个人中心、消息、研讨记录。
+
+### 当前限制
+
+后端为**接口文档演示服务，无数据库**（controller 直接构造返回），故页面数据为演示值（如项目名固定"课程设计项目"）。但**登录/鉴权为真实 JWT、请求为真实 HTTP 调用**；后续接入 MySQL 后，前端无需改动即可展示真实数据。原生小程序端仍为 mock，未接入。
 
 ## OpenAPI 接口规范
 
