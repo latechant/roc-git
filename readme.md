@@ -1,10 +1,60 @@
-# ROC-git · uni-app（Vue 3）
+# ROC-git · 课程小组文档协作管理平台
+
+**软件系统分析与设计综合实践** 课程项目。大学生以小组为单位协作完成课程作业，平台统一管理资料文件、版本、任务分工、研讨决策与审核归档，解决文件散乱、版本混乱、审核缺失、过程不可追溯、协作效率低等痛点。
+
+本仓库（`repository/roc-git`）为项目主代码仓，同时存放数据库、接口规范与报告材料。
+
+## 目录结构
+
+```
+roc-git/
+├── src/                     # uni-app + Vue 3 前端源码（H5 / 微信小程序双端）
+├── database/                # MySQL 数据库层（建库建表 + 种子数据 + 说明）
+│   ├── schema.sql           #   建库建表脚本（MySQL 8.0，15 张表，可重复执行）
+│   ├── seed.sql             #   初始化数据（默认阶段模板）
+│   └── README.md            #   表清单、表关系、状态机、接续开发指引
+├── knife4j-spring/          # Spring Boot + Knife4j 接口文档后端
+│   └── README.md            #   双模式打包（Fat WAR / 标准 WAR）部署指南
+├── openapi.yaml             # OpenAPI 3.0 规范（146 个 REST 接口）
+├── SWAGGER_GUIDE.md         # Swagger/Knife4j 使用与部署指南
+├── scripts/                 # 迁移与验证脚本（见下文「脚本」）
+├── docs/                    # 报告与需求材料
+│   ├── original-readme.md   #   原始 HTML 版说明备份
+│   ├── docx_content.txt     #   报告 docx 正文提取
+│   ├── 功能点.docx          #   功能点清单
+│   ├── 项目可行技术栈选型….docx  # 技术栈选型（SpringBoot+MyBatis-Plus+MySQL 等）
+│   └── 《软件系统分析与设计…》.docx  # 课程报告参考模板
+├── 需求规格说明书.md         # 需求文档 v1.9（概述/角色/用例/类图/时序图/功能/流程/数据字典等）
+├── package.json             # 前端依赖与脚本（uni-app CLI）
+├── vite.config.js           # Vite 配置
+├── index.html               # Vite H5 入口（保留）
+└── readme.md                # 本文件
+```
+
+> 主项目根目录另有两处独立内容（不在此 git 仓内）：
+> - `miniprogram/`：**原生微信小程序**前端，与 uni-app 端并存，目前均使用 mock 数据；
+> - `docs/`：`数据字典.md`、`数据建模设计.md`，与报告「2.4 数据库设计」及 `database/schema.sql` 一一对应。
+
+## 三端关系
+
+| 端 | 位置 | 技术 | 状态 |
+|---|---|---|---|
+| 前端 A | `src/` | uni-app + Vue 3 + Vite | 已迁移，可编译 H5 / 微信小程序 |
+| 前端 B | 主目录 `miniprogram/` | 原生微信小程序 | 原型，mock 数据 |
+| 后端 | `knife4j-spring/` | Spring Boot + Knife4j | 接口文档后端 |
+| 数据库 | `database/` | MySQL 8.0 | schema + seed 就绪 |
+
+两端前端（uni-app 与原生小程序）均通过 `utils/api.js` + `mock.js` 预留接口：后端就绪后将 `useMock` 置为 `false`、`baseUrl` 指向真实后端即可，接口路径已按 `/api/...` 预留，无需改动页面代码。
+
+---
+
+## 前端 A：uni-app（Vue 3）
 
 原有 6 个 HTML 页面已迁移为 **uni-app + Vue 3 + Vite**，支持 H5 和微信小程序。原文字、示例数据、颜色、字号、卡片尺寸、导航及弹层内容保留。原 HTML 已备份到桌面的 `快速UI-原始HTML备份-20260916-180046` 文件夹，并从项目中删除。新项目源码在 `src`；根目录 `index.html` 是 Vite 的 H5 入口，需要保留。
 
 这是前端原型迁移，原项目没有后端。原来仅弹出提示的上传、审核、邀请、版本恢复、归档等操作仍保留原型行为，没有接入真实登录、文件存储、数据库或业务 API。原 README 提到 `teacher.html`，但实际没有该文件；“我指导的小组”和“过程性评价”入口保留，目标页面仍缺失，没有编造新内容。首页原本引用未定义的 `showFileSearch()`，迁移后保留其进入项目页的导航。
 
-## VS Code 预览
+### VS Code 预览
 
 **可以使用 VS Code，不强制使用 HBuilderX。** 安装 Node.js 20 或 22 LTS，在 VS Code 打开项目根目录，终端执行：
 
@@ -19,7 +69,7 @@ Windows PowerShell 如果提示 `npm.ps1` 被执行策略阻止，使用 `npm.cm
 
 VS Code 建议安装 **Vue - Official** 扩展。浏览器预览的是 H5；小程序模拟器和微信真机预览需要微信开发者工具。
 
-## 微信小程序开发预览
+### 微信小程序开发预览
 
 1. 安装并登录[微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)。正式发布需要在[微信公众平台](https://mp.weixin.qq.com/)注册小程序，取得 AppID，并将当前微信用户加入开发者名单。
 2. 在 `src/manifest.json` 填写 `mp-weixin.appid`，即微信小程序 AppID（通常以 `wx` 开头），不是上层 DCloud `appid`。仅试运行可以在开发者工具使用测试模式；正式发布必须使用真实 AppID。
@@ -34,7 +84,7 @@ npm.cmd run dev:mp-weixin
 
 无需再在微信开发者工具执行“构建 npm”，依赖已经由 uni-app 编译器处理。
 
-## 上传与正式发布
+### 上传与正式发布
 
 填写真实 AppID 后执行：
 
@@ -48,13 +98,13 @@ npm.cmd run build:mp-weixin
 
 微信状态栏、右上角胶囊和原生选择器弹出界面由微信控制，无法与 HTML 浏览器逐像素相同；本项目采用自定义导航和本地样式保留原布局。发布前请在自己的手机检查顶部按钮与胶囊、底部导航是否重叠。
 
-## HBuilderX 用法
+### HBuilderX 用法
 
 也可以安装[HBuilderX](https://www.dcloud.io/hbuilderx.html)，导入项目根目录，先安装 npm 依赖，再选择“运行 → 运行到浏览器”或“运行 → 运行到小程序模拟器 → 微信开发者工具”。按提示配置微信开发者工具路径，发行菜单可生成微信发布包。
 
 这是 CLI 项目，业务源码在 `src`。命令行输出固定为 `dist/dev/mp-weixin`、`dist/build/mp-weixin`；HBuilderX 菜单运行或发行时以控制台提示的实际目录为准。不要单独把 `src` 当作 HBuilderX 工程导入。
 
-## 页面与代码
+### 页面与代码
 
 | 原页面 | 新页面 |
 | --- | --- |
@@ -80,6 +130,44 @@ Vue 页面使用 `view`、`text`、`button`、`scroll-view`、`input`、`textare
 
 后续维护直接编辑 `src`。`npm.cmd run migrate` 是一次性迁移工具，会从桌面备份的原 HTML **覆盖生成的页面、控制器和初始状态**，正常开发不要重复运行。内容和布局对照检查也读取该备份；若备份移动，可设置环境变量 `ORIGINAL_HTML_DIR` 指定新路径。正常运行及构建不依赖备份。
 
+---
+
+## 数据库层（database/）
+
+集中管理全部数据库文件与设计文档，是**数据库层的唯一权威来源**。任何后端开发、联调、报告编写都以本目录为准。详见 `database/README.md`。
+
+- 库名 `roc_git`，MySQL 8.0，InnoDB，utf8mb4。
+- 共 **15 张表**：user、course、project、project_member、stage、stage_template、task、file、file_version、file_review、meeting、meeting_action、message、operation_log、archive。
+- 关键状态机（file.status、project.status、task.status、user.role 等）及执行方式见 `database/README.md` 第四、五节。
+
+---
+
+## 后端：knife4j-spring（Spring Boot + Knife4j）
+
+提供 ROC-git 接口文档的 Spring Boot 后端，支持两种打包模式（`java -jar` 直接运行 / 打成标准 WAR 部署外部 Tomcat）。详见 `knife4j-spring/README.md`。
+
+```bash
+cd knife4j-spring
+mvn clean package -DskipTests        # 默认 Fat WAR
+java -jar target/knife4j-spring-1.0.0.war
+# 访问 http://localhost:8080/doc.html
+```
+
+## OpenAPI 接口规范
+
+`openapi.yaml` 定义了 ROC-git 全部 **146 个 REST 接口**（用户 9、小组 15、项目 17、文件 28、版本 3、任务 12、协作 18、消息 12、分享 27、通用 5），JWT 认证。使用与部署方式见 `SWAGGER_GUIDE.md`（Swagger Editor / Swagger UI / Redoc / Prism mock 等）。
+
+## 脚本（scripts/）
+
+| 命令 | 脚本 | 作用 |
+|---|---|---|
+| `npm run migrate` | `migrate.mjs` | 一次性迁移工具，从备份原 HTML 覆盖生成页面/控制器/初始状态，正常开发勿重复运行 |
+| `npm run check` | `check.mjs` | 内容检查：逐一对照 6 页元素、文字、属性（含隐藏弹层、表单初始值） |
+| `npm run check:browser` | `interaction-check.mjs` | 浏览器交互检查（本机 Edge）：Tab、筛选、弹层、动态表单 |
+| `npm run check:layout` | `preview-check.mjs` | 393×852 视口布局检查，生成 `artifacts/*-original.png`、`*-uniapp.png`、`layout-report.json` |
+| `npm run build:h5` | — | 验证 H5 编译 |
+| `npm run build:mp-weixin` | — | 验证微信小程序编译 |
+
 ## 验证
 
 ```powershell
@@ -88,8 +176,6 @@ npm.cmd run build:h5
 npm.cmd run build:mp-weixin
 ```
 
-内容检查逐一对照全部 6 页的元素、文字、属性，包括隐藏弹层和表单初始值，并检查本地图标及主要状态操作。两个 build 命令分别验证 H5 和微信小程序编译。
-
 启动 H5 开发服务后，在另一终端执行：
 
 ```powershell
@@ -97,6 +183,6 @@ npm.cmd run check:browser
 npm.cmd run check:layout
 ```
 
-浏览器检查使用本机 Microsoft Edge，验证 Tab、筛选、弹层、动态表单等交互。布局检查在 393 × 852 视口生成 `artifacts/*-original.png`、`artifacts/*-uniapp.png` 和 `layout-report.json`。HTML 对照使用本地 Tailwind 和原 Lucide 图形，以免在线 CDN 影响结果。H5 检查不能代替微信开发者工具和微信真机验证。
+HTML 对照使用本地 Tailwind 和原 Lucide 图形，以免在线 CDN 影响结果。H5 检查不能代替微信开发者工具和微信真机验证。
 
 官方参考：[uni-app CLI 创建和运行](https://uniapp.dcloud.net.cn/quickstart-cli)、[CLI 编译](https://uniapp.dcloud.net.cn/worktile/CLI.html)、[HBuilderX 运行与发行](https://uniapp.dcloud.net.cn/quickstart)。
