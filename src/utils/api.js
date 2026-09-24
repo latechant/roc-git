@@ -19,6 +19,9 @@ const DEMO_AVATAR = 'https://cdn.rocgit.com/avatar/demo.png'
 const TOKEN_KEY = 'rocgit_token'
 const USER_KEY = 'rocgit_user'
 
+// 正在跳转登录页时置位，避免多个并发 401 重复 reLaunch
+let redirectingToLogin = false
+
 function getToken() {
   try { return uni.getStorageSync(TOKEN_KEY) || '' } catch (e) { return '' }
 }
@@ -30,6 +33,14 @@ function getCachedUser() {
 }
 function setCachedUser(user) {
   try { uni.setStorageSync(USER_KEY, user) } catch (e) { /* ignore */ }
+}
+
+/** 凭证失效：清理本地登录态并跳登录页（仅触发一次） */
+function handleUnauthorized() {
+  if (redirectingToLogin) return
+  redirectingToLogin = true
+  logout()
+  uni.reLaunch({ url: '/pages/login/login' })
 }
 
 /**
@@ -50,6 +61,9 @@ function request(opts = {}) {
   }
 
   return new Promise((resolve, reject) => {
+    const urlPath = (BASE_URL + url).replace(/^https?:\/\/[^/]+/, '')
+    // 这些接口本身不需要鉴权，不参与 401 跳转
+    const isPublic = /\/(login|health|config)\b/.test(urlPath)
     uni.request({
       url: BASE_URL + url + query,
       method,
@@ -59,9 +73,20 @@ function request(opts = {}) {
         Authorization: getToken() ? `Bearer ${getToken()}` : ''
       },
       success: (res) => {
+        if (res.statusCode === 401 && !isPublic) {
+          handleUnauthorized()
+          reject(new Error('未登录或登录已过期'))
+          return
+        }
         if (res.statusCode >= 200 && res.statusCode < 300) {
           const body = res.data
           if (body && typeof body === 'object' && 'code' in body) {
+            // 后端业务码表示未授权/凭证失效时同样清理登录态
+            if (!isPublic && (body.code === 401 || body.code === 40101 || body.code === 1001)) {
+              handleUnauthorized()
+              reject(new Error(body.message || '未登录或登录已过期'))
+              return
+            }
             if (body.code === 0) {
               resolve(body.data)
             } else {

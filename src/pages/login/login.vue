@@ -44,10 +44,15 @@ function getDeviceId() {
 }
 
 onLoad(() => {
-  // 已有 token 直接进首页
+  // 只有本地同时存在 token 和用户信息（完整登录态）才直接进首页。
+  // 若 token 残留/失效（只有 token 没有用户信息，如会话过期、旧版本残留），
+  // 清理后留在登录页，保证用户始终能停在登录页重新登录，不会被强制弹回首页。
   const token = api.getToken()
-  if (token) {
+  const user = api.getCachedUser()
+  if (token && user) {
     uni.reLaunch({ url: '/pages/home/home' })
+  } else if (token) {
+    api.logout()
   }
 })
 
