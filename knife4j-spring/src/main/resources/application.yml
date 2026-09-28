@@ -57,6 +57,11 @@ jwt:
   secret: rocgit-secret-key-2026-very-long-string
   expiration: 604800  # 7 天（秒）
 
+# 文件存储
+rocgit:
+  file:
+    storage-dir: /opt/roc-git/files
+
 logging:
   level:
     root: INFO

@@ -27,11 +27,13 @@ public class TaskService {
     private ProjectMapper projectMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private NotifyService notifyService;
 
     // ==================== 任务 CRUD ====================
 
     @Transactional
-    public TaskVO createTask(CreateTaskRequest request) {
+    public TaskVO createTask(CreateTaskRequest request, Long creatorId) {
         Task task = new Task();
         task.setProjectId(request.getProjectId());
         task.setName(request.getName());
@@ -44,6 +46,12 @@ public class TaskService {
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
         taskMapper.insert(task);
+
+        if (request.getAssigneeId() != null) {
+            notifyService.sendMessage(request.getAssigneeId(), request.getProjectId(), "task", "新任务分配",
+                    "您被分配了任务「" + task.getName() + "」");
+        }
+        notifyService.logOperation(request.getProjectId(), creatorId, "create", "task", task.getId(), task.getName(), "创建任务");
         return toTaskVO(task);
     }
 
@@ -126,7 +134,7 @@ public class TaskService {
     // ==================== 状态流转 ====================
 
     @Transactional
-    public void completeTask(Long taskId, CompleteTaskRequest request) {
+    public void completeTask(Long taskId, CompleteTaskRequest request, Long operatorId) {
         Task task = taskMapper.selectById(taskId);
         if (task == null) {
             throw new BusinessException(ResultCode.TASK_NOT_FOUND);
@@ -139,6 +147,8 @@ public class TaskService {
         }
         task.setUpdatedAt(LocalDateTime.now());
         taskMapper.updateById(task);
+
+        notifyService.logOperation(task.getProjectId(), operatorId, "complete", "task", taskId, task.getName(), "完成任务");
     }
 
     @Transactional
@@ -156,7 +166,7 @@ public class TaskService {
     }
 
     @Transactional
-    public void transferTask(Long taskId, TransferTaskRequest request) {
+    public void transferTask(Long taskId, TransferTaskRequest request, Long operatorId) {
         Task task = taskMapper.selectById(taskId);
         if (task == null) {
             throw new BusinessException(ResultCode.TASK_NOT_FOUND);
@@ -164,6 +174,13 @@ public class TaskService {
         task.setAssigneeId(request.getNewAssigneeId());
         task.setUpdatedAt(LocalDateTime.now());
         taskMapper.updateById(task);
+
+        if (request.getNewAssigneeId() != null) {
+            notifyService.sendMessage(request.getNewAssigneeId(), task.getProjectId(), "task", "任务转交给您",
+                    "任务「" + task.getName() + "」已转交给您处理");
+        }
+        notifyService.logOperation(task.getProjectId(), operatorId, "transfer", "task", taskId, task.getName(),
+                "转交给用户" + request.getNewAssigneeId());
     }
 
     @Transactional

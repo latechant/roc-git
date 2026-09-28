@@ -333,7 +333,7 @@ public class ShareService {
         resolveShareByToken(shareToken);
         File file = fileMapper.selectById(fileId);
         Map<String, Object> data = new HashMap<>();
-        data.put("previewUrl", "https://view.rocgit.com/preview/" + fileId);
+        data.put("previewUrl", file == null ? null : file.getUrl());
         data.put("type", file == null ? "file" : file.getType());
         return data;
     }
@@ -349,7 +349,8 @@ public class ShareService {
         shareAccessLogMapper.insert(accessLog);
 
         Map<String, Object> data = new HashMap<>();
-        data.put("downloadUrl", "https://cdn.rocgit.com/download/" + fileId);
+        File file = fileMapper.selectById(fileId);
+        data.put("downloadUrl", file == null ? null : file.getUrl());
         return data;
     }
 

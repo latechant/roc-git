@@ -28,8 +28,9 @@ public class TaskController {
 
     @Operation(summary = "创建任务", description = "在项目中创建任务并分配给成员")
     @PostMapping("/create")
-    public Result<TaskVO> create(@Valid @RequestBody CreateTaskRequest request) {
-        TaskVO data = taskService.createTask(request);
+    public Result<TaskVO> create(@RequestAttribute("userId") String userId,
+                                 @Valid @RequestBody CreateTaskRequest request) {
+        TaskVO data = taskService.createTask(request, Long.parseLong(userId));
         return Result.success(data);
     }
 
@@ -89,8 +90,10 @@ public class TaskController {
 
     @Operation(summary = "完成任务", description = "将任务标记为已完成，可上传凭证文件")
     @PostMapping("/{taskId}/complete")
-    public Result<Void> complete(@PathVariable Long taskId, @RequestBody(required = false) @Valid CompleteTaskRequest request) {
-        taskService.completeTask(taskId, request);
+    public Result<Void> complete(@RequestAttribute("userId") String userId,
+                                  @PathVariable Long taskId,
+                                  @RequestBody(required = false) @Valid CompleteTaskRequest request) {
+        taskService.completeTask(taskId, request, Long.parseLong(userId));
         return Result.success("任务已完成", null);
     }
 
@@ -103,8 +106,9 @@ public class TaskController {
 
     @Operation(summary = "转交任务", description = "把任务转交给其他人")
     @PostMapping("/{taskId}/transfer")
-    public Result<Void> transfer(@PathVariable Long taskId, @Valid @RequestBody TransferTaskRequest request) {
-        taskService.transferTask(taskId, request);
+    public Result<Void> transfer(@RequestAttribute("userId") String userId,
+                                 @PathVariable Long taskId, @Valid @RequestBody TransferTaskRequest request) {
+        taskService.transferTask(taskId, request, Long.parseLong(userId));
         return Result.success("转交成功", null);
     }
 

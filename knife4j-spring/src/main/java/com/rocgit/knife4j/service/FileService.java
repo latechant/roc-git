@@ -18,10 +18,12 @@ import com.rocgit.knife4j.model.FileVersion;
 import com.rocgit.knife4j.model.Stage;
 import com.rocgit.knife4j.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -53,6 +55,11 @@ public class FileService {
     private UserMapper userMapper;
     @Autowired
     private StageMapper stageMapper;
+    @Autowired
+    private NotifyService notifyService;
+
+    @Value("${rocgit.file.storage-dir:/opt/roc-git/files}")
+    private String storageDir;
 
     // 文件类型分类集合（用于 type-stats）
     private static final Set<String> DOC_TYPES = new HashSet<>(Arrays.asList(
@@ -73,7 +80,11 @@ public class FileService {
     public FileVO upload(MultipartFile file, Long projectId, Long stageId, Long uploaderId, String remark) {
         String originalName = file.getOriginalFilename();
         String ext = getExt(originalName);
-        String path = "/files/" + UUID.randomUUID().toString().replace("-", "") + "/" + originalName;
+        String uuidDir = UUID.randomUUID().toString().replace("-", "");
+        String path = "/files/" + uuidDir + "/" + originalName;
+
+        // 物理写盘
+        saveToDisk(file, uuidDir, originalName);
 
         File f = new File();
         f.setProjectId(projectId);
@@ -98,6 +109,7 @@ public class FileService {
         v.setComment(remark);
         fileVersionMapper.insert(v);
 
+        notifyService.logOperation(projectId, uploaderId, "upload", "file", f.getId(), originalName, "上传文件 v1");
         return toVO(fileMapper.selectById(f.getId()), new HashMap<>(), new HashMap<>());
     }
 
@@ -219,6 +231,10 @@ public class FileService {
         r.setAction("approved");
         r.setReviewedAt(LocalDateTime.now());
         fileReviewMapper.insert(r);
+
+        notifyService.sendMessage(f.getUploaderId(), f.getProjectId(), "audit", "文件审核通过",
+                "您的文件「" + f.getName() + "」已审核通过");
+        notifyService.logOperation(f.getProjectId(), reviewerId, "approve", "file", fileId, f.getName(), "审核通过");
     }
 
     /**
@@ -238,6 +254,10 @@ public class FileService {
         r.setReason(reason);
         r.setReviewedAt(LocalDateTime.now());
         fileReviewMapper.insert(r);
+
+        notifyService.sendMessage(f.getUploaderId(), f.getProjectId(), "audit", "文件审核驳回",
+                "您的文件「" + f.getName() + "」被驳回，原因：" + reason);
+        notifyService.logOperation(f.getProjectId(), reviewerId, "reject", "file", fileId, f.getName(), "审核驳回：" + reason);
     }
 
     /**
@@ -248,7 +268,11 @@ public class FileService {
         File f = mustGetFile(fileId);
         String originalName = file.getOriginalFilename();
         String ext = getExt(originalName);
-        String path = "/files/" + UUID.randomUUID().toString().replace("-", "") + "/" + originalName;
+        String uuidDir = UUID.randomUUID().toString().replace("-", "");
+        String path = "/files/" + uuidDir + "/" + originalName;
+
+        // 物理写盘
+        saveToDisk(file, uuidDir, originalName);
 
         int newVersion = (f.getVersion() == null ? 1 : f.getVersion()) + 1;
         f.setUrl(path);
@@ -269,6 +293,7 @@ public class FileService {
         v.setComment(remark);
         fileVersionMapper.insert(v);
 
+        notifyService.logOperation(f.getProjectId(), uploaderId, "resubmit", "file", fileId, originalName, "重新提交 v" + newVersion);
         return toVO(fileMapper.selectById(fileId), new HashMap<>(), new HashMap<>());
     }
 
@@ -359,6 +384,12 @@ public class FileService {
             r.setReason(request.getReason());
             r.setReviewedAt(LocalDateTime.now());
             fileReviewMapper.insert(r);
+
+            notifyService.sendMessage(f.getUploaderId(), f.getProjectId(), "audit",
+                    approve ? "文件审核通过" : "文件审核驳回",
+                    "您的文件「" + f.getName() + "」" + (approve ? "已审核通过" : "被驳回，原因：" + request.getReason()));
+            notifyService.logOperation(f.getProjectId(), reviewerId, action, "file", fileId, f.getName(),
+                    approve ? "批量审核通过" : "批量审核驳回：" + request.getReason());
             success++;
         }
 
@@ -567,6 +598,22 @@ public class FileService {
     }
 
     // ===================== 私有辅助 =====================
+
+    /**
+     * 将上传文件物理写入磁盘：{storageDir}/{uuidDir}/{originalName}
+     */
+    private void saveToDisk(MultipartFile file, String uuidDir, String originalName) {
+        java.io.File dir = new java.io.File(storageDir, uuidDir);
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new BusinessException(ResultCode.FAIL, "创建文件目录失败: " + dir.getAbsolutePath());
+        }
+        java.io.File dest = new java.io.File(dir, originalName);
+        try {
+            file.transferTo(dest);
+        } catch (IOException e) {
+            throw new BusinessException(ResultCode.FAIL, "文件写入磁盘失败: " + e.getMessage());
+        }
+    }
 
     private File mustGetFile(Long fileId) {
         File f = fileMapper.selectById(fileId);

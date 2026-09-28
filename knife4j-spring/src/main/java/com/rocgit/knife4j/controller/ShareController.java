@@ -90,52 +90,52 @@ public class ShareController {
         return Result.success(shareService.validate(request));
     }
 
-    // ===== 访客无需鉴权接口（不要加 @RequestAttribute） =====
+    // ===== 访客无需鉴权接口（路径前缀 /p/，与白名单 /api/v1/share/p/** 对应） =====
 
     @Operation(summary = "访客查看分享", description = "通过分享令牌查看项目（无需登录）")
-    @GetMapping("/{shareToken}")
+    @GetMapping("/p/{shareToken}")
     public Result<Map<String, Object>> viewByToken(@PathVariable String shareToken) {
         return Result.success(shareService.viewByToken(shareToken));
     }
 
     @Operation(summary = "项目概览", description = "分享页的项目概览数据")
-    @GetMapping("/{shareToken}/overview")
+    @GetMapping("/p/{shareToken}/overview")
     public Result<Map<String, Object>> overview(@PathVariable String shareToken) {
         return Result.success(shareService.overview(shareToken));
     }
 
     @Operation(summary = "协作时间线", description = "项目的协作时间线")
-    @GetMapping("/{shareToken}/timeline")
+    @GetMapping("/p/{shareToken}/timeline")
     public Result<List<Map<String, Object>>> timeline(@PathVariable String shareToken) {
         return Result.success(shareService.timeline(shareToken));
     }
 
     @Operation(summary = "文件列表", description = "分享页的文件列表")
-    @GetMapping("/{shareToken}/files")
+    @GetMapping("/p/{shareToken}/files")
     public Result<Map<String, Object>> files(@PathVariable String shareToken) {
         return Result.success(shareService.files(shareToken));
     }
 
     @Operation(summary = "文件预览", description = "分享页的文件预览")
-    @GetMapping("/{shareToken}/file/{fileId}/preview")
+    @GetMapping("/p/{shareToken}/file/{fileId}/preview")
     public Result<Map<String, Object>> filePreview(@PathVariable String shareToken, @PathVariable Long fileId) {
         return Result.success(shareService.filePreview(shareToken, fileId));
     }
 
     @Operation(summary = "文件下载", description = "分享页的文件下载")
-    @GetMapping("/{shareToken}/file/{fileId}/download")
+    @GetMapping("/p/{shareToken}/file/{fileId}/download")
     public Result<Map<String, Object>> fileDownload(@PathVariable String shareToken, @PathVariable Long fileId) {
         return Result.success(shareService.fileDownload(shareToken, fileId));
     }
 
     @Operation(summary = "研讨列表", description = "分享页的研讨记录")
-    @GetMapping("/{shareToken}/discussions")
+    @GetMapping("/p/{shareToken}/discussions")
     public Result<List<Map<String, Object>>> discussions(@PathVariable String shareToken) {
         return Result.success(shareService.discussions(shareToken));
     }
 
     @Operation(summary = "决策列表", description = "分享页的决策列表")
-    @GetMapping("/{shareToken}/decisions")
+    @GetMapping("/p/{shareToken}/decisions")
     public Result<List<Map<String, Object>>> decisions(@PathVariable String shareToken) {
         return Result.success(shareService.decisions(shareToken));
     }
