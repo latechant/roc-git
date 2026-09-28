@@ -9,12 +9,24 @@
  * 后端当前返回演示数据（接口路径真实、可调），链路为真实 HTTP 调用。
  */
 import api from './api.js'
+import { textAvatar } from './avatar.js'
 
 /** 设置节点文本（值为 undefined/null/'' 时跳过，保留原型默认） */
 function setText(controller, id, value) {
   if (!controller.ui[id]) return
   if (value === undefined || value === null || value === '') return
   controller.ui[id].textContent = String(value)
+}
+
+/** 设置节点文字头像：首字 + 稳定底色（节点不存在则跳过） */
+function setAvatar(controller, id, name) {
+  if (!controller.ui[id]) return
+  const a = textAvatar(name)
+  if (!a.char) return
+  controller.ui[id].textContent = a.char
+  try {
+    controller.ui[id].style.background = a.color
+  } catch (e) { /* 节点 style 不可写时仅保留首字 */ }
 }
 
 /**
@@ -90,6 +102,16 @@ export function loadHome(controller) {
     const gid = groups && groups.length ? groups[0].groupId : 1
     const projects = await api.projectList(gid)
     const list = projects || []
+
+    // 项目1成员文字头像（前 3 位成员昵称首字）
+    const members = await api.groupMembers(gid).catch(() => null)
+    if (members && members.members && members.members.length) {
+      const names = members.members.map((m) => m.nickname)
+      setAvatar(controller, 'n52', names[0])
+      setAvatar(controller, 'n53', names[1])
+      setAvatar(controller, 'n54', names[2])
+      setText(controller, 'n55', `${members.total || names.length}位成员`)
+    }
 
     // 项目卡片：有数据才填充，无数据时节点已在开头清空
     if (list.length) {
@@ -193,6 +215,24 @@ export function loadProject(controller, projectId) {
     if (stages && stages.length) {
       // 阶段列表在 n40 区域，为多节点；此处仅展示第一个阶段名（保留扩展）
     }
+
+    // 项目所属小组的成员文字头像（前 4 位：头像首字/姓名/角色）
+    if (detail && detail.groupId) {
+      const members = await api.groupMembers(detail.groupId).catch(() => null)
+      if (members && members.members && members.members.length) {
+        const slots = [
+          { av: 'n261', nm: 'n263', role: 'n264' },
+          { av: 'n267', nm: 'n269', role: 'n270' },
+          { av: 'n273', nm: 'n275', role: 'n276' },
+          { av: 'n279', nm: 'n281', role: 'n282' }
+        ]
+        members.members.slice(0, 4).forEach((m, i) => {
+          setAvatar(controller, slots[i].av, m.nickname)
+          setText(controller, slots[i].nm, m.nickname)
+          setText(controller, slots[i].role, m.role === 'leader' ? '组长' : '组员')
+        })
+      }
+    }
   })
 }
 
@@ -226,6 +266,7 @@ export function loadProfile(controller) {
 
     const profile = await api.getProfile()
     if (profile) {
+      setAvatar(controller, 'n7', profile.nickname)          // 头像首字
       setText(controller, 'n9', profile.nickname)
       setText(controller, 'n18', profile.projectCount !== undefined ? String(profile.projectCount) : '')
     }

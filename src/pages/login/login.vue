@@ -16,7 +16,7 @@
       </view>
 
       <button class="login-btn" :disabled="loading" @tap="onLogin">
-        {{ loading ? '登录中...' : '登 录' }}
+        {{ loading ? '进入中...' : '进入平台' }}
       </button>
     </view>
   </view>
@@ -44,13 +44,13 @@ function getDeviceId() {
 }
 
 onLoad(() => {
-  // 只有本地同时存在 token 和用户信息（完整登录态）才直接进首页。
+  // 不再自动进入首页：始终停在登录页，由用户点击「进入平台」确认进入。
   // 若 token 残留/失效（只有 token 没有用户信息，如会话过期、旧版本残留），
-  // 清理后留在登录页，保证用户始终能停在登录页重新登录，不会被强制弹回首页。
+  // 清理登录态；完整登录态则预填上次昵称，方便确认进入。
   const token = api.getToken()
   const user = api.getCachedUser()
   if (token && user) {
-    uni.reLaunch({ url: '/pages/home/home' })
+    nickname.value = user.nickname || ''
   } else if (token) {
     api.logout()
   }
