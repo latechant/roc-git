@@ -43,8 +43,8 @@ roc-git/
 |---|---|---|---|
 | 前端 A | `src/` | uni-app + Vue 3 + Vite | 已迁移，可编译 H5 / 微信小程序；H5 已接入真实后端接口 |
 | 前端 B | 主目录 `miniprogram/` | 原生微信小程序 | 原型，mock 数据 |
-| 后端 | `knife4j-spring/` | Spring Boot + Knife4j | 接口文档后端，已部署，鉴权链路可用 |
-| 数据库 | `database/` | MySQL 8.0 | schema + seed 就绪 |
+| 后端 | `knife4j-spring/` | Spring Boot + Knife4j | 已部署，连 MySQL 8.0，鉴权/CRUD/文件落盘/消息日志可用 |
+| 数据库 | `database/` | MySQL 8.0 | 22 张表 + seed 就绪 |
 
 uni-app 端（前端 A）通过 `src/utils/api.js`（真实请求层）+ `src/utils/bind-api.js`（数据绑定层）接入后端真实接口：`api.js` 统一管理 token、以相对 `/api` 走 nginx 反向代理，页面控制器创建后调用 `bind-api` 把后端数据渲染进对应节点，无需改动原型布局。原生小程序端仍为 mock。接口路径统一按 `/api/...` 预留。
 
@@ -141,7 +141,7 @@ Vue 页面使用 `view`、`text`、`button`、`scroll-view`、`input`、`textare
 集中管理全部数据库文件与设计文档，是**数据库层的唯一权威来源**。任何后端开发、联调、报告编写都以本目录为准。详见 `database/README.md`。
 
 - 库名 `roc_git`，MySQL 8.0，InnoDB，utf8mb4。
-- 共 **15 张表**：user、course、project、project_member、stage、stage_template、task、file、file_version、file_review、meeting、meeting_action、message、operation_log、archive。
+- 共 **22 张表**：user、group、group_member、project、stage、stage_template、task、file、file_version、file_review、discussion、decision、achievement、achievement_file、announcement、announcement_read、message、operation_log、share、share_access_log、user_subscription、archive。
 - 关键状态机（file.status、project.status、task.status、user.role 等）及执行方式见 `database/README.md` 第四、五节。
 
 ---
@@ -157,7 +157,7 @@ java -jar target/knife4j-spring-1.0.0.war
 # 访问 http://localhost:8080/doc.html
 ```
 
-> 注：本项目用 **JDK 17** 编译运行。若本机是 JDK 23，编译会因 Spring Boot 2.7.18 默认的 Lombok 1.18.30 不兼容而失败（Lombok 不生成 getter/setter），已在 `pom.xml` 通过 `<lombok.version>1.18.36</lombok.version>` 覆盖解决。
+> 注：本项目用 **JDK 17** 编译运行。若本机是 JDK 23，编译会因 Spring Boot 2.7.18 默认的 Lombok 1.18.30 不兼容而失败（Lombok 不生成 getter/setter），已在 `pom.xml` 通过 `<lombok.version>1.18.36</lombok.version>` 覆盖 + `maven-compiler-plugin` 的 `annotationProcessorPaths` 显式声明 Lombok 解决。
 
 ---
 
@@ -178,7 +178,9 @@ java -jar target/knife4j-spring-1.0.0.war
 |---|---|
 | 后端 | `knife4j-spring-1.0.0.war`（Fat WAR）置于 `/opt/roc-git`，由 systemd 服务 `rocgit` 守护，开机自启、崩溃自动重启 |
 | 前端 | `npm run build:h5` 产物上传至 `/opt/roc-git/h5`，nginx 托管并做 `/api` 反向代理到本地 8080 |
-| 登录放行 | `WebMvcConfig` 将 `/api/v1/user/login` 加入 JWT 拦截器白名单（原误写为不存在的 `/api/v1/login`） |
+| MySQL | `roc_git` 库（22 张表 + 阶段模板 seed），后端通过 HikariPool 连接 `127.0.0.1:3306`，仅本机可达 |
+| 文件存储 | 上传文件物理落盘到 `/opt/roc-git/files/{uuid}/原名`，nginx/WebMvcConfig 映射 `/files/**` 为静态资源 |
+| 登录放行 | `WebMvcConfig` 将 `/api/v1/user/login`、`/api/v1/share/p/**`（访客）、`/api/v1/group/validate-invite-code` 加入 JWT 白名单 |
 | JWT | `JwtUtil` 以 `Keys.hmacShaKeyFor` + HS256 真实签发 token（原 HS512 base64 解析字符串密钥会抛异常）；`UserController.login` 返回真实 token |
 
 ### 前端接入方式
@@ -190,9 +192,9 @@ java -jar target/knife4j-spring-1.0.0.war
 
 已接入页面：首页（登录、个人资料、小组、项目列表、未读数）、项目详情、个人中心、消息、研讨记录。
 
-### 当前限制
+### 当前状态
 
-后端为**接口文档演示服务，无数据库**（controller 直接构造返回），故页面数据为演示值（如项目名固定"课程设计项目"）。但**登录/鉴权为真实 JWT、请求为真实 HTTP 调用**；后续接入 MySQL 后，前端无需改动即可展示真实数据。原生小程序端仍为 mock，未接入。
+后端已接入 MySQL 8.0（22 张表），鉴权、小组、项目、任务、文件（物理落盘+版本回滚+审核）、研讨/决策/成果、消息通知/操作日志、分享访客等均为真实 CRUD。端到端验证 111 个用例全部通过。原生小程序端仍为 mock，未接入。
 
 ## OpenAPI 接口规范
 
