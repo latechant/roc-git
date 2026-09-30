@@ -86,34 +86,6 @@
 </view>
 </template>
 </view>
-<view v-if="!ui.n22.removed" :class="classes(ui.n22.className)" :style="ui.n22.style" class="original-div">
-<template v-if="ui.n22.textContent !== undefined"><text>{{ ui.n22.textContent }}</text></template><template v-else>
-<view v-if="!ui.n23.removed" :class="classes(ui.n23.className)" :style="ui.n23.style" class="original-a" @tap.stop="tap('n23', $event)">
-<template v-if="ui.n23.textContent !== undefined"><text>{{ ui.n23.textContent }}</text></template><template v-else>
-<view v-if="!ui.n24.removed" :class="classes(ui.n24.className)" :style="ui.n24.style" class="original-div">
-<template v-if="ui.n24.textContent !== undefined"><text>{{ ui.n24.textContent }}</text></template><template v-else>
-<image v-if="!ui.n25.removed" :class="classes(ui.n25.className)" :style="ui.n25.style" class="original-icon" :src="iconSrc('n25')" style="width:18px;height:18px" mode="aspectFit" />
-</template>
-</view>
-<view v-if="!ui.n26.removed" :class="classes(ui.n26.className)" :style="ui.n26.style" class="original-div">
-<template v-if="ui.n26.textContent !== undefined"><text>{{ ui.n26.textContent }}</text></template><template v-else>
-<view v-if="!ui.n27.removed" :class="classes(ui.n27.className)" :style="ui.n27.style" class="original-p">
-<template v-if="ui.n27.textContent !== undefined"><text>{{ ui.n27.textContent }}</text></template><template v-else>
-<text>多维文件检索 / 清理</text>
-</template>
-</view>
-<view v-if="!ui.n28.removed" :class="classes(ui.n28.className)" :style="ui.n28.style" class="original-p">
-<template v-if="ui.n28.textContent !== undefined"><text>{{ ui.n28.textContent }}</text></template><template v-else>
-<text>按关键词、格式、阶段、状态精准定位</text>
-</template>
-</view>
-</template>
-</view>
-<image v-if="!ui.n29.removed" :class="classes(ui.n29.className)" :style="ui.n29.style" class="original-icon" :src="iconSrc('n29')" style="width:16px;height:16px" mode="aspectFit" />
-</template>
-</view>
-</template>
-</view>
 <view v-if="!ui.n30.removed" :class="classes(ui.n30.className)" :style="ui.n30.style" class="original-div">
 <template v-if="ui.n30.textContent !== undefined"><text>{{ ui.n30.textContent }}</text></template><template v-else>
 <view v-if="!ui.n31.removed" :class="classes(ui.n31.className)" :style="ui.n31.style" class="original-div">

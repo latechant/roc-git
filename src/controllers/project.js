@@ -1,6 +1,7 @@
 import data from '../data/project.json'
 import { createPageController } from '../utils/page-controller.js'
 import { loadProject } from '../utils/bind-api.js'
+import api from '../utils/api.js'
 
 // Original prototype actions operate on reactive Vue state through adapters.
 // No browser DOM, inline JavaScript or eval is required in the mini program.
@@ -19,7 +20,7 @@ export default function () {
     });
   }
 
-  // 多维筛选
+  // 多维检索（入口卡片 n600 打开；applyFilter 落地为本地真实筛选）
   function showFilters(){document.getElementById('filterModal').classList.remove('hidden')}
   function hideFilters(){document.getElementById('filterModal').classList.add('hidden')}
   function toggleFormat(btn){
@@ -28,13 +29,37 @@ export default function () {
       ? btn.className.replace('bg-blue-600 text-white','bg-slate-100 text-slate-600')
       : btn.className.replace('bg-slate-100 text-slate-600','bg-blue-600 text-white');
   }
+  function activeChips(scopeSel){
+    return document.querySelectorAll(scopeSel).map(function(b){return {el:b,on:b.className.indexOf('bg-blue-600')>=0}})
+  }
+  // 本地筛选文件行：关键词(输入框) + 选中格式/阶段/上传者/状态芯片 逐行匹配文本
   function applyFilter(){
+    var kw=(document.getElementById('filterKeyword')||{value:''}).value||'';
+    var active=[].concat(
+      activeChips('#filterModal .format-chip'),
+      activeChips('#filterModal .stage-chip'),
+      activeChips('#filterModal .uploader-chip'),
+      activeChips('#filterModal .status-chip')
+    ).filter(function(c){return c.on}).map(function(c){return (c.el.textContent||'').trim()});
+    var rows=document.querySelectorAll('.file-row'), matched=0;
+    rows.forEach(function(r){
+      var text=(r.textContent||'').toLowerCase();
+      var kwOk=!kw || text.indexOf(kw.toLowerCase())>=0;
+      var chipOk=active.every(function(t){return text.indexOf(t.toLowerCase())>=0});
+      var show=kwOk&&chipOk;
+      r.style.display=show?'':'none';
+      if(show)matched++;
+    });
     hideFilters();
     document.getElementById('activeFilters').classList.remove('hidden');
     document.getElementById('filterBadge').classList.remove('hidden');
-    showToast('已应用筛选');
+    showToast(matched+' 条文件匹配');
   }
-  function clearFilter(){document.getElementById('activeFilters').classList.add('hidden');document.getElementById('filterBadge').classList.add('hidden')}
+  function clearFilter(){
+    document.getElementById('activeFilters').classList.add('hidden');
+    document.getElementById('filterBadge').classList.add('hidden');
+    document.querySelectorAll('.file-row').forEach(function(r){r.style.display=''});
+  }
 
   // 批量清理模式
   var batchMode=false,batchSel=0;
@@ -133,6 +158,7 @@ n30: function(event) { switchTab('trace') },
 n33: function(event) { showUpload() },
 n36: function(event) { showFilters() },
 n38: function(event) { showFilters() },
+n600: function(event) { showFilters() },
 n41: function(event) { toggleBatch() },
 n45: function(event) { clearFilter(this) },
 n48: function(event) { clearFilter(this) },
@@ -222,7 +248,7 @@ n444: function(event) { toggleFormat(this) },
 n445: function(event) { toggleFormat(this) },
 n446: function(event) { toggleFormat(this) },
 n447: function(event) { toggleFormat(this) },
-n456: function(event) { hideFilters() },
+n456: function(event) { clearFilter() },
 n457: function(event) { applyFilter() },
 n458: function(event) { hideFileMenu() },
 n459: function(event) { event.stopPropagation() },

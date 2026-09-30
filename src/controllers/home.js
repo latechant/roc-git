@@ -18,11 +18,8 @@ export default function () {
     setTimeout(function(){ t.classList.add('hidden'); }, 1500);
   }
 
-function showFileSearch() {}
-
   controller.setHandlers({
 n9: function(event) { showToast('分享') },
-n23: function(event) { showFileSearch() },
 n147: function(event) { event.preventDefault();showToast('已通过') },
 n154: function(event) { event.preventDefault();showToast('已通过') }
   })
