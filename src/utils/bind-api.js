@@ -75,9 +75,9 @@ async function requireLogin() {
 // 静态标题不清：n32 当前项目 / n96 研讨记录 / n119 临期任务 / n138 待审核 /
 //               n157 归档 / n169 首页 / n172 消息 / n176 我的
 const HOME_CLEAR_IDS = [
-  'n5', 'n14', 'n17', 'n20',
+  'n4', 'n5', 'n14', 'n17', 'n20',
   'n41', 'n42', 'n43', 'n47', 'n52', 'n53', 'n54', 'n55',
-  'n59', 'n60', 'n61', 'n65', 'n70', 'n71',
+  'n59', 'n60', 'n61', 'n65', 'n70', 'n71', 'n72',
   'n76', 'n77', 'n78', 'n82', 'n87', 'n88',
   'n103', 'n104', 'n106', 'n112', 'n113', 'n115',
   'n120', 'n126', 'n127', 'n128', 'n133', 'n134', 'n135',
@@ -93,50 +93,129 @@ export function loadHome(controller) {
     // 先清空本页所有业务数据节点：接口失败或数据为空时保持空态，不回退原型假数据
     clearNodes(controller, HOME_CLEAR_IDS)
 
+    // 今日日期
+    const now = new Date()
+    const wd = ['周日','周一','周二','周三','周四','周五','周六'][now.getDay()]
+    setText(controller, 'n4', `${wd}，${now.getMonth()+1}月${now.getDate()}日`)
+
     // 个人信息（昵称）
     const profile = await api.getProfile()
     setText(controller, 'n5', profile && profile.nickname)
 
-    // 我的小组 -> 取第一个小组的项目列表，填充"当前项目"
+    // 我的小组 -> 取第一个小组
     const groups = await api.myGroups()
     const gid = groups && groups.length ? groups[0].groupId : 1
     const projects = await api.projectList(gid)
     const list = projects || []
 
-    // 项目1成员文字头像（前 3 位成员昵称首字）
-    const members = await api.groupMembers(gid).catch(() => null)
-    if (members && members.members && members.members.length) {
-      const names = members.members.map((m) => m.nickname)
-      setAvatar(controller, 'n52', names[0])
-      setAvatar(controller, 'n53', names[1])
-      setAvatar(controller, 'n54', names[2])
-      setText(controller, 'n55', `${members.total || names.length}位成员`)
-    }
+    // 顶部统计：进行中项目数 / 临期任务数 / 待审核文件数
+    setText(controller, 'n14', String(list.filter(p => p.status === 'active').length))
+    const dueTasks = await api.dueSoonTasks(7).catch(() => null)
+    const dueArr = Array.isArray(dueTasks) ? dueTasks : (dueTasks && dueTasks.tasks) || []
+    setText(controller, 'n20', String(dueArr.length))
+    const pending = await api.pendingAudit(1, 10).catch(() => null)
+    const pendingTotal = (pending && pending.total) || 0
+    setText(controller, 'n17', String(pendingTotal))
 
-    // 项目卡片：有数据才填充，无数据时节点已在开头清空
+    // 小组成员（全组共用，项目卡片取前几位的头像）
+    const members = await api.groupMembers(gid).catch(() => null)
+    const memberList = (members && members.members) || []
+    const memberNames = memberList.map((m) => m.nickname)
+
+    // 项目1：名称/进度/阶段文案/成员头像
     if (list.length) {
       const p0 = list[0]
-      setText(controller, 'n42', p0.name)           // 当前项目名称
+      setText(controller, 'n42', p0.name)
       setText(controller, 'n41', `进度 ${p0.progress}%`)
       setText(controller, 'n47', `${p0.progress}%`)
+      // 项目1成员头像（前3位）
+      setAvatar(controller, 'n52', memberNames[0])
+      setAvatar(controller, 'n53', memberNames[1])
+      setAvatar(controller, 'n54', memberNames[2])
+      setText(controller, 'n55', `${members.total || memberNames.length}位成员`)
     }
+
+    // 项目2
     if (list.length > 1) {
       const p1 = list[1]
       setText(controller, 'n60', p1.name)
       setText(controller, 'n59', `进度 ${p1.progress}%`)
       setText(controller, 'n65', `${p1.progress}%`)
+      // 项目2成员（前2位）
+      setAvatar(controller, 'n70', memberNames[0])
+      setAvatar(controller, 'n71', memberNames[1])
     }
+
+    // 项目3
     if (list.length > 2) {
       const p2 = list[2]
       setText(controller, 'n77', p2.name)
+      setText(controller, 'n76', p2.status === 'active' ? '进行中' : '筹备中')
       setText(controller, 'n82', `${p2.progress}%`)
+      // 项目3成员（前1位+角色）
+      setAvatar(controller, 'n87', memberNames[0])
+      setText(controller, 'n88', memberList[0] && memberList[0].role === 'leader' ? '组长' : '组员')
     }
 
-    // 未读消息数
+    // 研讨记录（取第一个项目的研讨列表前2条）
+    if (list.length) {
+      const pid0 = list[0].projectId
+      const discussions = await api.discussionList(pid0, { pageNum: 1, pageSize: 5 }).catch(() => null)
+      const dl = (discussions && discussions.list) || (discussions && discussions.tasks) || []
+      if (dl.length) {
+        const d0 = dl[0]
+        setText(controller, 'n103', d0.title)
+        setText(controller, 'n104', `${d0.particitantCount || ''}人 · ${(d0.discussionTime || '').slice(5, 10)}`)
+        setText(controller, 'n106', `${d0.decisionCount || 0} 待落地`)
+      }
+      if (dl.length > 1) {
+        const d1 = dl[1]
+        setText(controller, 'n112', d1.title)
+        setText(controller, 'n113', `${d1.particitantCount || ''}人 · ${(d1.discussionTime || '').slice(5, 10)}`)
+        setText(controller, 'n115', '已全部落地')
+      }
+    }
+
+    // 临期任务（前2条）
+    if (dueArr.length) {
+      const t0 = dueArr[0]
+      setText(controller, 'n126', t0.name)
+      setText(controller, 'n127', `${t0.projectName || ''} · 还剩 ${t0.daysLeft || ''}天`)
+      setText(controller, 'n128', `${t0.daysLeft}天`)
+      setText(controller, 'n120', String(dueArr.length) + '项')
+    }
+    if (dueArr.length > 1) {
+      const t1 = dueArr[1]
+      setText(controller, 'n133', t1.name)
+      setText(controller, 'n134', `${t1.projectName || ''} · 还剩 ${t1.daysLeft || ''}天`)
+      setText(controller, 'n135', `${t1.daysLeft}天`)
+    }
+
+    // 待审核文件（前2条）
+    const pendingList = (pending && pending.list) || []
+    if (pendingList.length) {
+      const f0 = pendingList[0]
+      setText(controller, 'n145', `${f0.uploaderName || ''} · ${f0.name || ''}`)
+      setText(controller, 'n146', (f0.createdAt || '').slice(11, 16))
+    }
+    if (pendingList.length > 1) {
+      const f1 = pendingList[1]
+      setText(controller, 'n152', `${f1.uploaderName || ''} · ${f1.name || ''}`)
+      setText(controller, 'n153', (f1.createdAt || '').slice(11, 16))
+    }
+
+    // 归档项目（取已完成项目第一个）
+    const archived = list.filter(p => p.status === 'completed' || p.status === 'archived')
+    if (archived.length) {
+      const a0 = archived[0]
+      setText(controller, 'n162', a0.name)
+      setText(controller, 'n163', `${a0.fileCount || 0} 份成果 · ${a0.versionCount || 0} 版本`)
+    }
+
+    // 未读消息角标
     const unread = await api.unreadCount().catch(() => null)
-    if (unread && typeof unread.total === 'number') {
-      // home 顶部统计：n14=进行中项目数  n17=待审核  n20=临期
-      // 用接口返回值尽量对齐（后端为演示值）
+    if (unread && typeof unread.total === 'number' && unread.total > 0) {
+      setText(controller, 'n173', String(unread.total))
     }
   })
 }

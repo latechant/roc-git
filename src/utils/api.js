@@ -193,6 +193,11 @@ function unreadCount() { return request({ url: '/v1/message/unread-count' }) }
 function messageList(params) { return request({ url: '/v1/message/list', params }) }
 function readAll() { return request({ url: '/v1/message/read-all', method: 'POST' }) }
 
+// ============ 文件 ============
+function fileList(params) { return request({ url: '/v1/file/list', params }) }
+function fileDetail(fileId) { return request({ url: `/v1/file/${fileId}` }) }
+function pendingAudit(pageNum, pageSize) { return request({ url: '/v1/file/pending-audit', params: { pageNum, pageSize } }) }
+
 // ============ 研讨/决策/公告（扩展，接口已预留） ============
 function discussionList(projectId, params) { return request({ url: '/v1/discussion/list', params: Object.assign({ projectId }, params) }) }
 function decisionList(projectId, params) { return request({ url: '/v1/decision/list', params: Object.assign({ projectId }, params) }) }
@@ -242,5 +247,8 @@ export default {
   readAll,
   discussionList,
   decisionList,
-  announcementList
+  announcementList,
+  fileList,
+  fileDetail,
+  pendingAudit
 }
