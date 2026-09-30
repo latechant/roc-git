@@ -429,9 +429,13 @@ export function loadMessages(controller) {
     clearNodes(controller, MESSAGES_CLEAR_IDS)
 
     const unread = await api.unreadCount()
-    if (unread) {
-      setText(controller, 'n5', `${unread.total} 条变更`)
+    const total = unread && typeof unread.total === 'number' ? unread.total : 0
+    if (total > 0) {
+      setText(controller, 'n5', `${total} 条变更`)
       setText(controller, 'n16', `${unread.task + unread.audit + unread.mention} 条项目变更`)
+    } else {
+      // 0 条变更：隐藏标题下的汇总条数，避免 "0 条变更" 挂出
+      hideNode(controller, 'n5')
     }
 
     const list = await api.messageList({ pageNum: 1, pageSize: 10 })
@@ -439,8 +443,10 @@ export function loadMessages(controller) {
     if (items.length) {
       setText(controller, 'n26', items[0].title)
     } else {
-      // 无数据：隐藏全部消息条目行与日期分隔符，避免空行残留
-      ;['n25', 'n35', 'n45', 'n57', 'n64', 'n73', 'n19', 'n52', 'n69'].forEach((id) => hideNode(controller, id))
+      // 无数据空态：隐藏统计卡(n14)、三个分组容器(n18/n51/n68)及其全部卡片本体，
+      // 在滚动容器内用 setEmptyState 显示浅灰提示
+      ;['n14', 'n18', 'n51', 'n68', 'n21', 'n31', 'n41', 'n54', 'n61', 'n70'].forEach((id) => hideNode(controller, id))
+      setEmptyState(controller, 'n77', '暂无消息，去完成第一个项目吧')
     }
   })
 }
