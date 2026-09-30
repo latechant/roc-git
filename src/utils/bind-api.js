@@ -152,8 +152,6 @@ export function loadHome(controller) {
       setAvatar(controller, 'n54', memberNames[2])
       setText(controller, 'n55', `${members.total || memberNames.length}位成员`)
     } else {
-      hideNode(controller, 'n32')
-      hideNode(controller, 'n33')
       hideNode(controller, 'n36')
       setEmptyState(controller, 'n35', '暂无项目')
     }
@@ -215,8 +213,7 @@ export function loadHome(controller) {
       setText(controller, 'n128', `${t0.daysLeft}天`)
       setText(controller, 'n120', String(dueArr.length) + '项')
     } else {
-      hideNode(controller, 'n121')
-      setEmptyState(controller, 'n118', '暂无临期任务')
+      setEmptyState(controller, 'n121', '暂无临期任务')
     }
     if (dueArr.length > 1) {
       const t1 = dueArr[1]
@@ -252,9 +249,7 @@ export function loadHome(controller) {
       setText(controller, 'n162', a0.name)
       setText(controller, 'n163', `${a0.fileCount || 0} 份成果 · ${a0.versionCount || 0} 版本`)
     } else {
-      hideNode(controller, 'n157')
-      hideNode(controller, 'n158')
-      setEmptyState(controller, 'n156', '暂无归档')
+      setEmptyState(controller, 'n158', '暂无归档')
     }
 
     // 未读消息角标
