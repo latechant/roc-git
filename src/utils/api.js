@@ -10,8 +10,18 @@
  *  - 后端统一返回 { code, message, data }，code === 0 表示成功。
  */
 
-// 可用环境变量覆盖 baseURL（如生产小程序需填 https://your-domain/api）
-const BASE_URL = '/api'
+// H5 用相对路径（nginx 反代到后端）；微信小程序无同源概念，必须用完整地址。
+// 演示阶段走 HTTP，需在微信开发者工具勾选「不校验合法域名」；正式上线须改为已备案的 HTTPS 域名。
+let BASE_URL = '/api'
+// #ifdef MP-WEIXIN
+BASE_URL = 'http://116.62.81.113/api'
+// #endif
+
+// 登录来源标识（后端据此决定是否调微信 code2session）
+let LOGIN_SOURCE = 'h5'
+// #ifdef MP-WEIXIN
+LOGIN_SOURCE = 'mp-weixin'
+// #endif
 // 演示：前端默认登录所用昵称/头像（后端 login 接口会原样回显）
 const DEMO_NICKNAME = '林知行'
 const DEMO_AVATAR = 'https://cdn.rocgit.com/avatar/demo.png'
@@ -120,7 +130,8 @@ function login(payload = {}) {
   const body = {
     nickname: payload.nickname || DEMO_NICKNAME,
     avatarUrl: payload.avatarUrl || DEMO_AVATAR,
-    code: payload.code || ('wx_user_' + Date.now())
+    code: payload.code || ('wx_user_' + Date.now()),
+    source: payload.source || LOGIN_SOURCE
   }
   return request({ url: '/v1/user/login', method: 'POST', data: body, silent: true })
     .then(user => {

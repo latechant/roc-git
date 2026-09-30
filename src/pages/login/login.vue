@@ -56,6 +56,32 @@ onLoad(() => {
   }
 })
 
+/**
+ * 获取登录凭证 code：
+ *  - 微信小程序：uni.login 向微信换取临时 code（后端再调 code2session 换 openid）
+ *  - H5：沿用设备 ID 生成的演示 code
+ */
+function fetchLoginCode() {
+  return new Promise((resolve, reject) => {
+    // #ifdef MP-WEIXIN
+    uni.login({
+      provider: 'weixin',
+      success: (res) => {
+        if (res && res.code) {
+          resolve(res.code)
+        } else {
+          reject(new Error('微信登录凭证获取失败'))
+        }
+      },
+      fail: () => reject(new Error('微信登录失败，请检查网络或 AppID 配置'))
+    })
+    // #endif
+    // #ifdef H5
+    resolve('wx_user_' + getDeviceId())
+    // #endif
+  })
+}
+
 async function onLogin() {
   const name = (nickname.value || '').trim()
   if (!name) {
@@ -64,8 +90,7 @@ async function onLogin() {
   }
   loading.value = true
   try {
-    const deviceId = getDeviceId()
-    const code = 'wx_user_' + deviceId
+    const code = await fetchLoginCode()
     await api.login({ nickname: name, code })
     uni.reLaunch({ url: '/pages/home/home' })
   } catch (e) {

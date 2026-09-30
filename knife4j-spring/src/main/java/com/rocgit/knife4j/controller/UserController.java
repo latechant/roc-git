@@ -28,7 +28,8 @@ public class UserController {
     @Operation(summary = "微信登录", description = "通过微信 code 换取 JWT Token，首次登录会自动注册")
     @PostMapping("/login")
     public Result<LoginVO> login(@Valid @RequestBody LoginRequest request) {
-        LoginVO data = userService.login(request.getCode(), request.getNickname(), request.getAvatarUrl());
+        LoginVO data = userService.login(request.getCode(), request.getNickname(),
+                request.getAvatarUrl(), request.getSource());
         return Result.success(data);
     }
 

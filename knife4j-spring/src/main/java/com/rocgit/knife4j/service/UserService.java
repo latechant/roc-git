@@ -36,14 +36,23 @@ public class UserService {
     private UserSubscriptionMapper userSubscriptionMapper;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private WechatService wechatService;
 
     /**
-     * 微信登录：按 openid 查/建 user
-     * 课程项目简化：用 code 直接作为 openid 标识（实际生产应调用微信 code2session 接口）
+     * 登录：按 openid 查/建 user
+     * <p>
+     * source=mp-weixin 时，code 为 wx.login 凭证，调微信 code2session 换真实 openid；
+     * 其他来源（H5 演示）沿用 "wx_" + 设备码 的简化标识。
      */
     @Transactional
-    public LoginVO login(String code, String nickname, String avatarUrl) {
-        String openid = "wx_" + code;
+    public LoginVO login(String code, String nickname, String avatarUrl, String source) {
+        String openid;
+        if ("mp-weixin".equals(source)) {
+            openid = wechatService.code2openid(code);
+        } else {
+            openid = "wx_" + code;
+        }
 
         User user = userMapper.selectOne(
                 new LambdaQueryWrapper<User>().eq(User::getOpenid, openid));

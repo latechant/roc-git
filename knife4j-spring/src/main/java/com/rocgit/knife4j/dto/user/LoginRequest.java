@@ -26,4 +26,8 @@ public class LoginRequest {
     @Schema(description = "用户头像URL", example = "https://thirdwx.qlogo.cn/xxx",
             requiredMode = Schema.RequiredMode.REQUIRED)
     private String avatarUrl;
+
+    @Schema(description = "登录来源：mp-weixin=微信小程序（code 走 code2session）；h5=H5 设备码模式",
+            example = "mp-weixin")
+    private String source;
 }

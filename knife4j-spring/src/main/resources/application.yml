@@ -57,10 +57,14 @@ jwt:
   secret: rocgit-secret-key-2026-very-long-string
   expiration: 604800  # 7 天（秒）
 
-# 文件存储
+# 文件存储 & 微信小程序
+# AppID/AppSecret 通过环境变量注入（systemd EnvironmentFile），不写入仓库
 rocgit:
   file:
     storage-dir: /opt/roc-git/files
+  wechat:
+    appid: ${ROCGIT_WECHAT_APPID:}
+    secret: ${ROCGIT_WECHAT_SECRET:}
 
 logging:
   level:
