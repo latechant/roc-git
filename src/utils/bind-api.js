@@ -29,6 +29,12 @@ function setAvatar(controller, id, name) {
   } catch (e) { /* 节点 style 不可写时仅保留首字 */ }
 }
 
+/** 隐藏节点：设置 removed=true，模板 v-if="!ui.nX.removed" 即不渲染 */
+function hideNode(controller, id) {
+  if (!controller.ui[id]) return
+  controller.ui[id].removed = true
+}
+
 /**
  * 显式清空节点文本：置为空字符串 ''。
  * 模板中 v-if="ui.nX.textContent !== undefined" 在 '' 时为 true，
@@ -133,6 +139,8 @@ export function loadHome(controller) {
       setAvatar(controller, 'n53', memberNames[1])
       setAvatar(controller, 'n54', memberNames[2])
       setText(controller, 'n55', `${members.total || memberNames.length}位成员`)
+    } else {
+      hideNode(controller, 'n30')
     }
 
     // 项目2
@@ -141,9 +149,10 @@ export function loadHome(controller) {
       setText(controller, 'n60', p1.name)
       setText(controller, 'n59', `进度 ${p1.progress}%`)
       setText(controller, 'n65', `${p1.progress}%`)
-      // 项目2成员（前2位）
       setAvatar(controller, 'n70', memberNames[0])
       setAvatar(controller, 'n71', memberNames[1])
+    } else {
+      hideNode(controller, 'n56')
     }
 
     // 项目3
@@ -152,28 +161,34 @@ export function loadHome(controller) {
       setText(controller, 'n77', p2.name)
       setText(controller, 'n76', p2.status === 'active' ? '进行中' : '筹备中')
       setText(controller, 'n82', `${p2.progress}%`)
-      // 项目3成员（前1位+角色）
       setAvatar(controller, 'n87', memberNames[0])
       setText(controller, 'n88', memberList[0] && memberList[0].role === 'leader' ? '组长' : '组员')
+    } else {
+      hideNode(controller, 'n73')
     }
 
     // 研讨记录（取第一个项目的研讨列表前2条）
+    let dl = []
     if (list.length) {
       const pid0 = list[0].projectId
       const discussions = await api.discussionList(pid0, { pageNum: 1, pageSize: 5 }).catch(() => null)
-      const dl = (discussions && discussions.list) || (discussions && discussions.tasks) || []
-      if (dl.length) {
-        const d0 = dl[0]
-        setText(controller, 'n103', d0.title)
-        setText(controller, 'n104', `${d0.particitantCount || ''}人 · ${(d0.discussionTime || '').slice(5, 10)}`)
-        setText(controller, 'n106', `${d0.decisionCount || 0} 待落地`)
-      }
-      if (dl.length > 1) {
-        const d1 = dl[1]
-        setText(controller, 'n112', d1.title)
-        setText(controller, 'n113', `${d1.particitantCount || ''}人 · ${(d1.discussionTime || '').slice(5, 10)}`)
-        setText(controller, 'n115', '已全部落地')
-      }
+      dl = (discussions && discussions.list) || (discussions && discussions.tasks) || []
+    }
+    if (dl.length) {
+      const d0 = dl[0]
+      setText(controller, 'n103', d0.title)
+      setText(controller, 'n104', `${d0.particitantCount || ''}人 · ${(d0.discussionTime || '').slice(5, 10)}`)
+      setText(controller, 'n106', `${d0.decisionCount || 0} 待落地`)
+    } else {
+      hideNode(controller, 'n99')
+    }
+    if (dl.length > 1) {
+      const d1 = dl[1]
+      setText(controller, 'n112', d1.title)
+      setText(controller, 'n113', `${d1.particitantCount || ''}人 · ${(d1.discussionTime || '').slice(5, 10)}`)
+      setText(controller, 'n115', '已全部落地')
+    } else {
+      hideNode(controller, 'n108')
     }
 
     // 临期任务（前2条）
@@ -183,12 +198,16 @@ export function loadHome(controller) {
       setText(controller, 'n127', `${t0.projectName || ''} · 还剩 ${t0.daysLeft || ''}天`)
       setText(controller, 'n128', `${t0.daysLeft}天`)
       setText(controller, 'n120', String(dueArr.length) + '项')
+    } else {
+      hideNode(controller, 'n117')
     }
     if (dueArr.length > 1) {
       const t1 = dueArr[1]
       setText(controller, 'n133', t1.name)
       setText(controller, 'n134', `${t1.projectName || ''} · 还剩 ${t1.daysLeft || ''}天`)
       setText(controller, 'n135', `${t1.daysLeft}天`)
+    } else {
+      hideNode(controller, 'n129')
     }
 
     // 待审核文件（前2条）
@@ -197,11 +216,15 @@ export function loadHome(controller) {
       const f0 = pendingList[0]
       setText(controller, 'n145', `${f0.uploaderName || ''} · ${f0.name || ''}`)
       setText(controller, 'n146', (f0.createdAt || '').slice(11, 16))
+    } else {
+      hideNode(controller, 'n141')
     }
     if (pendingList.length > 1) {
       const f1 = pendingList[1]
       setText(controller, 'n152', `${f1.uploaderName || ''} · ${f1.name || ''}`)
       setText(controller, 'n153', (f1.createdAt || '').slice(11, 16))
+    } else {
+      hideNode(controller, 'n148')
     }
 
     // 归档项目（取已完成项目第一个）
@@ -210,6 +233,8 @@ export function loadHome(controller) {
       const a0 = archived[0]
       setText(controller, 'n162', a0.name)
       setText(controller, 'n163', `${a0.fileCount || 0} 份成果 · ${a0.versionCount || 0} 版本`)
+    } else {
+      hideNode(controller, 'n155')
     }
 
     // 未读消息角标
