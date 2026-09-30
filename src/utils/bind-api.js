@@ -123,8 +123,8 @@ export function loadHome(controller) {
 
     // 我的小组 -> 取第一个小组
     const groups = await api.myGroups()
-    const gid = groups && groups.length ? groups[0].groupId : 1
-    const projects = await api.projectList(gid)
+    const gid = groups && groups.length ? groups[0].groupId : null
+    const projects = gid ? await api.projectList(gid).catch(() => null) : null
     const list = projects || []
 
     // 顶部统计：进行中项目数 / 临期任务数 / 待审核文件数
@@ -136,8 +136,8 @@ export function loadHome(controller) {
     const pendingTotal = (pending && pending.total) || 0
     setText(controller, 'n17', String(pendingTotal))
 
-    // 小组成员（全组共用，项目卡片取前几位的头像）
-    const members = await api.groupMembers(gid).catch(() => null)
+    // 小组成员（仅有组时才查）
+    const members = gid ? await api.groupMembers(gid).catch(() => null) : null
     const memberList = (members && members.members) || []
     const memberNames = memberList.map((m) => m.nickname)
 
