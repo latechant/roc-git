@@ -438,6 +438,9 @@ export function loadMessages(controller) {
     const items = list && list.list ? list.list : []
     if (items.length) {
       setText(controller, 'n26', items[0].title)
+    } else {
+      // 无数据：隐藏全部消息条目行与日期分隔符，避免空行残留
+      ;['n25', 'n35', 'n45', 'n57', 'n64', 'n73', 'n19', 'n52', 'n69'].forEach((id) => hideNode(controller, id))
     }
   })
 }
@@ -477,6 +480,9 @@ export function loadMeeting(controller, projectId) {
     const list = await api.discussionList(projectId || 1, { pageNum: 1, pageSize: 10 })
     if (list && list.length) {
       // 列表节点为多节点结构，此处预留；首个标题尽力绑定
+    } else {
+      // 无数据：隐藏研讨记录行与未落地事项行，避免空行残留
+      ;['n20', 'n55', 'n90', 'n112', 'n119'].forEach((id) => hideNode(controller, id))
     }
   })
 }
