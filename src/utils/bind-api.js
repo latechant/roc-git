@@ -35,6 +35,19 @@ function hideNode(controller, id) {
   controller.ui[id].removed = true
 }
 
+/** 空状态提示：浅灰小字（比标题小，不抢视觉） */
+function setEmptyState(controller, id, text) {
+  if (!controller.ui[id]) return
+  controller.ui[id].textContent = String(text)
+  try {
+    const s = controller.ui[id].style
+    s.color = '#bbb'
+    s.fontSize = '13px'
+    s.textAlign = 'center'
+    s.padding = '16px 0'
+  } catch (e) { /* style 不可写时仅保留文本 */ }
+}
+
 /**
  * 显式清空节点文本：置为空字符串 ''。
  * 模板中 v-if="ui.nX.textContent !== undefined" 在 '' 时为 true，
@@ -142,7 +155,7 @@ export function loadHome(controller) {
       hideNode(controller, 'n32')
       hideNode(controller, 'n33')
       hideNode(controller, 'n36')
-      setText(controller, 'n35', '暂无项目')
+      setEmptyState(controller, 'n35', '暂无项目')
     }
 
     // 项目2
@@ -183,7 +196,7 @@ export function loadHome(controller) {
       setText(controller, 'n106', `${d0.decisionCount || 0} 待落地`)
     } else {
       hideNode(controller, 'n99')
-      setText(controller, 'n98', '暂无研讨记录')
+      setEmptyState(controller, 'n98', '暂无研讨记录')
     }
     if (dl.length > 1) {
       const d1 = dl[1]
@@ -203,7 +216,7 @@ export function loadHome(controller) {
       setText(controller, 'n120', String(dueArr.length) + '项')
     } else {
       hideNode(controller, 'n121')
-      setText(controller, 'n118', '暂无临期任务')
+      setEmptyState(controller, 'n118', '暂无临期任务')
     }
     if (dueArr.length > 1) {
       const t1 = dueArr[1]
@@ -222,7 +235,7 @@ export function loadHome(controller) {
       setText(controller, 'n146', (f0.createdAt || '').slice(11, 16))
     } else {
       hideNode(controller, 'n141')
-      setText(controller, 'n140', '暂无待审核文件')
+      setEmptyState(controller, 'n140', '暂无待审核文件')
     }
     if (pendingList.length > 1) {
       const f1 = pendingList[1]
@@ -241,7 +254,7 @@ export function loadHome(controller) {
     } else {
       hideNode(controller, 'n157')
       hideNode(controller, 'n158')
-      setText(controller, 'n156', '暂无归档')
+      setEmptyState(controller, 'n156', '暂无归档')
     }
 
     // 未读消息角标
