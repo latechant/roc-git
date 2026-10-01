@@ -152,6 +152,7 @@ export function loadHome(controller) {
       setAvatar(controller, 'n54', memberNames[2])
       setText(controller, 'n55', `${members.total || memberNames.length}位成员`)
     } else {
+      hideNode(controller, 'n33')
       hideNode(controller, 'n36')
       hideNode(controller, 'n89')
       hideNode(controller, 'n90')
@@ -197,6 +198,7 @@ export function loadHome(controller) {
       setText(controller, 'n104', `${d0.particitantCount || ''}人 · ${(d0.discussionTime || '').slice(5, 10)}`)
       setText(controller, 'n106', `${d0.decisionCount || 0} 待落地`)
     } else {
+      hideNode(controller, 'n97')
       hideNode(controller, 'n99')
       setEmptyState(controller, 'n98', '暂无研讨记录')
     }
@@ -236,6 +238,7 @@ export function loadHome(controller) {
       setText(controller, 'n145', `${f0.uploaderName || ''} · ${f0.name || ''}`)
       setText(controller, 'n146', (f0.createdAt || '').slice(11, 16))
     } else {
+      hideNode(controller, 'n139')
       hideNode(controller, 'n141')
       setEmptyState(controller, 'n140', '暂无待审核文件')
     }
