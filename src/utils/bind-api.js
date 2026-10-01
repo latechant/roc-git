@@ -118,11 +118,11 @@ export function loadHome(controller) {
     setText(controller, 'n4', `${wd}，${now.getMonth()+1}月${now.getDate()}日`)
 
     // 个人信息（昵称）
-    const profile = await api.getProfile()
+    const profile = await api.getProfile().catch(() => null)
     setText(controller, 'n5', profile && profile.nickname)
 
     // 我的小组 -> 取第一个小组
-    const groups = await api.myGroups()
+    const groups = await api.myGroups().catch(() => null)
     const gid = groups && groups.length ? groups[0].groupId : null
     const projects = gid ? await api.projectList(gid).catch(() => null) : null
     const list = projects || []
@@ -213,6 +213,7 @@ export function loadHome(controller) {
       setText(controller, 'n128', `${t0.daysLeft}天`)
       setText(controller, 'n120', String(dueArr.length) + '项')
     } else {
+      setText(controller, 'n120', '0 项')
       setEmptyState(controller, 'n121', '暂无临期任务')
     }
     if (dueArr.length > 1) {
