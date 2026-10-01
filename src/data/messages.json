@@ -275,9 +275,9 @@
       "tag": "div",
       "parent": "n0",
       "attrs": {
-        "class": "flex-1 overflow-y-auto pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        "class": "flex-1 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       },
-      "className": "flex-1 overflow-y-auto pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+      "className": "flex-1 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
       "style": {},
       "removed": false,
       "value": "",
