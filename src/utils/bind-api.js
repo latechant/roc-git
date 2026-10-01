@@ -252,6 +252,8 @@ export function loadHome(controller) {
       setText(controller, 'n162', a0.name)
       setText(controller, 'n163', `${a0.fileCount || 0} 份成果 · ${a0.versionCount || 0} 版本`)
     } else {
+      controller.ui.n158.className = ''
+      controller.ui.n158.attrs.href = ''
       setEmptyState(controller, 'n158', '暂无归档项目')
     }
 
