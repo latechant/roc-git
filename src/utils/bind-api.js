@@ -153,6 +153,8 @@ export function loadHome(controller) {
       setText(controller, 'n55', `${members.total || memberNames.length}位成员`)
     } else {
       hideNode(controller, 'n36')
+      hideNode(controller, 'n89')
+      controller.ui.n35.style.justifyContent = 'center'
       setEmptyState(controller, 'n35', '暂无项目')
     }
 
@@ -250,7 +252,7 @@ export function loadHome(controller) {
       setText(controller, 'n162', a0.name)
       setText(controller, 'n163', `${a0.fileCount || 0} 份成果 · ${a0.versionCount || 0} 版本`)
     } else {
-      setEmptyState(controller, 'n158', '暂无归档')
+      setEmptyState(controller, 'n158', '暂无归档项目')
     }
 
     // 未读消息角标
