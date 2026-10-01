@@ -154,6 +154,8 @@ export function loadHome(controller) {
     } else {
       hideNode(controller, 'n36')
       hideNode(controller, 'n89')
+      hideNode(controller, 'n90')
+      controller.ui.n34.className = ''
       controller.ui.n35.style.justifyContent = 'center'
       setEmptyState(controller, 'n35', '暂无项目')
     }
