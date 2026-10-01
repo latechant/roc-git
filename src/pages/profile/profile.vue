@@ -41,16 +41,16 @@
 </view>
 <view v-if="!ui.n11.removed" :class="classes(ui.n11.className)" :style="ui.n11.style" class="original-div">
 <template v-if="ui.n11.textContent !== undefined"><text>{{ ui.n11.textContent }}</text></template><template v-else>
-<view v-if="!ui.n12.removed" :class="classes(ui.n12.className)" :style="ui.n12.style" class="original-span">
+<span v-if="!ui.n12.removed" :class="classes(ui.n12.className)" :style="ui.n12.style" class="original-span">
 <template v-if="ui.n12.textContent !== undefined"><text>{{ ui.n12.textContent }}</text></template><template v-else>
 <text>组长</text>
 </template>
-</view>
-<view v-if="!ui.n13.removed" :class="classes(ui.n13.className)" :style="ui.n13.style" class="original-span">
+</span>
+<span v-if="!ui.n13.removed" :class="classes(ui.n13.className)" :style="ui.n13.style" class="original-span">
 <template v-if="ui.n13.textContent !== undefined"><text>{{ ui.n13.textContent }}</text></template><template v-else>
 <text>助教</text>
 </template>
-</view>
+</span>
 </template>
 </view>
 </template>
@@ -173,11 +173,11 @@
 <text>进行中项目</text>
 </template>
 </view>
-<view v-if="!ui.n44.removed" :class="classes(ui.n44.className)" :style="ui.n44.style" class="original-span">
+<span v-if="!ui.n44.removed" :class="classes(ui.n44.className)" :style="ui.n44.style" class="original-span">
 <template v-if="ui.n44.textContent !== undefined"><text>{{ ui.n44.textContent }}</text></template><template v-else>
 <text>3</text>
 </template>
-</view>
+</span>
 <image v-if="!ui.n45.removed" :class="classes(ui.n45.className)" :style="ui.n45.style" class="original-icon" :src="iconSrc('n45')" style="width:16px;height:16px" mode="aspectFit" />
 </template>
 </view>
@@ -388,11 +388,11 @@
 <view v-if="!ui.n99.removed" :class="classes(ui.n99.className)" :style="ui.n99.style" class="original-a" @tap.stop="tap('n99', $event)">
 <template v-if="ui.n99.textContent !== undefined"><text>{{ ui.n99.textContent }}</text></template><template v-else>
 <image v-if="!ui.n100.removed" :class="classes(ui.n100.className)" :style="ui.n100.style" class="original-icon" :src="iconSrc('n100')" style="width:22px;height:22px" mode="aspectFit" />
-<view v-if="!ui.n101.removed" :class="classes(ui.n101.className)" :style="ui.n101.style" class="original-span">
+<span v-if="!ui.n101.removed" :class="classes(ui.n101.className)" :style="ui.n101.style" class="original-span">
 <template v-if="ui.n101.textContent !== undefined"><text>{{ ui.n101.textContent }}</text></template><template v-else>
 <text>首页</text>
 </template>
-</view>
+</span>
 </template>
 </view>
 <view v-if="!ui.n102.removed" :class="classes(ui.n102.className)" :style="ui.n102.style" class="original-a" @tap.stop="tap('n102', $event)">
@@ -425,11 +425,11 @@
 <template v-if="ui.n109.textContent !== undefined"><text>{{ ui.n109.textContent }}</text></template><template v-else>
 <view v-if="!ui.n110.removed" :class="classes(ui.n110.className)" :style="ui.n110.style" class="original-div">
 <template v-if="ui.n110.textContent !== undefined"><text>{{ ui.n110.textContent }}</text></template><template v-else>
-<view v-if="!ui.n111.removed" :class="classes(ui.n111.className)" :style="ui.n111.style" class="original-p">
+<text v-if="!ui.n111.removed" :class="classes(ui.n111.className)" :style="ui.n111.style" class="original-p">
 <template v-if="ui.n111.textContent !== undefined"><text>{{ ui.n111.textContent }}</text></template><template v-else>
 <text>期末整体归档</text>
 </template>
-</view>
+</text>
 <button v-if="!ui.n112.removed" :class="classes(ui.n112.className)" :style="ui.n112.style" class="original-button" @tap.stop="tap('n112', $event)">
 <template v-if="ui.n112.textContent !== undefined"><text>{{ ui.n112.textContent }}</text></template><template v-else>
 <image v-if="!ui.n113.removed" :class="classes(ui.n113.className)" :style="ui.n113.style" class="original-icon" :src="iconSrc('n113')" style="width:20px;height:20px" mode="aspectFit" />
@@ -533,11 +533,11 @@
 </view>
 </template>
 </view>
-<view v-if="!ui.n139.removed" :class="classes(ui.n139.className)" :style="ui.n139.style" class="original-span">
+<span v-if="!ui.n139.removed" :class="classes(ui.n139.className)" :style="ui.n139.style" class="original-span">
 <template v-if="ui.n139.textContent !== undefined"><text>{{ ui.n139.textContent }}</text></template><template v-else>
 <text>可归档</text>
 </template>
-</view>
+</span>
 </template>
 </view>
 </template>
@@ -564,51 +564,51 @@
 <view v-if="!ui.n146.removed" :class="classes(ui.n146.className)" :style="ui.n146.style" class="original-div">
 <template v-if="ui.n146.textContent !== undefined"><text>{{ ui.n146.textContent }}</text></template><template v-else>
 <image v-if="!ui.n147.removed" :class="classes(ui.n147.className)" :style="ui.n147.style" class="original-icon" :src="iconSrc('n147')" style="width:12px;height:12px" mode="aspectFit" />
-<view v-if="!ui.n148.removed" :class="classes(ui.n148.className)" :style="ui.n148.style" class="original-span">
+<span v-if="!ui.n148.removed" :class="classes(ui.n148.className)" :style="ui.n148.style" class="original-span">
 <template v-if="ui.n148.textContent !== undefined"><text>{{ ui.n148.textContent }}</text></template><template v-else>
 <text>全部阶段（7个）</text>
 </template>
-</view>
+</span>
 </template>
 </view>
 <view v-if="!ui.n149.removed" :class="classes(ui.n149.className)" :style="ui.n149.style" class="original-div">
 <template v-if="ui.n149.textContent !== undefined"><text>{{ ui.n149.textContent }}</text></template><template v-else>
 <image v-if="!ui.n150.removed" :class="classes(ui.n150.className)" :style="ui.n150.style" class="original-icon" :src="iconSrc('n150')" style="width:12px;height:12px" mode="aspectFit" />
-<view v-if="!ui.n151.removed" :class="classes(ui.n151.className)" :style="ui.n151.style" class="original-span">
+<span v-if="!ui.n151.removed" :class="classes(ui.n151.className)" :style="ui.n151.style" class="original-span">
 <template v-if="ui.n151.textContent !== undefined"><text>{{ ui.n151.textContent }}</text></template><template v-else>
 <text>版本记录（25条）</text>
 </template>
-</view>
+</span>
 </template>
 </view>
 <view v-if="!ui.n152.removed" :class="classes(ui.n152.className)" :style="ui.n152.style" class="original-div">
 <template v-if="ui.n152.textContent !== undefined"><text>{{ ui.n152.textContent }}</text></template><template v-else>
 <image v-if="!ui.n153.removed" :class="classes(ui.n153.className)" :style="ui.n153.style" class="original-icon" :src="iconSrc('n153')" style="width:12px;height:12px" mode="aspectFit" />
-<view v-if="!ui.n154.removed" :class="classes(ui.n154.className)" :style="ui.n154.style" class="original-span">
+<span v-if="!ui.n154.removed" :class="classes(ui.n154.className)" :style="ui.n154.style" class="original-span">
 <template v-if="ui.n154.textContent !== undefined"><text>{{ ui.n154.textContent }}</text></template><template v-else>
 <text>研讨记录（4条）</text>
 </template>
-</view>
+</span>
 </template>
 </view>
 <view v-if="!ui.n155.removed" :class="classes(ui.n155.className)" :style="ui.n155.style" class="original-div">
 <template v-if="ui.n155.textContent !== undefined"><text>{{ ui.n155.textContent }}</text></template><template v-else>
 <image v-if="!ui.n156.removed" :class="classes(ui.n156.className)" :style="ui.n156.style" class="original-icon" :src="iconSrc('n156')" style="width:12px;height:12px" mode="aspectFit" />
-<view v-if="!ui.n157.removed" :class="classes(ui.n157.className)" :style="ui.n157.style" class="original-span">
+<span v-if="!ui.n157.removed" :class="classes(ui.n157.className)" :style="ui.n157.style" class="original-span">
 <template v-if="ui.n157.textContent !== undefined"><text>{{ ui.n157.textContent }}</text></template><template v-else>
 <text>分工记录</text>
 </template>
-</view>
+</span>
 </template>
 </view>
 <view v-if="!ui.n158.removed" :class="classes(ui.n158.className)" :style="ui.n158.style" class="original-div">
 <template v-if="ui.n158.textContent !== undefined"><text>{{ ui.n158.textContent }}</text></template><template v-else>
 <image v-if="!ui.n159.removed" :class="classes(ui.n159.className)" :style="ui.n159.style" class="original-icon" :src="iconSrc('n159')" style="width:12px;height:12px" mode="aspectFit" />
-<view v-if="!ui.n160.removed" :class="classes(ui.n160.className)" :style="ui.n160.style" class="original-span">
+<span v-if="!ui.n160.removed" :class="classes(ui.n160.className)" :style="ui.n160.style" class="original-span">
 <template v-if="ui.n160.textContent !== undefined"><text>{{ ui.n160.textContent }}</text></template><template v-else>
 <text>教师评价（1条）</text>
 </template>
-</view>
+</span>
 </template>
 </view>
 </template>

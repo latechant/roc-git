@@ -182,16 +182,16 @@
 <template v-if="ui.n44.textContent !== undefined"><text>{{ ui.n44.textContent }}</text></template><template v-else>
 <view v-if="!ui.n45.removed" :class="classes(ui.n45.className)" :style="ui.n45.style" class="original-div">
 <template v-if="ui.n45.textContent !== undefined"><text>{{ ui.n45.textContent }}</text></template><template v-else>
-<view v-if="!ui.n46.removed" :class="classes(ui.n46.className)" :style="ui.n46.style" class="original-p">
+<text v-if="!ui.n46.removed" :class="classes(ui.n46.className)" :style="ui.n46.style" class="original-p">
 <template v-if="ui.n46.textContent !== undefined"><text>{{ ui.n46.textContent }}</text></template><template v-else>
 <text>王宁更新了成果大纲</text>
 </template>
-</view>
-<view v-if="!ui.n47.removed" :class="classes(ui.n47.className)" :style="ui.n47.style" class="original-span">
+</text>
+<span v-if="!ui.n47.removed" :class="classes(ui.n47.className)" :style="ui.n47.style" class="original-span">
 <template v-if="ui.n47.textContent !== undefined"><text>{{ ui.n47.textContent }}</text></template><template v-else>
 <text>v3→v4</text>
 </template>
-</view>
+</span>
 </template>
 </view>
 <view v-if="!ui.n48.removed" :class="classes(ui.n48.className)" :style="ui.n48.style" class="original-p">
@@ -206,11 +206,11 @@
 </view>
 </template>
 </view>
-<view v-if="!ui.n50.removed" :class="classes(ui.n50.className)" :style="ui.n50.style" class="original-span">
+<span v-if="!ui.n50.removed" :class="classes(ui.n50.className)" :style="ui.n50.style" class="original-span">
 <template v-if="ui.n50.textContent !== undefined"><text>{{ ui.n50.textContent }}</text></template><template v-else>
 
 </template>
-</view>
+</span>
 </template>
 </view>
 </template>
@@ -335,21 +335,21 @@
 <view v-if="!ui.n79.removed" :class="classes(ui.n79.className)" :style="ui.n79.style" class="original-a" @tap.stop="tap('n79', $event)">
 <template v-if="ui.n79.textContent !== undefined"><text>{{ ui.n79.textContent }}</text></template><template v-else>
 <image v-if="!ui.n80.removed" :class="classes(ui.n80.className)" :style="ui.n80.style" class="original-icon" :src="iconSrc('n80')" style="width:22px;height:22px" mode="aspectFit" />
-<view v-if="!ui.n81.removed" :class="classes(ui.n81.className)" :style="ui.n81.style" class="original-span">
+<span v-if="!ui.n81.removed" :class="classes(ui.n81.className)" :style="ui.n81.style" class="original-span">
 <template v-if="ui.n81.textContent !== undefined"><text>{{ ui.n81.textContent }}</text></template><template v-else>
 <text>首页</text>
 </template>
-</view>
+</span>
 </template>
 </view>
 <view v-if="!ui.n82.removed" :class="classes(ui.n82.className)" :style="ui.n82.style" class="original-a" @tap.stop="tap('n82', $event)">
 <template v-if="ui.n82.textContent !== undefined"><text>{{ ui.n82.textContent }}</text></template><template v-else>
 <image v-if="!ui.n83.removed" :class="classes(ui.n83.className)" :style="ui.n83.style" class="original-icon" :src="iconSrc('n83')" style="width:22px;height:22px" mode="aspectFit" />
-<view v-if="!ui.n84.removed" :class="classes(ui.n84.className)" :style="ui.n84.style" class="original-span">
+<span v-if="!ui.n84.removed" :class="classes(ui.n84.className)" :style="ui.n84.style" class="original-span">
 <template v-if="ui.n84.textContent !== undefined"><text>{{ ui.n84.textContent }}</text></template><template v-else>
 <text>消息</text>
 </template>
-</view>
+</span>
 </template>
 </view>
 <view v-if="!ui.n85.removed" :class="classes(ui.n85.className)" :style="ui.n85.style" class="original-a" @tap.stop="tap('n85', $event)">

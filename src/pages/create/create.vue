@@ -29,7 +29,7 @@
 </view>
 <view v-if="!ui.n8.removed" :class="classes(ui.n8.className)" :style="ui.n8.style" class="original-div">
 <template v-if="ui.n8.textContent !== undefined"><text>{{ ui.n8.textContent }}</text></template><template v-else>
-<view v-if="!ui.n9.removed" :class="classes(ui.n9.className)" :style="ui.n9.style" class="original-span">
+<span v-if="!ui.n9.removed" :class="classes(ui.n9.className)" :style="ui.n9.style" class="original-span">
 <template v-if="ui.n9.textContent !== undefined"><text>{{ ui.n9.textContent }}</text></template><template v-else>
 <view v-if="!ui.n10.removed" :class="classes(ui.n10.className)" :style="ui.n10.style" class="original-span">
 <template v-if="ui.n10.textContent !== undefined"><text>{{ ui.n10.textContent }}</text></template><template v-else>
@@ -38,22 +38,22 @@
 </view>
 <text>基础</text>
 </template>
-</view>
+</span>
 <view v-if="!ui.n11.removed" :class="classes(ui.n11.className)" :style="ui.n11.style" class="original-div">
 <template v-if="ui.n11.textContent !== undefined"><text>{{ ui.n11.textContent }}</text></template><template v-else>
 
 </template>
 </view>
-<view v-if="!ui.n12.removed" :class="classes(ui.n12.className)" :style="ui.n12.style" class="original-span">
+<span v-if="!ui.n12.removed" :class="classes(ui.n12.className)" :style="ui.n12.style" class="original-span">
 <template v-if="ui.n12.textContent !== undefined"><text>{{ ui.n12.textContent }}</text></template><template v-else>
-<view v-if="!ui.n13.removed" :class="classes(ui.n13.className)" :style="ui.n13.style" class="original-span">
+<span v-if="!ui.n13.removed" :class="classes(ui.n13.className)" :style="ui.n13.style" class="original-span">
 <template v-if="ui.n13.textContent !== undefined"><text>{{ ui.n13.textContent }}</text></template><template v-else>
 <text>2</text>
 </template>
-</view>
+</span>
 <text>阶段</text>
 </template>
-</view>
+</span>
 <view v-if="!ui.n14.removed" :class="classes(ui.n14.className)" :style="ui.n14.style" class="original-div">
 <template v-if="ui.n14.textContent !== undefined"><text>{{ ui.n14.textContent }}</text></template><template v-else>
 
@@ -163,25 +163,25 @@
 <text>林</text>
 </template>
 </view>
-<view v-if="!ui.n44.removed" :class="classes(ui.n44.className)" :style="ui.n44.style" class="original-span">
+<span v-if="!ui.n44.removed" :class="classes(ui.n44.className)" :style="ui.n44.style" class="original-span">
 <template v-if="ui.n44.textContent !== undefined"><text>{{ ui.n44.textContent }}</text></template><template v-else>
 <text>林知行</text>
 </template>
-</view>
-<view v-if="!ui.n45.removed" :class="classes(ui.n45.className)" :style="ui.n45.style" class="original-span">
+</span>
+<span v-if="!ui.n45.removed" :class="classes(ui.n45.className)" :style="ui.n45.style" class="original-span">
 <template v-if="ui.n45.textContent !== undefined"><text>{{ ui.n45.textContent }}</text></template><template v-else>
 <text>组长</text>
 </template>
-</view>
+</span>
 </template>
 </view>
 <view v-if="!ui.n46.removed" :class="classes(ui.n46.className)" :style="ui.n46.style" class="original-div">
 <template v-if="ui.n46.textContent !== undefined"><text>{{ ui.n46.textContent }}</text></template><template v-else>
-<view v-if="!ui.n47.removed" :class="classes(ui.n47.className)" :style="ui.n47.style" class="original-span">
+<span v-if="!ui.n47.removed" :class="classes(ui.n47.className)" :style="ui.n47.style" class="original-span">
 <template v-if="ui.n47.textContent !== undefined"><text>{{ ui.n47.textContent }}</text></template><template v-else>
 <text>许</text>
 </template>
-</view>
+</span>
 <view v-if="!ui.n48.removed" :class="classes(ui.n48.className)" :style="ui.n48.style" class="original-span">
 <template v-if="ui.n48.textContent !== undefined"><text>{{ ui.n48.textContent }}</text></template><template v-else>
 <text>许萌</text>
@@ -191,16 +191,16 @@
 </view>
 <view v-if="!ui.n49.removed" :class="classes(ui.n49.className)" :style="ui.n49.style" class="original-div">
 <template v-if="ui.n49.textContent !== undefined"><text>{{ ui.n49.textContent }}</text></template><template v-else>
-<view v-if="!ui.n50.removed" :class="classes(ui.n50.className)" :style="ui.n50.style" class="original-span">
+<span v-if="!ui.n50.removed" :class="classes(ui.n50.className)" :style="ui.n50.style" class="original-span">
 <template v-if="ui.n50.textContent !== undefined"><text>{{ ui.n50.textContent }}</text></template><template v-else>
 <text>王</text>
 </template>
-</view>
-<view v-if="!ui.n51.removed" :class="classes(ui.n51.className)" :style="ui.n51.style" class="original-span">
+</span>
+<span v-if="!ui.n51.removed" :class="classes(ui.n51.className)" :style="ui.n51.style" class="original-span">
 <template v-if="ui.n51.textContent !== undefined"><text>{{ ui.n51.textContent }}</text></template><template v-else>
 <text>王宁</text>
 </template>
-</view>
+</span>
 </template>
 </view>
 </template>
@@ -315,11 +315,11 @@
 </view>
 <view v-if="!ui.n78.removed" :class="classes(ui.n78.className)" :style="ui.n78.style" class="original-div">
 <template v-if="ui.n78.textContent !== undefined"><text>{{ ui.n78.textContent }}</text></template><template v-else>
-<view v-if="!ui.n79.removed" :class="classes(ui.n79.className)" :style="ui.n79.style" class="original-span">
+<span v-if="!ui.n79.removed" :class="classes(ui.n79.className)" :style="ui.n79.style" class="original-span">
 <template v-if="ui.n79.textContent !== undefined"><text>{{ ui.n79.textContent }}</text></template><template v-else>
 <text>王</text>
 </template>
-</view>
+</span>
 <input v-if="!ui.n80.removed" :class="classes(ui.n80.className)" :style="ui.n80.style" class="original-input" :value="ui.n80.value" @input="ui.n80.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
 <!-- #ifdef H5 -->
 <NativeDate v-if="!ui.n81.removed" :class="classes(ui.n81.className)" :style="ui.n81.style" v-model:value="ui.n81.value" />
