@@ -48,6 +48,13 @@ public class ProjectController {
         return Result.success(data);
     }
 
+    @Operation(summary = "项目成员列表", description = "获取项目的成员列表")
+    @GetMapping("/{projectId}/members")
+    public Result<List<ProjectMemberVO>> members(@PathVariable Long projectId) {
+        List<ProjectMemberVO> list = projectService.getProjectMembers(projectId);
+        return Result.success(list);
+    }
+
     @Operation(summary = "更新项目", description = "更新项目信息")
     @PutMapping("/{projectId}")
     public Result<Void> update(@PathVariable Long projectId, @Valid @RequestBody UpdateProjectRequest request) {

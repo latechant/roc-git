@@ -188,6 +188,7 @@ function projectProgress(projectId) { return request({ url: `/v1/project/${proje
 function projectActivities(projectId, params) { return request({ url: `/v1/project/${projectId}/activities`, params }) }
 function projectTaskStats(projectId) { return request({ url: `/v1/project/${projectId}/task-stats` }) }
 function projectStages(projectId) { return request({ url: `/v1/project/${projectId}/stage` }) }
+function projectMembers(projectId) { return request({ url: `/v1/project/${projectId}/members` }) }
 function projectTemplateList() { return request({ url: '/v1/project/template/list' }) }
 function createProject(data) { return request({ url: '/v1/project/create', method: 'POST', data }) }
 
@@ -245,6 +246,7 @@ export default {
   projectActivities,
   projectTaskStats,
   projectStages,
+  projectMembers,
   projectTemplateList,
   createProject,
   myTasks,

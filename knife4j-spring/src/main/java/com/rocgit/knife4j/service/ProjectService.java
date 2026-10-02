@@ -37,6 +37,8 @@ public class ProjectService {
     private OperationLogMapper operationLogMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private ProjectMemberMapper projectMemberMapper;
 
     // ==================== 项目 CRUD ====================
 
@@ -72,7 +74,49 @@ public class ProjectService {
             }
         }
 
+        // 插入项目成员：可选；非空时逐条校验必须是该小组 active 成员，再批量写入
+        if (request.getMembers() != null && !request.getMembers().isEmpty()) {
+            for (CreateProjectRequest.MemberItem member : request.getMembers()) {
+                Long cnt = groupMemberMapper.selectCount(new LambdaQueryWrapper<GroupMember>()
+                        .eq(GroupMember::getGroupId, request.getGroupId())
+                        .eq(GroupMember::getUserId, member.getUserId())
+                        .eq(GroupMember::getStatus, "active"));
+                if (cnt == null || cnt == 0) {
+                    throw new BusinessException(ResultCode.BAD_REQUEST,
+                            "成员不在小组内：userId=" + member.getUserId());
+                }
+            }
+            LocalDateTime now = LocalDateTime.now();
+            for (CreateProjectRequest.MemberItem member : request.getMembers()) {
+                ProjectMember pm = new ProjectMember();
+                pm.setProjectId(project.getId());
+                pm.setUserId(member.getUserId());
+                pm.setRole(member.getRole() != null ? member.getRole() : "member");
+                pm.setJoinedAt(now);
+                projectMemberMapper.insert(pm);
+            }
+        }
+
         return buildProjectDetail(project);
+    }
+
+    public List<ProjectMemberVO> getProjectMembers(Long projectId) {
+        List<ProjectMember> list = projectMemberMapper.selectList(
+                new LambdaQueryWrapper<ProjectMember>()
+                        .eq(ProjectMember::getProjectId, projectId)
+                        .orderByAsc(ProjectMember::getJoinedAt)
+                        .orderByAsc(ProjectMember::getId));
+        List<ProjectMemberVO> result = new ArrayList<>();
+        for (ProjectMember pm : list) {
+            ProjectMemberVO vo = new ProjectMemberVO();
+            vo.setUserId(pm.getUserId());
+            vo.setRole(pm.getRole());
+            vo.setJoinedAt(pm.getJoinedAt());
+            User u = userMapper.selectById(pm.getUserId());
+            vo.setNickname(u != null ? u.getNickname() : null);
+            result.add(vo);
+        }
+        return result;
     }
 
     public List<ProjectVO> listProjects(Long groupId) {

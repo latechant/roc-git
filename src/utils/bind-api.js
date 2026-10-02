@@ -504,12 +504,112 @@ export function loadMeeting(controller, projectId) {
 }
 
 // ==================== 新建项目页 ====================
-// 新建操作通过 createProject 真实提交
+// 节点映射（create.vue）：
+//   n27 项目名输入(value)  n36 项目说明 textarea(value)  n30 picker(小组下拉 options/value)
+//   n41#members 成员容器：原型假行 n42/n46/n49；真实成员 chip 追加进 ui.n41.appended
+//   n56#stages 阶段容器：原型行 n57/n61/n65（行内 span 序号 + input 名 + input[type=date]）
+//   n73#tasks 任务容器：原型行 n74/n78（行内 span 头像 + input 名 + input[type=date]）
+//   n105 创建按钮  n106#toast
+// 成员文案节点（仅文本，用 clearText 清空）：n43/n44/n45/n47/n48/n50/n51
+const CREATE_MEMBER_TEXT_IDS = ['n43', 'n44', 'n45', 'n47', 'n48', 'n50', 'n51']
+// 原型 3 个假成员行（整行隐藏）
+const CREATE_MEMBER_ROW_IDS = ['n42', 'n46', 'n49']
+// 原型阶段/任务假输入框（清 value）
+const CREATE_INPUT_IDS = ['n27', 'n36', 'n59', 'n63', 'n67', 'n76', 'n80', 'n77', 'n81']
+
+/** 清空输入框/文本域的 value（节点不存在则跳过） */
+function clearInputValue(controller, id) {
+  if (controller.ui[id]) controller.ui[id].value = ''
+}
+
+// 成员头像底色轮换（Tailwind 类；追加 HTML 的 inline style 不被 adapter 解析，故用 class）
+const MEMBER_AVATAR_CLS = [
+  'bg-sky-400 text-sky-900',
+  'bg-rose-400 text-rose-900',
+  'bg-emerald-400 text-emerald-900',
+  'bg-amber-400 text-amber-900',
+  'bg-violet-400 text-violet-900'
+]
+function escapeChipText(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+/**
+ * 加载某小组的成员区（loadCreate 首次加载 与 picker 切换小组 复用）：
+ *  - 清空此前追加的成员行（含切换小组时的旧 chip）
+ *  - 隐藏原型 3 个假成员行
+ *  - 按原型 chips 样式追加真实成员（头像首字 + 昵称 + 角色 组长/组员）
+ *  - 成员池 [{ userId, nickname, role }] 写入 controller.rocMemberPool 供提交时映射 userId
+ */
+export function loadCreateMembers(controller, groupId) {
+  controller.rocMemberPool = []
+  // 清空旧追加行（appended 为空则 NativeFragment 不再渲染旧 chip）
+  if (controller.ui.n41) controller.ui.n41.appended = []
+  CREATE_MEMBER_ROW_IDS.forEach((id) => hideNode(controller, id))
+  if (!groupId) return Promise.resolve()
+
+  const membersEl = controller.adapters.document.getElementById('members')
+  return api.groupMembers(groupId).then((res) => {
+    const list = (res && res.members) || []
+    controller.rocMemberPool = list
+    list.forEach((m, i) => {
+      const a = textAvatar(m.nickname)
+      const colorCls = MEMBER_AVATAR_CLS[i % MEMBER_AVATAR_CLS.length]
+      const roleLabel = m.role === 'leader' ? '组长' : (m.role === 'teacher' ? '教师' : '组员')
+      membersEl.insertAdjacentHTML('beforeend',
+        '<div class="flex items-center gap-1.5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">' +
+        '<span class="w-5 h-5 rounded-full ' + colorCls + ' font-bold flex items-center justify-center text-[10px]">' + escapeChipText(a.char) + '</span>' +
+        '<span class="text-[12px] text-slate-700">' + escapeChipText(m.nickname) + '</span>' +
+        '<span class="text-[10px] text-slate-400">' + roleLabel + '</span>' +
+        '</div>')
+    })
+  }).catch((e) => {
+    console.warn('[bind-api] 小组成员加载失败:', e && e.message)
+  })
+}
+
+/**
+ * 新建项目页加载：登录校验 → 清空原型假数据 → 拉我的小组填下拉 → 加载首个小组成员。
+ * 小组列表写入 controller.rocGroups，供提交时按下拉选中名反查 groupId。
+ */
+export function loadCreate(controller) {
+  return safe(async () => {
+    const ok = await requireLogin()
+    if (!ok) return
+
+    controller.rocGroups = []
+    controller.rocMemberPool = []
+
+    // 清空原型假数据：输入框 value + 成员文案节点
+    CREATE_INPUT_IDS.forEach((id) => clearInputValue(controller, id))
+    clearNodes(controller, CREATE_MEMBER_TEXT_IDS)
+
+    // 我的小组 → 下拉
+    const groups = await api.myGroups().catch(() => null)
+    const list = Array.isArray(groups) ? groups : []
+    controller.rocGroups = list
+    if (list.length) {
+      controller.ui.n30.options = list.map((g) => g.name)
+      controller.ui.n30.value = list[0].name
+      await loadCreateMembers(controller, list[0].groupId)
+    } else {
+      controller.ui.n30.options = []
+      controller.ui.n30.value = '暂无小组，请先创建/加入小组'
+      CREATE_MEMBER_ROW_IDS.forEach((id) => hideNode(controller, id))
+    }
+  })
+}
+
+/**
+ * 新建项目真实提交：{ groupId, name, description, stages:[{name,orderNum}], members:[{userId,role}] }
+ */
 export function createProjectFromForm(form) {
   return api.createProject({
-    groupId: form.groupId || 1,
+    groupId: form.groupId,
     name: form.name,
-    description: form.description || ''
+    description: form.description || '',
+    stages: form.stages || [],
+    members: form.members || []
   })
 }
 
@@ -522,5 +622,7 @@ export default {
   loadProfile,
   loadMessages,
   loadMeeting,
+  loadCreate,
+  loadCreateMembers,
   createProjectFromForm
 }

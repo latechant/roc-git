@@ -33,6 +33,9 @@ public class CreateProjectRequest {
     @Schema(description = "项目阶段列表")
     private List<StageItem> stages;
 
+    @Schema(description = "项目成员列表")
+    private List<MemberItem> members;
+
     @Schema(description = "审核规则")
     private AuditRule auditRule;
 
@@ -47,6 +50,16 @@ public class CreateProjectRequest {
 
         @Schema(description = "阶段顺序", example = "1")
         private Integer orderNum;
+    }
+
+    @Data
+    @Schema(description = "项目成员项")
+    public static class MemberItem {
+        @Schema(description = "用户ID", example = "10001")
+        private Long userId;
+
+        @Schema(description = "角色：leader=组长，member=组员，teacher=教师", example = "member")
+        private String role;
     }
 
     @Data

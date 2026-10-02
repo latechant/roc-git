@@ -121,7 +121,7 @@
 <text>所属课程</text>
 </template>
 </view>
-<picker v-if="!ui.n30.removed" :class="classes(ui.n30.className)" :style="ui.n30.style" class="original-select" :range="ui.n30.options" @change="ui.n30.value = ui.n30.options[$event.detail.value]"><view>{{ ui.n30.value }}</view></picker>
+<picker v-if="!ui.n30.removed" :class="classes(ui.n30.className)" :style="ui.n30.style" class="original-select" :range="ui.n30.options" @change="onGroupChange($event.detail.value)"><view>{{ ui.n30.value }}</view></picker>
 </template>
 </view>
 <view v-if="!ui.n34.removed" :class="classes(ui.n34.className)" :style="ui.n34.style" class="original-div">
@@ -449,7 +449,7 @@ import NativeDate from '../../components/NativeDate.vue'
 // #endif
 import createController from '../../controllers/create.js'
 const controller = createController()
-const { ui, classes, tap, iconSrc } = controller
+const { ui, classes, tap, iconSrc, onGroupChange } = controller
 provide('pageController', controller)
 onUnload(controller.dispose)
 </script>

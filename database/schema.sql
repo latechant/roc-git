@@ -418,3 +418,20 @@ CREATE TABLE `archive` (
   CONSTRAINT `fk_archive_project` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_archive_by` FOREIGN KEY (`archive_by`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='期末归档表';
+
+-- ----------------------------------------------------------------------------
+-- 20. 项目成员表（项目创建时写入，关联 project 与 user）
+-- ----------------------------------------------------------------------------
+DROP TABLE IF EXISTS `project_member`;
+CREATE TABLE `project_member` (
+  `id`         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `project_id` BIGINT UNSIGNED NOT NULL COMMENT '所属项目（project.id）',
+  `user_id`    BIGINT UNSIGNED NOT NULL COMMENT '项目成员（user.id）',
+  `role`       VARCHAR(16) NOT NULL DEFAULT 'member' COMMENT '角色：leader=组长，member=组员，teacher=教师',
+  `joined_at`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '加入项目时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_project_member` (`project_id`, `user_id`),
+  KEY `idx_pm_user` (`user_id`),
+  CONSTRAINT `fk_pm_project` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_pm_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目成员表';
