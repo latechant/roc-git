@@ -94,9 +94,9 @@ async function onCreate() {
 async function onJoin() {
   const code = (joinCode.value || '').trim()
   if (!code) { showToast('请输入邀请码'); return }
-  const ok = await api.validateInviteCode({ code }).catch(() => null)
+  const ok = await api.validateInviteCode({ inviteCode: code }).catch(() => null)
   if (!ok) { showToast('邀请码无效'); return }
-  const res = await api.joinGroup({ code }).catch((e) => null)
+  const res = await api.joinGroup({ inviteCode: code }).catch((e) => null)
   if (!res) { showToast('加入失败'); return }
   joinCode.value = ''
   showToast('加入成功')
