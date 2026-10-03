@@ -1,3 +1,4 @@
+import { reactive } from 'vue'
 import data from '../data/create.json'
 import { createPageController } from '../utils/page-controller.js'
 import api from '../utils/api.js'
@@ -6,9 +7,54 @@ import { loadCreate, loadCreateMembers, createProjectFromForm } from '../utils/b
 // Original prototype actions operate on reactive Vue state through adapters.
 // No browser DOM, inline JavaScript or eval is required in the mini program.
 export default function () {
-  const controller = createPageController(data)
+  // controller 整体包一层 reactive：仅 ui 原生响应式，step/goStep 等需模板感知的状态由此驱动
+  const controller = reactive(createPageController(data))
   const { document, location, setTimeout } = controller.adapters
   const ui = controller.ui
+
+  // 四步向导：1 基础 → 2 阶段 → 3 分工(成员+任务) → 4 规则
+  controller.step = 1
+
+  // 同步步骤条激活态：圆点(n10/n13/n16/n19) + 标签(n9/n12/n15/n18)，className 幂等切换
+  const DOT_ACTIVE = ['bg-blue-600', 'text-white']
+  const DOT_IDLE = ['bg-slate-200', 'text-slate-500']
+  const LABEL_ACTIVE = ['text-blue-600', 'font-semibold']
+  const LABEL_IDLE = ['text-slate-400']
+  function retokenize(el, strip, target) {
+    var tokens = String(el.className || '').split(/\s+/).filter(function (t) { return t && strip.indexOf(t) < 0 })
+    el.className = tokens.concat(target).join(' ')
+  }
+  function applyStepBar(active) {
+    const dots = ['n10', 'n13', 'n16', 'n19']
+    const labels = ['n9', 'n12', 'n15', 'n18']
+    dots.forEach(function (id, i) {
+      retokenize(ui[id], DOT_ACTIVE.concat(DOT_IDLE), (i + 1) === active ? DOT_ACTIVE : DOT_IDLE)
+    })
+    labels.forEach(function (id, i) {
+      retokenize(ui[id], LABEL_ACTIVE.concat(LABEL_IDLE), (i + 1) === active ? LABEL_ACTIVE : LABEL_IDLE)
+    })
+  }
+  function goStep(n) {
+    if (n < 1 || n > 4) return
+    controller.step = n
+    applyStepBar(n)
+    if (n === 4) ui.n105.textContent = '创建项目'
+  }
+  function nextStep() {
+    const step = controller.step
+    if (step === 1) {
+      const name = (ui.n27.value || '').trim()
+      if (!name) { showToast('请输入项目名称'); return }
+      const gv = ui.n30.value || ''
+      if (!gv || gv.indexOf('暂无小组') >= 0) { showToast('请先加入/创建小组'); return }
+    }
+    goStep(step + 1)
+  }
+  function prevStep() { goStep(controller.step - 1) }
+  controller.goStep = goStep
+  controller.nextStep = nextStep
+  controller.prevStep = prevStep
+  applyStepBar(1)
 
   // 接入真实接口：登录校验、清空假数据、拉小组下拉与成员池
   loadCreate(controller)

@@ -31,7 +31,7 @@
 <template v-if="ui.n8.textContent !== undefined"><text>{{ ui.n8.textContent }}</text></template><template v-else>
 <span v-if="!ui.n9.removed" :class="classes(ui.n9.className)" :style="ui.n9.style" class="original-span">
 <template v-if="ui.n9.textContent !== undefined"><text>{{ ui.n9.textContent }}</text></template><template v-else>
-<view v-if="!ui.n10.removed" :class="classes(ui.n10.className)" :style="ui.n10.style" class="original-span">
+<view v-if="!ui.n10.removed" :class="classes(ui.n10.className)" :style="ui.n10.style" class="original-span" @tap.stop="goStep(1)">
 <template v-if="ui.n10.textContent !== undefined"><text>{{ ui.n10.textContent }}</text></template><template v-else>
 <text>1</text>
 </template>
@@ -46,7 +46,7 @@
 </view>
 <span v-if="!ui.n12.removed" :class="classes(ui.n12.className)" :style="ui.n12.style" class="original-span">
 <template v-if="ui.n12.textContent !== undefined"><text>{{ ui.n12.textContent }}</text></template><template v-else>
-<span v-if="!ui.n13.removed" :class="classes(ui.n13.className)" :style="ui.n13.style" class="original-span">
+<span v-if="!ui.n13.removed" :class="classes(ui.n13.className)" :style="ui.n13.style" class="original-span" @tap.stop="goStep(2)">
 <template v-if="ui.n13.textContent !== undefined"><text>{{ ui.n13.textContent }}</text></template><template v-else>
 <text>2</text>
 </template>
@@ -61,7 +61,7 @@
 </view>
 <view v-if="!ui.n15.removed" :class="classes(ui.n15.className)" :style="ui.n15.style" class="original-span">
 <template v-if="ui.n15.textContent !== undefined"><text>{{ ui.n15.textContent }}</text></template><template v-else>
-<view v-if="!ui.n16.removed" :class="classes(ui.n16.className)" :style="ui.n16.style" class="original-span">
+<view v-if="!ui.n16.removed" :class="classes(ui.n16.className)" :style="ui.n16.style" class="original-span" @tap.stop="goStep(3)">
 <template v-if="ui.n16.textContent !== undefined"><text>{{ ui.n16.textContent }}</text></template><template v-else>
 <text>3</text>
 </template>
@@ -76,7 +76,7 @@
 </view>
 <view v-if="!ui.n18.removed" :class="classes(ui.n18.className)" :style="ui.n18.style" class="original-span">
 <template v-if="ui.n18.textContent !== undefined"><text>{{ ui.n18.textContent }}</text></template><template v-else>
-<view v-if="!ui.n19.removed" :class="classes(ui.n19.className)" :style="ui.n19.style" class="original-span">
+<view v-if="!ui.n19.removed" :class="classes(ui.n19.className)" :style="ui.n19.style" class="original-span" @tap.stop="goStep(4)">
 <template v-if="ui.n19.textContent !== undefined"><text>{{ ui.n19.textContent }}</text></template><template v-else>
 <text>4</text>
 </template>
@@ -95,6 +95,7 @@
 <text>项目建立后可邀请成员、设置阶段、分配任务，全流程自动留痕。</text>
 </template>
 </view>
+<template v-if="controller.step === 1">
 <view v-if="!ui.n22.removed" :class="classes(ui.n22.className)" :style="ui.n22.style" class="original-div">
 <template v-if="ui.n22.textContent !== undefined"><text>{{ ui.n22.textContent }}</text></template><template v-else>
 <view v-if="!ui.n23.removed" :class="classes(ui.n23.className)" :style="ui.n23.style" class="original-h2">
@@ -138,76 +139,8 @@
 </view>
 </template>
 </view>
-<view v-if="!ui.n37.removed" :class="classes(ui.n37.className)" :style="ui.n37.style" class="original-div">
-<template v-if="ui.n37.textContent !== undefined"><text>{{ ui.n37.textContent }}</text></template><template v-else>
-<view v-if="!ui.n38.removed" :class="classes(ui.n38.className)" :style="ui.n38.style" class="original-div">
-<template v-if="ui.n38.textContent !== undefined"><text>{{ ui.n38.textContent }}</text></template><template v-else>
-<view v-if="!ui.n39.removed" :class="classes(ui.n39.className)" :style="ui.n39.style" class="original-h2">
-<template v-if="ui.n39.textContent !== undefined"><text>{{ ui.n39.textContent }}</text></template><template v-else>
-<text>小组成员</text>
 </template>
-</view>
-<button v-if="!ui.n40.removed" :class="classes(ui.n40.className)" :style="ui.n40.style" class="original-button" @tap.stop="tap('n40', $event)">
-<template v-if="ui.n40.textContent !== undefined"><text>{{ ui.n40.textContent }}</text></template><template v-else>
-<text>+ 添加</text>
-</template>
-</button>
-</template>
-</view>
-<view v-if="!ui.n41.removed" :class="classes(ui.n41.className)" :style="ui.n41.style" class="original-div">
-<template v-if="ui.n41.textContent !== undefined"><text>{{ ui.n41.textContent }}</text></template><template v-else>
-<view v-if="!ui.n42.removed" :class="classes(ui.n42.className)" :style="ui.n42.style" class="original-div">
-<template v-if="ui.n42.textContent !== undefined"><text>{{ ui.n42.textContent }}</text></template><template v-else>
-<view v-if="!ui.n43.removed" :class="classes(ui.n43.className)" :style="ui.n43.style" class="original-span">
-<template v-if="ui.n43.textContent !== undefined"><text>{{ ui.n43.textContent }}</text></template><template v-else>
-<text>林</text>
-</template>
-</view>
-<span v-if="!ui.n44.removed" :class="classes(ui.n44.className)" :style="ui.n44.style" class="original-span">
-<template v-if="ui.n44.textContent !== undefined"><text>{{ ui.n44.textContent }}</text></template><template v-else>
-<text>林知行</text>
-</template>
-</span>
-<span v-if="!ui.n45.removed" :class="classes(ui.n45.className)" :style="ui.n45.style" class="original-span">
-<template v-if="ui.n45.textContent !== undefined"><text>{{ ui.n45.textContent }}</text></template><template v-else>
-<text>组长</text>
-</template>
-</span>
-</template>
-</view>
-<view v-if="!ui.n46.removed" :class="classes(ui.n46.className)" :style="ui.n46.style" class="original-div">
-<template v-if="ui.n46.textContent !== undefined"><text>{{ ui.n46.textContent }}</text></template><template v-else>
-<span v-if="!ui.n47.removed" :class="classes(ui.n47.className)" :style="ui.n47.style" class="original-span">
-<template v-if="ui.n47.textContent !== undefined"><text>{{ ui.n47.textContent }}</text></template><template v-else>
-<text>许</text>
-</template>
-</span>
-<view v-if="!ui.n48.removed" :class="classes(ui.n48.className)" :style="ui.n48.style" class="original-span">
-<template v-if="ui.n48.textContent !== undefined"><text>{{ ui.n48.textContent }}</text></template><template v-else>
-<text>许萌</text>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n49.removed" :class="classes(ui.n49.className)" :style="ui.n49.style" class="original-div">
-<template v-if="ui.n49.textContent !== undefined"><text>{{ ui.n49.textContent }}</text></template><template v-else>
-<span v-if="!ui.n50.removed" :class="classes(ui.n50.className)" :style="ui.n50.style" class="original-span">
-<template v-if="ui.n50.textContent !== undefined"><text>{{ ui.n50.textContent }}</text></template><template v-else>
-<text>王</text>
-</template>
-</span>
-<span v-if="!ui.n51.removed" :class="classes(ui.n51.className)" :style="ui.n51.style" class="original-span">
-<template v-if="ui.n51.textContent !== undefined"><text>{{ ui.n51.textContent }}</text></template><template v-else>
-<text>王宁</text>
-</template>
-</span>
-</template>
-</view>
-</template>
-<NativeFragment v-for="childId in ui.n41.appended" :key="childId" :node-id="childId" />
-</view>
-</template>
-</view>
+<template v-if="controller.step === 2">
 <view v-if="!ui.n52.removed" :class="classes(ui.n52.className)" :style="ui.n52.style" class="original-div">
 <template v-if="ui.n52.textContent !== undefined"><text>{{ ui.n52.textContent }}</text></template><template v-else>
 <view v-if="!ui.n53.removed" :class="classes(ui.n53.className)" :style="ui.n53.style" class="original-div">
@@ -279,6 +212,78 @@
 </view>
 </template>
 </view>
+</template>
+<template v-if="controller.step === 3">
+<view v-if="!ui.n37.removed" :class="classes(ui.n37.className)" :style="ui.n37.style" class="original-div">
+<template v-if="ui.n37.textContent !== undefined"><text>{{ ui.n37.textContent }}</text></template><template v-else>
+<view v-if="!ui.n38.removed" :class="classes(ui.n38.className)" :style="ui.n38.style" class="original-div">
+<template v-if="ui.n38.textContent !== undefined"><text>{{ ui.n38.textContent }}</text></template><template v-else>
+<view v-if="!ui.n39.removed" :class="classes(ui.n39.className)" :style="ui.n39.style" class="original-h2">
+<template v-if="ui.n39.textContent !== undefined"><text>{{ ui.n39.textContent }}</text></template><template v-else>
+<text>小组成员</text>
+</template>
+</view>
+<button v-if="!ui.n40.removed" :class="classes(ui.n40.className)" :style="ui.n40.style" class="original-button" @tap.stop="tap('n40', $event)">
+<template v-if="ui.n40.textContent !== undefined"><text>{{ ui.n40.textContent }}</text></template><template v-else>
+<text>+ 添加</text>
+</template>
+</button>
+</template>
+</view>
+<view v-if="!ui.n41.removed" :class="classes(ui.n41.className)" :style="ui.n41.style" class="original-div">
+<template v-if="ui.n41.textContent !== undefined"><text>{{ ui.n41.textContent }}</text></template><template v-else>
+<view v-if="!ui.n42.removed" :class="classes(ui.n42.className)" :style="ui.n42.style" class="original-div">
+<template v-if="ui.n42.textContent !== undefined"><text>{{ ui.n42.textContent }}</text></template><template v-else>
+<view v-if="!ui.n43.removed" :class="classes(ui.n43.className)" :style="ui.n43.style" class="original-span">
+<template v-if="ui.n43.textContent !== undefined"><text>{{ ui.n43.textContent }}</text></template><template v-else>
+<text>林</text>
+</template>
+</view>
+<span v-if="!ui.n44.removed" :class="classes(ui.n44.className)" :style="ui.n44.style" class="original-span">
+<template v-if="ui.n44.textContent !== undefined"><text>{{ ui.n44.textContent }}</text></template><template v-else>
+<text>林知行</text>
+</template>
+</span>
+<span v-if="!ui.n45.removed" :class="classes(ui.n45.className)" :style="ui.n45.style" class="original-span">
+<template v-if="ui.n45.textContent !== undefined"><text>{{ ui.n45.textContent }}</text></template><template v-else>
+<text>组长</text>
+</template>
+</span>
+</template>
+</view>
+<view v-if="!ui.n46.removed" :class="classes(ui.n46.className)" :style="ui.n46.style" class="original-div">
+<template v-if="ui.n46.textContent !== undefined"><text>{{ ui.n46.textContent }}</text></template><template v-else>
+<span v-if="!ui.n47.removed" :class="classes(ui.n47.className)" :style="ui.n47.style" class="original-span">
+<template v-if="ui.n47.textContent !== undefined"><text>{{ ui.n47.textContent }}</text></template><template v-else>
+<text>许</text>
+</template>
+</span>
+<view v-if="!ui.n48.removed" :class="classes(ui.n48.className)" :style="ui.n48.style" class="original-span">
+<template v-if="ui.n48.textContent !== undefined"><text>{{ ui.n48.textContent }}</text></template><template v-else>
+<text>许萌</text>
+</template>
+</view>
+</template>
+</view>
+<view v-if="!ui.n49.removed" :class="classes(ui.n49.className)" :style="ui.n49.style" class="original-div">
+<template v-if="ui.n49.textContent !== undefined"><text>{{ ui.n49.textContent }}</text></template><template v-else>
+<span v-if="!ui.n50.removed" :class="classes(ui.n50.className)" :style="ui.n50.style" class="original-span">
+<template v-if="ui.n50.textContent !== undefined"><text>{{ ui.n50.textContent }}</text></template><template v-else>
+<text>王</text>
+</template>
+</span>
+<span v-if="!ui.n51.removed" :class="classes(ui.n51.className)" :style="ui.n51.style" class="original-span">
+<template v-if="ui.n51.textContent !== undefined"><text>{{ ui.n51.textContent }}</text></template><template v-else>
+<text>王宁</text>
+</template>
+</span>
+</template>
+</view>
+</template>
+<NativeFragment v-for="childId in ui.n41.appended" :key="childId" :node-id="childId" />
+</view>
+</template>
+</view>
 <view v-if="!ui.n69.removed" :class="classes(ui.n69.className)" :style="ui.n69.style" class="original-div">
 <template v-if="ui.n69.textContent !== undefined"><text>{{ ui.n69.textContent }}</text></template><template v-else>
 <view v-if="!ui.n70.removed" :class="classes(ui.n70.className)" :style="ui.n70.style" class="original-div">
@@ -334,6 +339,8 @@
 </view>
 </template>
 </view>
+</template>
+<template v-if="controller.step === 4">
 <view v-if="!ui.n82.removed" :class="classes(ui.n82.className)" :style="ui.n82.style" class="original-div">
 <template v-if="ui.n82.textContent !== undefined"><text>{{ ui.n82.textContent }}</text></template><template v-else>
 <view v-if="!ui.n83.removed" :class="classes(ui.n83.className)" :style="ui.n83.style" class="original-h2">
@@ -423,11 +430,20 @@
 </view>
 </template>
 </view>
+</template>
+<view v-if="controller.step > 1" class="mt-4 flex items-center gap-3">
+<button class="flex-1 bg-slate-100 text-slate-700 rounded-2xl py-3 text-[14px] font-medium" @tap="prevStep()"><text>上一步</text></button>
+</view>
+<view v-if="controller.step < 4" class="mt-3">
+<button class="w-full bg-blue-600 text-white rounded-2xl py-3 text-[14px] font-semibold" @tap="nextStep()"><text>下一步</text></button>
+</view>
+<template v-if="controller.step === 4">
 <button v-if="!ui.n105.removed" :class="classes(ui.n105.className)" :style="ui.n105.style" class="original-button" @tap.stop="tap('n105', $event)">
 <template v-if="ui.n105.textContent !== undefined"><text>{{ ui.n105.textContent }}</text></template><template v-else>
 <text>创建并进入项目</text>
 </template>
 </button>
+</template>
 </template>
 </scroll-view>
 <view v-if="!ui.n106.removed" :class="classes(ui.n106.className)" :style="ui.n106.style" class="original-div">
@@ -449,7 +465,7 @@ import NativeDate from '../../components/NativeDate.vue'
 // #endif
 import createController from '../../controllers/create.js'
 const controller = createController()
-const { ui, classes, tap, iconSrc, onGroupChange } = controller
+const { ui, classes, tap, iconSrc, onGroupChange, goStep, prevStep, nextStep } = controller
 provide('pageController', controller)
 onUnload(controller.dispose)
 </script>
