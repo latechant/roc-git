@@ -2,7 +2,7 @@ import { reactive } from 'vue'
 import data from '../data/create.json'
 import { createPageController } from '../utils/page-controller.js'
 import api from '../utils/api.js'
-import { loadCreate, loadCreateMembers, createProjectFromForm } from '../utils/bind-api.js'
+import { loadCreate, createProjectFromForm } from '../utils/bind-api.js'
 
 // Original prototype actions operate on reactive Vue state through adapters.
 // No browser DOM, inline JavaScript or eval is required in the mini program.
@@ -45,8 +45,8 @@ export default function () {
     if (step === 1) {
       const name = (ui.n27.value || '').trim()
       if (!name) { showToast('请输入项目名称'); return }
-      const gv = ui.n30.value || ''
-      if (!gv || gv.indexOf('暂无小组') >= 0) { showToast('请先加入/创建小组'); return }
+      const group = (controller.rocGroups || [])[0]
+      if (!group) { showToast('请先加入/创建小组'); return }
     }
     goStep(step + 1)
   }
@@ -130,9 +130,7 @@ export default function () {
     // 基础信息
     const name = (ui.n27.value || '').trim()
     if (!name) { showToast('请输入项目名称'); return }
-    const groupValue = ui.n30.value || ''
-    if (groupValue.indexOf('暂无小组') >= 0) { showToast('请先加入/创建小组'); return }
-    const group = (controller.rocGroups || []).find(function (g) { return g.name === groupValue })
+    const group = (controller.rocGroups || [])[0]
     if (!group) { showToast('请先加入/创建小组'); return }
     const description = ui.n36.value || ''
 
@@ -206,15 +204,7 @@ export default function () {
     }
   }
 
-  // picker 切换小组：更新选中值并按新小组重载成员区
-  controller.onGroupChange = function (index) {
-    const opts = ui.n30.options || []
-    const name = opts[index]
-    if (!name) return
-    ui.n30.value = name
-    const g = (controller.rocGroups || []).find(function (x) { return x.name === name })
-    loadCreateMembers(controller, g ? g.groupId : null)
-  }
+  // 默认归属第一个小组：小组下拉已移除，createProject() 直接取 rocGroups[0]
 
   controller.setHandlers({
     n40: function (event) { addMember() },

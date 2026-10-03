@@ -119,10 +119,8 @@
 <template v-if="ui.n28.textContent !== undefined"><text>{{ ui.n28.textContent }}</text></template><template v-else>
 <view v-if="!ui.n29.removed" :class="classes(ui.n29.className)" :style="ui.n29.style" class="original-label">
 <template v-if="ui.n29.textContent !== undefined"><text>{{ ui.n29.textContent }}</text></template><template v-else>
-<text>所属课程</text>
 </template>
 </view>
-<picker v-if="!ui.n30.removed" :class="classes(ui.n30.className)" :style="ui.n30.style" class="original-select" :range="ui.n30.options" @change="onGroupChange($event.detail.value)"><view>{{ ui.n30.value }}</view></picker>
 </template>
 </view>
 <view v-if="!ui.n34.removed" :class="classes(ui.n34.className)" :style="ui.n34.style" class="original-div">
