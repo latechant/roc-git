@@ -1,3 +1,4 @@
+import { reactive } from 'vue'
 import data from '../data/home.json'
 import { createPageController } from '../utils/page-controller.js'
 import { loadHome } from '../utils/bind-api.js'
@@ -6,7 +7,7 @@ import api from '../utils/api.js'
 // Original prototype actions operate on reactive Vue state through adapters.
 // No browser DOM, inline JavaScript or eval is required in the mini program.
 export default function () {
-  const controller = createPageController(data)
+  const controller = reactive(createPageController(data))
   const { document, location, navigator, setTimeout } = controller.adapters
 
   // 接入真实接口：后端数据覆盖原型文本
@@ -27,11 +28,18 @@ n7: async function (event) {
     location.href = 'create.html'
   } else {
     showToast('请先加入/创建小组，再新建项目')
+    controller.showGroupPopup = true
   }
 },
 n9: function(event) { showToast('分享') },
 n147: function(event) { event.preventDefault();showToast('已通过') },
 n154: function(event) { event.preventDefault();showToast('已通过') }
   })
+
+  // 弹窗内创建/加入成功后：刷新小组列表，用户可再点"+"直接进创建页
+  controller.onJoined = async function () {
+    const groups = await api.myGroups().catch(() => null)
+    controller.rocGroups = Array.isArray(groups) ? groups : []
+  }
   return controller
 }

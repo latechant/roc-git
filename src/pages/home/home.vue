@@ -715,6 +715,8 @@
 </view>
 </template>
 
+<GroupPopup :show="controller.showGroupPopup === true" @close="controller.showGroupPopup = false" @joined="onJoined" />
+
 <script setup>
 import { provide } from 'vue'
 import { onUnload } from '@dcloudio/uni-app'
@@ -723,8 +725,13 @@ import NativeFragment from '../../components/NativeFragment.vue'
 import NativeDate from '../../components/NativeDate.vue'
 // #endif
 import createController from '../../controllers/home.js'
+import GroupPopup from '../../components/GroupPopup.vue'
 const controller = createController()
 const { ui, classes, tap, iconSrc } = controller
 provide('pageController', controller)
+function onJoined() {
+  if (controller.onJoined) controller.onJoined()
+  controller.showGroupPopup = false
+}
 onUnload(controller.dispose)
 </script>
