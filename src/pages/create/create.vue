@@ -455,9 +455,8 @@
 </template>
 </view>
 </view>
-</template>
-
 <GroupPopup :show="showGroupPopup" @close="showGroupPopup = false" @joined="onGroupPopupJoined" />
+</template>
 
 <script setup>
 import { computed, provide, ref } from 'vue'
