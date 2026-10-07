@@ -14,8 +14,8 @@
       <view v-else :class="classes(child.className)" :style="child.style">
         <text v-for="(label, labelIndex) in child.children" :key="labelIndex">{{ label.text }}</text>
       </view>
-      <text v-if="removable" class="stage-del" @tap="pc.removeRow(props.nodeId, child.id)">×</text>
     </template>
+    <text v-if="removable" class="stage-del" @tap="pc.removeRow(props.nodeId, props.nodeId)">×</text>
   </view>
 </template>
 
