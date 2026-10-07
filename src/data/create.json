@@ -1475,9 +1475,9 @@
       "tag": "span",
       "parent": "n74",
       "attrs": {
-        "class": "w-6 h-6 rounded-full bg-sky-400 text-sky-900 font-bold flex items-center justify-center text-[10px]"
+        "class": "text-[11px] text-slate-400 bg-transparent outline-none"
       },
-      "className": "w-6 h-6 rounded-full bg-sky-400 text-sky-900 font-bold flex items-center justify-center text-[10px]",
+      "className": "text-[11px] text-slate-400 bg-transparent outline-none",
       "style": {},
       "removed": false,
       "value": "",
@@ -1548,9 +1548,9 @@
       "tag": "span",
       "parent": "n78",
       "attrs": {
-        "class": "w-6 h-6 rounded-full bg-rose-400 text-rose-900 font-bold flex items-center justify-center text-[10px]"
+        "class": "text-[11px] text-slate-400 bg-transparent outline-none"
       },
-      "className": "w-6 h-6 rounded-full bg-rose-400 text-rose-900 font-bold flex items-center justify-center text-[10px]",
+      "className": "text-[11px] text-slate-400 bg-transparent outline-none",
       "style": {},
       "removed": false,
       "value": "",
