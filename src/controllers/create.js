@@ -58,20 +58,16 @@ export default function () {
 
   // 接入真实接口：登录校验、清空假数据、拉小组下拉与成员池
   loadCreate(controller)
+  // 记录当前用户昵称：成员池为空时负责人选择器兜底显示当前用户
+  api.getProfile().then(function (profile) {
+    if (profile && profile.nickname) controller.currentUserNickname = profile.nickname
+  }).catch(function () {})
 
   function showToast(msg) {
     var t = document.getElementById('toast')
     t.textContent = msg
     t.classList.remove('hidden')
     setTimeout(function () { t.classList.add('hidden') }, 1800)
-  }
-
-  // 追加一行「成员姓名输入框」，供用户键入要加入项目的成员昵称
-  function addMember() {
-    document.getElementById('members').insertAdjacentHTML('beforeend',
-      '<div class="flex items-center gap-1.5 px-3 py-2 bg-white border border-dashed border-slate-300 rounded-xl">' +
-      '<input class="flex-1 text-[13px] text-slate-900 outline-none bg-transparent" placeholder="输入成员姓名">' +
-      '</div>')
   }
 
   // 追加一行「阶段名输入 + 日期」；title 传入则预填（模板用），否则留空待填
@@ -112,11 +108,11 @@ export default function () {
     if (m) m.selected = !m.selected
   }
 
-  // 追加一行「任务名输入 + 日期」
+  // 追加一行「负责人 + 任务名输入 + 日期」
   function addTask() {
     document.getElementById('tasks').insertAdjacentHTML('beforeend',
       '<div class="flex items-center gap-2 bg-white border border-slate-200 rounded-xl p-3">' +
-      '<span class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-[10px]">任</span>' +
+      '<picker mode="selector" class="text-[11px] text-slate-400 bg-transparent outline-none">0</picker>' +
       '<input class="flex-1 text-[13px] text-slate-900 outline-none bg-transparent" placeholder="任务描述">' +
       '<input type="date" class="text-[11px] text-slate-400 bg-transparent outline-none">' +
       '</div>')
@@ -167,14 +163,20 @@ export default function () {
       if (v) stages.push({ name: v, orderNum: stages.length + 1 })
     })
 
-    // 任务收集：非 date 输入框 = 任务名，date 输入框 = deadline
+    // 任务收集：非 date 输入框 = 任务名，date 输入框 = deadline；picker = 负责人（昵称索引）
+    const pool = controller.rocMemberPool || []
     const tasks = []
     collectRows('n73').forEach(function (row) {
       const inputs = rowInputs(row)
       const nameInput = inputs.find(function (n) { return n.attrs.type !== 'date' })
       const dateInput = inputs.find(function (n) { return n.attrs.type === 'date' })
       const v = nameInput ? (nameInput.value || '').trim() : ''
-      if (v) tasks.push({ name: v, deadline: dateInput ? (dateInput.value || '') : '' })
+      if (!v) return
+      // 负责人：行内 picker 的 value 为池昵称索引；无 picker（旧原型/兜底）默认当前用户
+      let assigneeId = null
+      const picker = (row.children || []).map(ref => ref.id ? ui[ref.id] : null).find(n => n && n.tag === 'picker')
+      if (picker && pool[picker.value] != null) assigneeId = pool[picker.value].userId
+      tasks.push({ name: v, deadline: dateInput ? (dateInput.value || '') : '', assigneeId: assigneeId })
     })
 
     // 成员收集：只收点选中的成员（默认全不选，点选加入）；不选任何人也允许创建
@@ -196,16 +198,16 @@ export default function () {
       if (!projectId) throw new Error('创建失败：未返回项目 id')
       uni.setStorageSync('rocgit_current_project_id', projectId)
 
-      // 逐个创建任务（assignee = 当前用户；任一失败即 toast 并停止后续）
+      // 逐个创建任务（负责人=所选成员；未选/兜底回退当前用户；任一失败即 toast 并停止后续）
       if (tasks.length) {
         const profile = await api.getProfile().catch(function () { return null })
-        const assigneeId = profile && profile.userId
+        const currentUserId = profile && profile.userId
         for (let k = 0; k < tasks.length; k++) {
           const t = tasks[k]
           await api.createTask({
             projectId: projectId,
             name: t.name,
-            assigneeId: assigneeId,
+            assigneeId: t.assigneeId || currentUserId,
             deadline: fmtDeadline(t.deadline)
           })
         }
@@ -219,7 +221,6 @@ export default function () {
   // 默认归属第一个小组：小组下拉已移除，createProject() 直接取 rocGroups[0]
 
   controller.setHandlers({
-    n40: function (event) { addMember() },
     n55: function (event) { addStage() },
     n72: function (event) { addTask() },
     n105: function (event) { createProject() }

@@ -11,6 +11,9 @@
         <picker :class="classes(child.className)" class="original-date" mode="date" :value="child.value" @change="child.value = $event.detail.value"><view>{{ child.value ? child.value.replaceAll('-', '/') : '年/月/日' }}</view></picker>
         <!-- #endif -->
       </template>
+      <template v-else-if="child.tag === 'picker'">
+        <picker :class="classes(child.className)" class="original-select" mode="selector" :range="memberNames" :value="child.value" @change="child.value = $event.detail.value"><view>{{ child.value != null ? memberNames[child.value] : memberNames[0] }}</view></picker>
+      </template>
       <view v-else :class="classes(child.className)" :style="child.style">
         <text v-for="(label, labelIndex) in child.children" :key="labelIndex">{{ label.text }}</text>
       </view>
@@ -30,6 +33,13 @@ const { ui, classes } = pc
 const node = computed(() => ui[props.nodeId])
 // The original prototype adds one form row containing labels, inputs and dates.
 const items = computed(() => node.value.children.map(ref => ref.id ? ui[ref.id] : ref))
+// 负责人选择器数据：从成员池映射昵称；池为空时兜底当前用户昵称
+const memberNames = computed(() => {
+  const pool = (pc.rocMemberPool || [])
+  const names = pool.map(m => m.nickname || '')
+  if (!names.length && pc.currentUserNickname) names.push(pc.currentUserNickname)
+  return names
+})
 </script>
 
 <script>

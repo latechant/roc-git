@@ -148,7 +148,7 @@
 <text>作业阶段</text>
 </template>
 </view>
-<button v-if="!ui.n55.removed" :class="classes(ui.n55.className)" :style="ui.n55.style" class="original-button" @tap.stop="tap('n55', $event)">
+<button v-if="!ui.n55.removed" :class="classes(ui.n55.className)" :style="ui.n55.style" class="original-button tap-target-lg" @tap.stop="tap('n55', $event)">
 <template v-if="ui.n55.textContent !== undefined"><text>{{ ui.n55.textContent }}</text></template><template v-else>
 <text>+ 添加</text>
 </template>
@@ -227,11 +227,6 @@
 <text>小组成员</text>
 </template>
 </view>
-<button v-if="!ui.n40.removed" :class="classes(ui.n40.className)" :style="ui.n40.style" class="original-button" @tap.stop="tap('n40', $event)">
-<template v-if="ui.n40.textContent !== undefined"><text>{{ ui.n40.textContent }}</text></template><template v-else>
-<text>+ 添加</text>
-</template>
-</button>
 </template>
 </view>
 <view v-if="!ui.n41.removed" :class="classes(ui.n41.className)" :style="ui.n41.style" class="original-div">
@@ -289,7 +284,6 @@
 <text class="member-chip-name">{{ m.nickname }}</text>
 <text class="member-chip-role">{{ m.role === 'leader' ? '组长' : (m.role === 'teacher' ? '教师' : '组员') }}</text>
 </view>
-<NativeFragment v-for="childId in ui.n41.appended" :key="childId" :node-id="childId" removable />
 </view>
 </template>
 </view>
@@ -302,7 +296,7 @@
 <text>任务分工</text>
 </template>
 </view>
-<button v-if="!ui.n72.removed" :class="classes(ui.n72.className)" :style="ui.n72.style" class="original-button" @tap.stop="tap('n72', $event)">
+<button v-if="!ui.n72.removed" :class="classes(ui.n72.className)" :style="ui.n72.style" class="original-button tap-target-lg" @tap.stop="tap('n72', $event)">
 <template v-if="ui.n72.textContent !== undefined"><text>{{ ui.n72.textContent }}</text></template><template v-else>
 <text>+ 添加</text>
 </template>
@@ -313,6 +307,7 @@
 <template v-if="ui.n73.textContent !== undefined"><text>{{ ui.n73.textContent }}</text></template><template v-else>
 <view v-if="!ui.n74.removed" :class="classes(ui.n74.className)" :style="ui.n74.style" class="original-div">
 <template v-if="ui.n74.textContent !== undefined"><text>{{ ui.n74.textContent }}</text></template><template v-else>
+<picker v-if="!ui.n75.removed" :class="classes(ui.n75.className)" :style="ui.n75.style" class="original-select" mode="selector" :range="memberNames" :value="ui.n75.value" @change="ui.n75.value = $event.detail.value"><view>{{ ui.n75.value != null ? memberNames[ui.n75.value] : memberNames[0] }}</view></picker>
 <input v-if="!ui.n76.removed" :class="classes(ui.n76.className)" :style="ui.n76.style" class="original-input" :value="ui.n76.value" @input="ui.n76.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
 <!-- #ifdef H5 -->
 <NativeDate v-if="!ui.n77.removed" :class="classes(ui.n77.className)" :style="ui.n77.style" v-model:value="ui.n77.value" />
@@ -324,6 +319,7 @@
 </view>
 <view v-if="!ui.n78.removed" :class="classes(ui.n78.className)" :style="ui.n78.style" class="original-div">
 <template v-if="ui.n78.textContent !== undefined"><text>{{ ui.n78.textContent }}</text></template><template v-else>
+<picker v-if="!ui.n79.removed" :class="classes(ui.n79.className)" :style="ui.n79.style" class="original-select" mode="selector" :range="memberNames" :value="ui.n79.value" @change="ui.n79.value = $event.detail.value"><view>{{ ui.n79.value != null ? memberNames[ui.n79.value] : memberNames[0] }}</view></picker>
 <input v-if="!ui.n80.removed" :class="classes(ui.n80.className)" :style="ui.n80.style" class="original-input" :value="ui.n80.value" @input="ui.n80.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
 <!-- #ifdef H5 -->
 <NativeDate v-if="!ui.n81.removed" :class="classes(ui.n81.className)" :style="ui.n81.style" v-model:value="ui.n81.value" />
@@ -456,7 +452,7 @@
 </template>
 
 <script setup>
-import { provide } from 'vue'
+import { computed, provide } from 'vue'
 import { onUnload } from '@dcloudio/uni-app'
 import NativeFragment from '../../components/NativeFragment.vue'
 // #ifdef H5
@@ -466,5 +462,12 @@ import createController from '../../controllers/create.js'
 const controller = createController()
 const { ui, classes, tap, iconSrc, onGroupChange, goStep, prevStep, nextStep } = controller
 provide('pageController', controller)
+// 负责人选择器数据：从成员池映射昵称（与 NativeFragment 内一致），池空时兜底当前用户
+const memberNames = computed(() => {
+  const pool = controller.rocMemberPool || []
+  const names = pool.map(m => m.nickname || '')
+  if (!names.length && controller.currentUserNickname) names.push(controller.currentUserNickname)
+  return names
+})
 onUnload(controller.dispose)
 </script>

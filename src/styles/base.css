@@ -64,17 +64,6 @@ uni-input, uni-textarea { font: inherit; }
 /* #endif */
 
 /* 阶段行删除按钮 + 阶段模板小 chip */
-.stage-del {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
-  text-align: center;
-  border-radius: 50%;
-  background: #f1f5f9;
-  color: #94a3b8;
-  font-size: 14px;
-}
 .stage-tpl-btn {
   display: inline-block;
   margin: 0 4px 0 0;
@@ -120,4 +109,26 @@ uni-input, uni-textarea { font: inherit; }
 .member-chip-role {
   font-size: 10px;
   color: #94a3b8;
+}
+
+/* 触控目标热区 ≥44×44（视觉尺寸不变，扩点击热区） */
+.tap-target-lg {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+}
+.stage-del {
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 16px;
+  margin: -13px -13px;
 }
