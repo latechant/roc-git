@@ -180,6 +180,7 @@ function groupMemberStats(groupId) { return request({ url: `/v1/group/${groupId}
 function createGroup(data) { return request({ url: '/v1/group/create', method: 'POST', data }) }
 function joinGroup(data) { return request({ url: '/v1/group/join', method: 'POST', data }) }
 function validateInviteCode(data) { return request({ url: '/v1/group/validate-invite-code', method: 'POST', data }) }
+function regenerateInviteCode(groupId) { return request({ url: `/v1/group/${groupId}/invite-code`, method: 'POST' }) }
 
 // ============ 项目 ============
 function projectList(groupId) { return request({ url: '/v1/project/list', params: { groupId } }) }
@@ -240,6 +241,7 @@ export default {
   createGroup,
   joinGroup,
   validateInviteCode,
+  regenerateInviteCode,
   projectList,
   projectDetail,
   projectProgress,

@@ -227,6 +227,7 @@
 <text>小组成员</text>
 </template>
 </view>
+<text class="stage-tpl-btn" @tap="showGroupPopup = true">邀请成员</text>
 </template>
 </view>
 <view v-if="!ui.n41.removed" :class="classes(ui.n41.className)" :style="ui.n41.style" class="original-div">
@@ -283,6 +284,9 @@
 <text class="member-chip-avatar">{{ m.nickname ? m.nickname.slice(0, 1) : '?' }}</text>
 <text class="member-chip-name">{{ m.nickname }}</text>
 <text class="member-chip-role">{{ m.role === 'leader' ? '组长' : (m.role === 'teacher' ? '教师' : '组员') }}</text>
+</view>
+<view v-if="(controller.rocMemberPool || []).length <= 1" class="member-tip">
+<text class="member-tip-text">成员来自小组，邀请同学加入后自动显示在此</text>
 </view>
 </view>
 </template>
@@ -453,17 +457,28 @@
 </view>
 </template>
 
+<GroupPopup :show="showGroupPopup" @close="showGroupPopup = false" @joined="onGroupPopupJoined" />
+
 <script setup>
-import { computed, provide } from 'vue'
+import { computed, provide, ref } from 'vue'
 import { onUnload } from '@dcloudio/uni-app'
 import NativeFragment from '../../components/NativeFragment.vue'
+import GroupPopup from '../../components/GroupPopup.vue'
 // #ifdef H5
 import NativeDate from '../../components/NativeDate.vue'
 // #endif
 import createController from '../../controllers/create.js'
+import { loadCreateMembers } from '../../utils/bind-api.js'
 const controller = createController()
 const { ui, classes, tap, iconSrc, onGroupChange, goStep, prevStep, nextStep } = controller
 provide('pageController', controller)
+// 邀请成员弹窗（小组邀请码管理）
+const showGroupPopup = ref(false)
+function onGroupPopupJoined() {
+  // 新成员加入后刷新成员池：成员 chip 与任务负责人选择器同步更新
+  const g = (controller.rocGroups || [])[0]
+  if (g) loadCreateMembers(controller, g.groupId)
+}
 // 负责人选择器数据：从成员池映射昵称（与 NativeFragment 内一致），池空时兜底当前用户
 const memberNames = computed(() => {
   const pool = controller.rocMemberPool || []

@@ -110,6 +110,18 @@ uni-input, uni-textarea { font: inherit; }
   font-size: 10px;
   color: #94a3b8;
 }
+/* 成员区引导文案（成员池 ≤1 人时显示） */
+.member-tip {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px dashed #e2e8f0;
+}
+.member-tip-text {
+  font-size: 12px;
+  color: #94a3b8;
+}
 
 /* 触控目标热区 ≥44×44（视觉尺寸不变，扩点击热区） */
 .tap-target-lg {
