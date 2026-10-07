@@ -107,6 +107,11 @@ export default function () {
   // 删除一行阶段：标记 removed（模板 v-if 不渲染，收集时 collectRows 自动跳过）
   controller.removeRow = function (parentId, rowId) { ui[rowId].removed = true }
 
+  // 点选/取消成员 chip：切换选中态（selected 响应式，模板即时反馈）
+  controller.toggleMember = function (m) {
+    if (m) m.selected = !m.selected
+  }
+
   // 追加一行「任务名输入 + 日期」
   function addTask() {
     document.getElementById('tasks').insertAdjacentHTML('beforeend',
@@ -172,24 +177,11 @@ export default function () {
       if (v) tasks.push({ name: v, deadline: dateInput ? (dateInput.value || '') : '' })
     })
 
-    // 成员收集：成员池全部作为项目成员；再叠加 addMember 追加行输入值（按昵称匹配）
-    const pool = controller.rocMemberPool || []
-    const members = pool.map(function (m) { return { userId: m.userId, role: m.role } })
-    const extraNames = []
-    ;(ui.n41.appended || []).forEach(function (id) {
-      const row = ui[id]
-      const nameInput = rowInputs(row).find(function (n) { return n.attrs.type !== 'date' })
-      if (nameInput) {
-        const v = (nameInput.value || '').trim()
-        if (v) extraNames.push(v)
-      }
+    // 成员收集：只收点选中的成员（默认全不选，点选加入）；不选任何人也允许创建
+    const members = []
+    ;(controller.rocMemberPool || []).forEach(function (m) {
+      if (m.selected) members.push({ userId: m.userId, role: m.role })
     })
-    for (let k = 0; k < extraNames.length; k++) {
-      const nm = extraNames[k]
-      const hit = pool.find(function (m) { return m.nickname === nm })
-      if (!hit) { showToast('成员"' + nm + '"不在小组内，请选择小组成员'); return }
-      members.push({ userId: hit.userId, role: 'member' })
-    }
 
     try {
       showToast('正在创建项目…')

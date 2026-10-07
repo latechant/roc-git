@@ -284,7 +284,12 @@
 </template>
 </view>
 </template>
-<NativeFragment v-for="childId in ui.n41.appended" :key="childId" :node-id="childId" />
+<view v-for="m in controller.rocMemberPool" :key="m.userId" class="member-chip" :class="m.selected ? 'member-chip-on' : ''" @tap="controller.toggleMember(m)">
+<text class="member-chip-avatar">{{ m.nickname ? m.nickname.slice(0, 1) : '?' }}</text>
+<text class="member-chip-name">{{ m.nickname }}</text>
+<text class="member-chip-role">{{ m.role === 'leader' ? '组长' : (m.role === 'teacher' ? '教师' : '组员') }}</text>
+</view>
+<NativeFragment v-for="childId in ui.n41.appended" :key="childId" :node-id="childId" removable />
 </view>
 </template>
 </view>
@@ -308,11 +313,6 @@
 <template v-if="ui.n73.textContent !== undefined"><text>{{ ui.n73.textContent }}</text></template><template v-else>
 <view v-if="!ui.n74.removed" :class="classes(ui.n74.className)" :style="ui.n74.style" class="original-div">
 <template v-if="ui.n74.textContent !== undefined"><text>{{ ui.n74.textContent }}</text></template><template v-else>
-<view v-if="!ui.n75.removed" :class="classes(ui.n75.className)" :style="ui.n75.style" class="original-span">
-<template v-if="ui.n75.textContent !== undefined"><text>{{ ui.n75.textContent }}</text></template><template v-else>
-<text>许</text>
-</template>
-</view>
 <input v-if="!ui.n76.removed" :class="classes(ui.n76.className)" :style="ui.n76.style" class="original-input" :value="ui.n76.value" @input="ui.n76.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
 <!-- #ifdef H5 -->
 <NativeDate v-if="!ui.n77.removed" :class="classes(ui.n77.className)" :style="ui.n77.style" v-model:value="ui.n77.value" />
@@ -324,11 +324,6 @@
 </view>
 <view v-if="!ui.n78.removed" :class="classes(ui.n78.className)" :style="ui.n78.style" class="original-div">
 <template v-if="ui.n78.textContent !== undefined"><text>{{ ui.n78.textContent }}</text></template><template v-else>
-<span v-if="!ui.n79.removed" :class="classes(ui.n79.className)" :style="ui.n79.style" class="original-span">
-<template v-if="ui.n79.textContent !== undefined"><text>{{ ui.n79.textContent }}</text></template><template v-else>
-<text>王</text>
-</template>
-</span>
 <input v-if="!ui.n80.removed" :class="classes(ui.n80.className)" :style="ui.n80.style" class="original-input" :value="ui.n80.value" @input="ui.n80.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
 <!-- #ifdef H5 -->
 <NativeDate v-if="!ui.n81.removed" :class="classes(ui.n81.className)" :style="ui.n81.style" v-model:value="ui.n81.value" />
@@ -339,7 +334,7 @@
 </template>
 </view>
 </template>
-<NativeFragment v-for="childId in ui.n73.appended" :key="childId" :node-id="childId" />
+<NativeFragment v-for="childId in ui.n73.appended" :key="childId" :node-id="childId" removable />
 </view>
 </template>
 </view>

@@ -548,21 +548,15 @@ export function loadCreateMembers(controller, groupId) {
   CREATE_MEMBER_ROW_IDS.forEach((id) => hideNode(controller, id))
   if (!groupId) return Promise.resolve()
 
-  const membersEl = controller.adapters.document.getElementById('members')
   return api.groupMembers(groupId).then((res) => {
     const list = (res && res.members) || []
-    controller.rocMemberPool = list
-    list.forEach((m, i) => {
-      const a = textAvatar(m.nickname)
-      const colorCls = MEMBER_AVATAR_CLS[i % MEMBER_AVATAR_CLS.length]
-      const roleLabel = m.role === 'leader' ? '组长' : (m.role === 'teacher' ? '教师' : '组员')
-      membersEl.insertAdjacentHTML('beforeend',
-        '<div class="flex items-center gap-1.5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">' +
-        '<span class="w-5 h-5 rounded-full ' + colorCls + ' font-bold flex items-center justify-center text-[10px]">' + escapeChipText(a.char) + '</span>' +
-        '<span class="text-[12px] text-slate-700">' + escapeChipText(m.nickname) + '</span>' +
-        '<span class="text-[10px] text-slate-400">' + roleLabel + '</span>' +
-        '</div>')
-    })
+    // 成员 chip 改为可点选：默认全不选，点选加入（selected 响应式，模板 v-for 渲染）
+    controller.rocMemberPool = list.map((m) => ({
+      userId: m.userId,
+      nickname: m.nickname,
+      role: m.role,
+      selected: false
+    }))
   }).catch((e) => {
     console.warn('[bind-api] 小组成员加载失败:', e && e.message)
   })
