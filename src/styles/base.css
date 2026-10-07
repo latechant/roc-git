@@ -62,3 +62,25 @@ uni-input, uni-textarea { font: inherit; }
 .original-input .uni-input-input { height: 100%; line-height: inherit; }
 .original-textarea .uni-textarea-textarea { line-height: inherit; font: inherit; }
 /* #endif */
+
+/* 阶段行删除按钮 + 阶段模板小 chip */
+.stage-del {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #94a3b8;
+  font-size: 14px;
+}
+.stage-tpl-btn {
+  display: inline-block;
+  margin: 0 4px 0 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 12px;
+}

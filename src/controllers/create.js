@@ -74,18 +74,38 @@ export default function () {
       '</div>')
   }
 
-  // 追加一行「阶段名输入 + 日期」
+  // 追加一行「阶段名输入 + 日期」；title 传入则预填（模板用），否则留空待填
   var stageNo = 4
-  function addStage() {
+  function addStage(title) {
     var no = (stageNo < 10 ? '0' : '') + stageNo
     stageNo++
+    var titleInput = title ? 'value="' + title + '"' : 'placeholder="阶段标题"'
     document.getElementById('stages').insertAdjacentHTML('beforeend',
       '<div class="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2.5">' +
       '<span class="text-[12px] font-medium text-slate-700 w-6">' + no + '</span>' +
-      '<input class="flex-1 text-[13px] text-slate-900 outline-none bg-transparent" placeholder="阶段标题">' +
+      '<input class="flex-1 text-[13px] text-slate-900 outline-none bg-transparent" ' + titleInput + '>' +
       '<input type="date" class="text-[11px] text-slate-400 bg-transparent outline-none">' +
       '</div>')
   }
+
+  // 阶段模板：一键填充常见阶段流程（小白引导）
+  var STAGE_TEMPLATES = {
+    course: ['需求分析', '方案设计', '编码实现', '单元测试', '联调验收', '答辩提交'],
+    research: ['选题与文献调研', '数据收集', '分析论证', '报告撰写', '修改提交'],
+    agile: ['迭代规划', '需求澄清', '开发', '评审', '复盘']
+  }
+  // 应用模板：清空现有阶段行 → 重置序号 → 逐条预填模板阶段
+  controller.applyStageTemplate = function (key) {
+    var names = STAGE_TEMPLATES[key]
+    if (!names) return
+    collectRows('n56').forEach(function (r) { r.removed = true })
+    stageNo = 1
+    names.forEach(function (t) { addStage(t) })
+    showToast('已套用「' + (key === 'course' ? '课程项目' : key === 'research' ? '调研报告' : '敏捷迭代') + '」模板')
+  }
+
+  // 删除一行阶段：标记 removed（模板 v-if 不渲染，收集时 collectRows 自动跳过）
+  controller.removeRow = function (parentId, rowId) { ui[rowId].removed = true }
 
   // 追加一行「任务名输入 + 日期」
   function addTask() {

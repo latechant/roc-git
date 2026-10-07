@@ -153,6 +153,9 @@
 <text>+ 添加</text>
 </template>
 </button>
+<text class="stage-tpl-btn" @tap="controller.applyStageTemplate('course')">课程项目</text>
+<text class="stage-tpl-btn" @tap="controller.applyStageTemplate('research')">调研报告</text>
+<text class="stage-tpl-btn" @tap="controller.applyStageTemplate('agile')">敏捷迭代</text>
 </template>
 </view>
 <view v-if="!ui.n56.removed" :class="classes(ui.n56.className)" :style="ui.n56.style" class="original-div">
@@ -171,6 +174,7 @@
 <!-- #ifndef H5 -->
 <picker v-if="!ui.n60.removed" :class="classes(ui.n60.className)" :style="ui.n60.style" class="original-date" mode="date" :value="ui.n60.value" @change="ui.n60.value = $event.detail.value"><view>{{ ui.n60.value ? ui.n60.value.replaceAll('-', '/') : '年/月/日' }}</view></picker>
 <!-- #endif -->
+<text class="stage-del" @tap="controller.removeRow('n56', 'n57')">×</text>
 </template>
 </view>
 <view v-if="!ui.n61.removed" :class="classes(ui.n61.className)" :style="ui.n61.style" class="original-div">
@@ -187,6 +191,7 @@
 <!-- #ifndef H5 -->
 <picker v-if="!ui.n64.removed" :class="classes(ui.n64.className)" :style="ui.n64.style" class="original-date" mode="date" :value="ui.n64.value" @change="ui.n64.value = $event.detail.value"><view>{{ ui.n64.value ? ui.n64.value.replaceAll('-', '/') : '年/月/日' }}</view></picker>
 <!-- #endif -->
+<text class="stage-del" @tap="controller.removeRow('n56', 'n61')">×</text>
 </template>
 </view>
 <view v-if="!ui.n65.removed" :class="classes(ui.n65.className)" :style="ui.n65.style" class="original-div">
@@ -203,10 +208,11 @@
 <!-- #ifndef H5 -->
 <picker v-if="!ui.n68.removed" :class="classes(ui.n68.className)" :style="ui.n68.style" class="original-date" mode="date" :value="ui.n68.value" @change="ui.n68.value = $event.detail.value"><view>{{ ui.n68.value ? ui.n68.value.replaceAll('-', '/') : '年/月/日' }}</view></picker>
 <!-- #endif -->
+<text class="stage-del" @tap="controller.removeRow('n56', 'n65')">×</text>
 </template>
 </view>
 </template>
-<NativeFragment v-for="childId in ui.n56.appended" :key="childId" :node-id="childId" />
+<NativeFragment v-for="childId in ui.n56.appended" :key="childId" :node-id="childId" removable />
 </view>
 </template>
 </view>

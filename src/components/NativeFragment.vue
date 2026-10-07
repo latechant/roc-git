@@ -14,6 +14,7 @@
       <view v-else :class="classes(child.className)" :style="child.style">
         <text v-for="(label, labelIndex) in child.children" :key="labelIndex">{{ label.text }}</text>
       </view>
+      <text v-if="removable" class="stage-del" @tap="pc.removeRow(props.nodeId, child.id)">×</text>
     </template>
   </view>
 </template>
@@ -23,8 +24,9 @@ import { computed, inject } from 'vue'
 // #ifdef H5
 import NativeDate from './NativeDate.vue'
 // #endif
-const props = defineProps({ nodeId: { type: String, required: true } })
-const { ui, classes } = inject('pageController')
+const props = defineProps({ nodeId: { type: String, required: true }, removable: { type: Boolean, default: false } })
+const pc = inject('pageController')
+const { ui, classes } = pc
 const node = computed(() => ui[props.nodeId])
 // The original prototype adds one form row containing labels, inputs and dates.
 const items = computed(() => node.value.children.map(ref => ref.id ? ui[ref.id] : ref))
