@@ -108,14 +108,28 @@ export default function () {
     if (m) m.selected = !m.selected
   }
 
-  // 追加一行「负责人 + 任务名输入 + 日期」
-  function addTask() {
+  // 追加一行「负责人 + 任务名输入 + 日期」；title 传入则预填（模板用），否则留空待填
+  function addTask(title) {
+    var taskInput = title ? 'value="' + title + '"' : 'placeholder="任务描述"'
     document.getElementById('tasks').insertAdjacentHTML('beforeend',
       '<div class="flex items-center gap-2 bg-white border border-slate-200 rounded-xl p-3">' +
       '<picker mode="selector" value="0" class="text-[11px] text-slate-400 bg-transparent outline-none">0</picker>' +
-      '<input class="flex-1 text-[13px] text-slate-900 outline-none bg-transparent" placeholder="任务描述">' +
+      '<input class="flex-1 text-[13px] text-slate-900 outline-none bg-transparent" ' + taskInput + '>' +
       '<input type="date" class="text-[11px] text-slate-400 bg-transparent outline-none">' +
       '</div>')
+  }
+
+  // 任务模板：一键批量预填常用任务（追加而非替换，可多次叠加）
+  var TASK_TEMPLATES = {
+    dev: ['需求分析', '系统设计', '编码实现', '单元测试', '集成联调', '文档整理'],
+    report: ['资料收集', '初稿撰写', '小组评审', '修改定稿', '答辩准备']
+  }
+  // 应用任务模板：追加语义——不清空、不重置，逐条预填模板任务
+  controller.applyTaskTemplate = function (key) {
+    var names = TASK_TEMPLATES[key]
+    if (!names) return
+    names.forEach(function (t) { addTask(t) })
+    showToast('已添加「' + (key === 'dev' ? '通用开发' : '报告答辩') + '」任务模板')
   }
 
   // 取某行内所有 input 节点（原型行 children={id} 引用；追加行同理）

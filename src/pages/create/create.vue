@@ -301,6 +301,8 @@
 <text>+ 添加</text>
 </template>
 </button>
+<text class="stage-tpl-btn" @tap="controller.applyTaskTemplate('dev')">通用开发</text>
+<text class="stage-tpl-btn" @tap="controller.applyTaskTemplate('report')">报告答辩</text>
 </template>
 </view>
 <view v-if="!ui.n73.removed" :class="classes(ui.n73.className)" :style="ui.n73.style" class="original-div">
