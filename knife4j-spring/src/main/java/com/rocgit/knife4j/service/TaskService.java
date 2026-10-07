@@ -87,11 +87,12 @@ public class TaskService {
         return paginate(all, pageNum, pageSize);
     }
 
-    public List<TaskVO> getDueSoonTasks(Integer days) {
+    public List<TaskVO> getDueSoonTasks(Long userId, Integer days) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime deadline = now.plusDays(days);
         List<Task> tasks = taskMapper.selectList(
                 new LambdaQueryWrapper<Task>()
+                        .eq(Task::getAssigneeId, userId)
                         .gt(Task::getDeadline, now)
                         .lt(Task::getDeadline, deadline)
                         .ne(Task::getStatus, "completed")

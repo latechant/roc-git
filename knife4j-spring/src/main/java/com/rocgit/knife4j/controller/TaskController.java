@@ -60,10 +60,11 @@ public class TaskController {
         return Result.success(data);
     }
 
-    @Operation(summary = "即将到期", description = "一周内即将到期的任务")
+    @Operation(summary = "即将到期", description = "一周内即将到期的任务（仅当前用户的）")
     @GetMapping("/due-soon")
-    public Result<List<TaskVO>> dueSoon(@Parameter(description = "天数", example = "7") @RequestParam(defaultValue = "7") Integer days) {
-        List<TaskVO> list = taskService.getDueSoonTasks(days);
+    public Result<List<TaskVO>> dueSoon(@RequestAttribute("userId") String userId,
+                                        @Parameter(description = "天数", example = "7") @RequestParam(defaultValue = "7") Integer days) {
+        List<TaskVO> list = taskService.getDueSoonTasks(Long.parseLong(userId), days);
         return Result.success(list);
     }
 
