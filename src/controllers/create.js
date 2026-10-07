@@ -112,7 +112,7 @@ export default function () {
   function addTask() {
     document.getElementById('tasks').insertAdjacentHTML('beforeend',
       '<div class="flex items-center gap-2 bg-white border border-slate-200 rounded-xl p-3">' +
-      '<picker mode="selector" class="text-[11px] text-slate-400 bg-transparent outline-none">0</picker>' +
+      '<picker mode="selector" value="0" class="text-[11px] text-slate-400 bg-transparent outline-none">0</picker>' +
       '<input class="flex-1 text-[13px] text-slate-900 outline-none bg-transparent" placeholder="任务描述">' +
       '<input type="date" class="text-[11px] text-slate-400 bg-transparent outline-none">' +
       '</div>')

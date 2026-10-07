@@ -307,7 +307,7 @@
 <template v-if="ui.n73.textContent !== undefined"><text>{{ ui.n73.textContent }}</text></template><template v-else>
 <view v-if="!ui.n74.removed" :class="classes(ui.n74.className)" :style="ui.n74.style" class="original-div">
 <template v-if="ui.n74.textContent !== undefined"><text>{{ ui.n74.textContent }}</text></template><template v-else>
-<picker v-if="!ui.n75.removed" :class="classes(ui.n75.className)" :style="ui.n75.style" class="original-select" mode="selector" :range="memberNames" :value="ui.n75.value" @change="ui.n75.value = $event.detail.value"><view>{{ ui.n75.value != null ? memberNames[ui.n75.value] : memberNames[0] }}</view></picker>
+<picker v-if="!ui.n75.removed" :class="classes(ui.n75.className)" :style="ui.n75.style" class="original-select" mode="selector" :range="memberNames" :value="ui.n75.value" @change="ui.n75.value = $event.detail.value"><view>{{ memberNames[ui.n75.value] || memberNames[0] }}</view></picker>
 <input v-if="!ui.n76.removed" :class="classes(ui.n76.className)" :style="ui.n76.style" class="original-input" :value="ui.n76.value" @input="ui.n76.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
 <!-- #ifdef H5 -->
 <NativeDate v-if="!ui.n77.removed" :class="classes(ui.n77.className)" :style="ui.n77.style" v-model:value="ui.n77.value" />
@@ -319,7 +319,7 @@
 </view>
 <view v-if="!ui.n78.removed" :class="classes(ui.n78.className)" :style="ui.n78.style" class="original-div">
 <template v-if="ui.n78.textContent !== undefined"><text>{{ ui.n78.textContent }}</text></template><template v-else>
-<picker v-if="!ui.n79.removed" :class="classes(ui.n79.className)" :style="ui.n79.style" class="original-select" mode="selector" :range="memberNames" :value="ui.n79.value" @change="ui.n79.value = $event.detail.value"><view>{{ ui.n79.value != null ? memberNames[ui.n79.value] : memberNames[0] }}</view></picker>
+<picker v-if="!ui.n79.removed" :class="classes(ui.n79.className)" :style="ui.n79.style" class="original-select" mode="selector" :range="memberNames" :value="ui.n79.value" @change="ui.n79.value = $event.detail.value"><view>{{ memberNames[ui.n79.value] || memberNames[0] }}</view></picker>
 <input v-if="!ui.n80.removed" :class="classes(ui.n80.className)" :style="ui.n80.style" class="original-input" :value="ui.n80.value" @input="ui.n80.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
 <!-- #ifdef H5 -->
 <NativeDate v-if="!ui.n81.removed" :class="classes(ui.n81.className)" :style="ui.n81.style" v-model:value="ui.n81.value" />

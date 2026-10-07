@@ -12,7 +12,7 @@
         <!-- #endif -->
       </template>
       <template v-else-if="child.tag === 'picker'">
-        <picker :class="classes(child.className)" class="original-select" mode="selector" :range="memberNames" :value="child.value" @change="child.value = $event.detail.value"><view>{{ child.value != null ? memberNames[child.value] : memberNames[0] }}</view></picker>
+        <picker :class="classes(child.className)" class="original-select" mode="selector" :range="memberNames" :value="child.value" @change="child.value = $event.detail.value"><view>{{ memberNames[child.value] || memberNames[0] }}</view></picker>
       </template>
       <view v-else :class="classes(child.className)" :style="child.style">
         <text v-for="(label, labelIndex) in child.children" :key="labelIndex">{{ label.text }}</text>
