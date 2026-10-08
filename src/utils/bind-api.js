@@ -385,6 +385,7 @@ function formatFileTime(t) {
 }
 
 // 构造文件行 HTML（DOM-adapter appendFragment 解析 → ui.n60.appended）
+// 操作按钮（data-action + data-file-id）：pending → 通过/驳回；rejected → 重新提交；approved 无操作
 function buildFileRowHtml(f) {
   const badge = fileStatusBadge(f.status)
   const meta = [
@@ -393,6 +394,17 @@ function buildFileRowHtml(f) {
     formatFileSize(f.size),
     f.stageName
   ].filter(Boolean).join(' · ')
+  let actions = ''
+  if (f.status === 'pending') {
+    actions = '<div class="flex items-center gap-2 mt-2">' +
+      '<span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-[11px] font-medium" data-action="approve-file" data-file-id="' + f.fileId + '">通过</span>' +
+      '<span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 text-[11px] font-medium" data-action="reject-file" data-file-id="' + f.fileId + '">驳回</span>' +
+      '</div>'
+  } else if (f.status === 'rejected') {
+    actions = '<div class="flex items-center gap-2 mt-2">' +
+      '<span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-[11px] font-medium" data-action="resubmit-file" data-file-id="' + f.fileId + '">重新提交</span>' +
+      '</div>'
+  }
   return '<div class="file-row bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100" data-status="' + (f.status || '') + '">' +
     '<div class="flex items-center gap-3">' +
     '<span class="w-9 h-9 rounded-xl bg-sky-50 flex items-center justify-center shrink-0">📄</span>' +
@@ -402,6 +414,7 @@ function buildFileRowHtml(f) {
     '</div>' +
     '<span class="px-2 py-0.5 rounded-full ' + badge.cls + ' text-[10px] font-semibold">' + badge.text + '</span>' +
     '</div>' +
+    actions +
     '</div>'
 }
 

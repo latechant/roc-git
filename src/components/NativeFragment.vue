@@ -14,7 +14,7 @@
       <template v-else-if="child.tag === 'picker'">
         <picker :class="classes(child.className)" class="original-select" mode="selector" :range="child.className.includes('stage-pick') ? stageNames : memberNames" :value="child.value" @change="child.value = $event.detail.value"><view>{{ child.className.includes('stage-pick') ? (stageNames[child.value] || '所属阶段') : (memberNames[child.value] || memberNames[0]) }}</view></picker>
       </template>
-      <view v-else :class="classes(child.className)" :style="child.style">
+      <view v-else :class="classes(child.className)" :style="child.style" @tap="child.attrs && child.attrs['data-action'] ? pc.tap(child.id, $event) : null">
         <template v-for="(sub, si) in child.children" :key="sub.id || si">
           <NativeFragment v-if="sub.id && ui[sub.id]" :node-id="sub.id" />
           <text v-else>{{ sub.text }}</text>

@@ -280,6 +280,37 @@ n527: function(event) { hideMore();showToast('已归档') }
   })
 
   // 文件选择回调：取原生 input.files[0] → 上传 → 成功关弹窗并重跑 loadProject 刷新文件列表
+  var resubmitFileId = null
+  // 动态审核动作委托（buildFileRowHtml 的 data-action 按钮，page-controller.tap 分发）
+  controller.setDynActions({
+    'approve-file': function (attrs) {
+      api.approveFile(Number(attrs['data-file-id'])).then(function () {
+        showToast('已通过')
+        loadProject(controller, pid)
+      }).catch(function (err) { showToast((err && err.message) || '操作失败') })
+    },
+    'reject-file': function (attrs) {
+      uni.showModal({
+        title: '驳回原因', editable: true, placeholderText: '请输入驳回原因',
+        success: function (res) {
+          if (!res.confirm) return
+          api.rejectFile(Number(attrs['data-file-id']), (res.content || '').trim() || '未填写原因').then(function () {
+            showToast('已驳回')
+            loadProject(controller, pid)
+          }).catch(function (err) { showToast((err && err.message) || '操作失败') })
+        }
+      })
+    },
+    'resubmit-file': function (attrs) {
+      resubmitFileId = Number(attrs['data-file-id'])
+      // #ifdef H5
+      var nativeDoc = (typeof window !== 'undefined') ? window.document : null
+      var el = nativeDoc && nativeDoc.getElementById('fileUploadInput')
+      if (el) { el.click(); return }
+      // #endif
+      showToast('当前环境暂不支持文件选择')
+    }
+  })
   controller.onFileChange = function (e) {
     var f = null
     // #ifdef H5
@@ -288,6 +319,18 @@ n527: function(event) { hideMore();showToast('已归档') }
     // #endif
     if (!f) { showToast('未选择文件'); return }
     showToast('上传中…')
+    if (resubmitFileId) {
+      api.resubmitFile(resubmitFileId, f).then(function () {
+        showToast('已重新提交')
+        resubmitFileId = null
+        hideUpload()
+        loadProject(controller, pid)
+      }).catch(function (err) {
+        showToast((err && err.message) || '重传失败')
+        resubmitFileId = null
+      })
+      return
+    }
     api.uploadFile(f, { projectId: pid }).then(function () {
       showToast('上传成功')
       hideUpload()

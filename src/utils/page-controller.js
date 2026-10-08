@@ -8,6 +8,7 @@ export function createPageController(data) {
   const cache = new Map()
   const timers = new Set()
   let handlers = {}
+  let dynActions = {}
   let nextId = 0
   const classes = value => (value || '').split(/\s+/).map(c => classMap[c] || c).join(' ')
   const liveRecords = () => Object.values(ui).filter(n => !n.removed)
@@ -123,6 +124,11 @@ export function createPageController(data) {
     const event = { nativeEvent, stopPropagation() { stopped = true }, preventDefault() { prevented = true } }
     let current = ui[id]
     while (current) {
+      // 动态行动作委托：动态 HTML 节点带 data-action（+data-* 载荷）→ controller.setDynActions 注册的处理器
+      if (current.attrs && current.attrs['data-action'] && typeof dynActions[current.attrs['data-action']] === 'function') {
+        dynActions[current.attrs['data-action']].call(element(current.id), current.attrs, event)
+        if (stopped) break
+      }
       handlers[current.id]?.call(element(current.id), event)
       if (current.attrs.href && !prevented) navigate(current.attrs.href)
       if (stopped) break
@@ -139,6 +145,7 @@ export function createPageController(data) {
     appendHtml: appendFragment,
     adapters: { document, location, navigator, setTimeout: scheduled },
     setHandlers(value) { handlers = value },
+    setDynActions(value) { dynActions = value },
     dispose() { timers.forEach(id => globalThis.clearTimeout(id)); timers.clear() }
   }
 }

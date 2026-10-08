@@ -258,6 +258,51 @@ function uploadFile(file, params = {}) {
   })
   // #endif
 }
+// 审核通过（无请求体）
+function approveFile(fileId) { return request({ url: `/v1/file/${fileId}/approve`, method: 'POST' }) }
+// 审核驳回（需原因，后端 @Valid RejectFileRequest）
+function rejectFile(fileId, reason) { return request({ url: `/v1/file/${fileId}/reject`, method: 'POST', data: { reason } }) }
+// 重新提交（被驳回后换新文件重传；multipart，字段 file + remark）
+function resubmitFile(fileId, file, remark = '') {
+  const token = getToken()
+  // #ifdef H5
+  return new Promise((resolve, reject) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    if (remark) fd.append('remark', remark)
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', BASE_URL + `/v1/file/${fileId}/resubmit`)
+    if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token)
+    xhr.onload = function () {
+      let body = null
+      try { body = JSON.parse(xhr.responseText) } catch (e) { /* ignore */ }
+      if (xhr.status >= 200 && xhr.status < 300 && body && body.code === 0) resolve(body.data)
+      else reject(new Error((body && body.message) || ('重传失败 HTTP ' + xhr.status)))
+    }
+    xhr.onerror = function () { reject(new Error('网络错误，重传失败')) }
+    xhr.send(fd)
+  })
+  // #endif
+  // #ifndef H5
+  return new Promise((resolve, reject) => {
+    uni.uploadFile({
+      url: BASE_URL + `/v1/file/${fileId}/resubmit`,
+      filePath: file,
+      name: 'file',
+      header: token ? { Authorization: 'Bearer ' + token } : {},
+      formData: { remark },
+      success: (res) => {
+        try {
+          const body = JSON.parse(res.data)
+          if (body.code === 0) resolve(body.data)
+          else reject(new Error(body.message || '重传失败'))
+        } catch (e) { reject(new Error('重传失败')) }
+      },
+      fail: (err) => reject(new Error((err && err.errMsg) || '重传失败'))
+    })
+  })
+  // #endif
+}
 
 // ============ 研讨/决策/公告（扩展，接口已预留） ============
 function discussionList(projectId, params) { return request({ url: '/v1/discussion/list', params: Object.assign({ projectId }, params) }) }
@@ -314,5 +359,8 @@ export default {
   fileList,
   fileDetail,
   pendingAudit,
-  uploadFile
+  uploadFile,
+  approveFile,
+  rejectFile,
+  resubmitFile
 }
