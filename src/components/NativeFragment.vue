@@ -14,7 +14,16 @@
       <template v-else-if="child.tag === 'picker'">
         <picker :class="classes(child.className)" class="original-select" mode="selector" :range="child.className.includes('stage-pick') ? stageNames : memberNames" :value="child.value" @change="child.value = $event.detail.value"><view>{{ child.className.includes('stage-pick') ? (stageNames[child.value] || '所属阶段') : (memberNames[child.value] || memberNames[0]) }}</view></picker>
       </template>
-      <view v-else v-bind="child.attrs" :class="classes(child.className)" :style="child.style" @tap="pc.tap(child.id, $event)">
+      <!-- 动态行：显式 data-* 绑定（uni-view 不透传 v-bind attrs 与 onClick，事件走 page-controller 的 document 级 click 委托） -->
+      <view v-else :class="classes(child.className)" :style="child.style"
+        :data-action="child.attrs && child.attrs['data-action']"
+        :data-stage-id="child.attrs && child.attrs['data-stage-id']"
+        :data-task-id="child.attrs && child.attrs['data-task-id']"
+        :data-file-id="child.attrs && child.attrs['data-file-id']"
+        :data-version="child.attrs && child.attrs['data-version']"
+        :data-id="child.attrs && child.attrs['data-id']"
+        :data-pid="child.attrs && child.attrs['data-pid']"
+        :data-cat="child.attrs && child.attrs['data-cat']">
         <template v-for="(sub, si) in child.children" :key="sub.id || si">
           <NativeFragment v-if="sub.id && ui[sub.id]" :node-id="sub.id" />
           <text v-else>{{ sub.text }}</text>

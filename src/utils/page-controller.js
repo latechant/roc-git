@@ -154,12 +154,37 @@ export function createPageController(data) {
     if (n.attrs.icon === 'lucide:monitor' && n.parent && ui[n.parent].className.includes('text-slate-600')) return '/static/icons/monitor--slate-600.png'
     return `/static/icons/${n.iconFile}.png`
   }
+  // H5：document 级原生 click 捕获委托 —— uni-view 组件不透传 onClick 与 v-bind attrs，
+  // 动态行按钮（data-action + data-*）只能靠原生 DOM 事件委托分发到 dynActions
+  const cleanup = []
+  if (typeof window !== 'undefined' && window.document) {
+    const docEl = window.document
+    const delegate = function (e) {
+      if (!e || e.__rocgitHandled) return
+      let el = e.target
+      while (el && el !== docEl && el !== document.body) {
+        if (el.getAttribute && el.getAttribute('data-action')) break
+        el = el.parentElement
+      }
+      if (!el || !el.getAttribute || !el.getAttribute('data-action')) return
+      const attrs = {}
+      for (let i = 0; i < el.attributes.length; i++) attrs[el.attributes[i].name] = el.attributes[i].value
+      const action = attrs['data-action']
+      if (!action || typeof dynActions[action] !== 'function') return
+      e.__rocgitHandled = true
+      if (e.preventDefault) e.preventDefault()
+      const event = { nativeEvent: e, stopPropagation() { if (e.stopPropagation) e.stopPropagation() }, preventDefault() { if (e.preventDefault) e.preventDefault() } }
+      dynActions[action].call(el, attrs, event)
+    }
+    docEl.addEventListener('click', delegate, true)
+    cleanup.push(function () { docEl.removeEventListener('click', delegate, true) })
+  }
   return {
     ui, classes, tap, iconSrc,
     appendHtml: appendFragment,
     adapters: { document, location, navigator, setTimeout: scheduled },
     setHandlers(value) { handlers = value },
     setDynActions(value) { dynActions = value },
-    dispose() { timers.forEach(id => globalThis.clearTimeout(id)); timers.clear() }
+    dispose() { timers.forEach(id => globalThis.clearTimeout(id)); timers.clear(); cleanup.forEach(fn => fn()) }
   }
 }
