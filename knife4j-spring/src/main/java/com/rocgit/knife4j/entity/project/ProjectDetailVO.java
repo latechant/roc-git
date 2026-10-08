@@ -16,7 +16,6 @@ public class ProjectDetailVO {
 
     @Schema(description = "项目ID")
     private Long projectId;
-
     @Schema(description = "所属小组ID")
     private Long groupId;
 
@@ -28,6 +27,9 @@ public class ProjectDetailVO {
 
     @Schema(description = "当前阶段名")
     private String currentStage;
+
+    @Schema(description = "当前阶段ID（阶段推进维护）")
+    private Long currentStageId;
 
     @Schema(description = "整体进度 0-100")
     private Integer progress;

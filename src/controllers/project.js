@@ -569,6 +569,15 @@ n527: function(event) {
           }
         })
       }).catch(function () { showToast('获取成员失败') })
+    },
+    // 阶段行：完成本阶段（advance → 下一阶段 active；全部完成提示可结项）
+    'advance-stage': function (attrs) {
+      const sid = Number(attrs['data-stage-id'])
+      api.advanceStage(pid, sid).then(function (res) {
+        const allDone = res && res.data && res.data.allCompleted
+        showToast(allDone ? '全部阶段已完成，可结项' : '本阶段已完成')
+        loadProject(controller, pid)
+      }).catch(function (err) { showToast((err && err.message) || '推进失败') })
     }
   })
   // H5 原生文件选择器：运行时动态创建 input（静态模板 input 会被 uni 编译失效）
@@ -621,15 +630,28 @@ n527: function(event) {
   // 完成项目：确认 → completeProject → 刷新（首页该项目移入归档模块，进度 100%）
   controller.doCompleteProject = function () {
     hideMore()
-    uni.showModal({
-      title: '完成项目', content: '结项后项目状态将变为已完成（进度 100%），可在归档模块查看。确定完成？',
-      success: function (res) {
-        if (!res.confirm) return
-        api.completeProject(pid).then(function () {
-          showToast('已结项')
-          loadProject(controller, pid)
-        }).catch(function (err) { showToast((err && err.message) || '结项失败') })
+    // 结项校验：所有阶段必须已完成，否则拦截并提示剩余阶段数
+    api.projectStages(pid).then(function (stages) {
+      const arr = Array.isArray(stages) ? stages : ((stages && (stages.list || stages.records)) || [])
+      if (arr.length) {
+        const left = arr.filter(function (s) { return (s.status || 'pending') !== 'completed' }).length
+        if (left > 0) {
+          showToast('还有 ' + left + ' 个阶段未完成，先完成阶段再结项')
+          return
+        }
       }
+      uni.showModal({
+        title: '完成项目', content: '结项后项目状态将变为已完成（进度 100%），可在归档模块查看。确定完成？',
+        success: function (res) {
+          if (!res.confirm) return
+          api.completeProject(pid).then(function () {
+            showToast('已结项')
+            loadProject(controller, pid)
+          }).catch(function (err) { showToast((err && err.message) || '结项失败') })
+        }
+      })
+    }).catch(function (err) {
+      showToast((err && err.message) || '获取阶段失败')
     })
   }
 

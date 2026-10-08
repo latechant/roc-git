@@ -305,6 +305,7 @@ function stageStatusText(status) {
   const map = {
     pending: ['bg-slate-100 text-slate-500', '待开始'],
     in_progress: ['bg-blue-50 text-blue-600', '进行中'],
+    active: ['bg-blue-50 text-blue-600', '进行中'],
     completed: ['bg-emerald-50 text-emerald-600', '已完成']
   }
   const m = map[status] || ['bg-slate-100 text-slate-500', status || '待开始']
@@ -356,8 +357,12 @@ function buildStageRowHtml(s, index, tasks) {
       '</div>'
     : ''
   const stageOps = '<div class="flex items-center gap-2 mt-2">' +
-    '<span class="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-600 text-[11px] font-medium" data-action="edit-stage" data-stage-id="' + s.stageId + '">编辑</span>' +
-    '<span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 text-[11px] font-medium" data-action="delete-stage" data-stage-id="' + s.stageId + '">删除</span>' +
+    (s.status !== 'completed'
+      ? '<span class="px-2.5 py-1 rounded-lg bg-blue-600 text-white text-[11px] font-medium" data-action="advance-stage" data-stage-id="' + s.stageId + '">完成本阶段</span>' +
+        '<span class="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-600 text-[11px] font-medium" data-action="edit-stage" data-stage-id="' + s.stageId + '">编辑</span>' +
+        '<span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 text-[11px] font-medium" data-action="delete-stage" data-stage-id="' + s.stageId + '">删除</span>'
+      : '<span class="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-600 text-[11px] font-medium" data-action="edit-stage" data-stage-id="' + s.stageId + '">编辑</span>' +
+        '<span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 text-[11px] font-medium" data-action="delete-stage" data-stage-id="' + s.stageId + '">删除</span>') +
     '</div>'
   return '<div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">' +
     '<div class="flex items-center gap-3">' +

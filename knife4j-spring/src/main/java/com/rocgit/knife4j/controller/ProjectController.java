@@ -160,6 +160,14 @@ public class ProjectController {
         return Result.success("删除成功", null);
     }
 
+    @Operation(summary = "阶段推进", description = "完成当前阶段并激活下一阶段，同时维护 current_stage_id（成员校验）")
+    @PostMapping("/{projectId}/stage/{stageId}/advance")
+    public Result<Map<String, Object>> advance(@RequestAttribute("userId") String userId,
+                                               @PathVariable Long projectId, @PathVariable Long stageId) {
+        Map<String, Object> data = projectService.advanceStage(projectId, stageId, Long.parseLong(userId));
+        return Result.success(data);
+    }
+
     @Operation(summary = "项目模板列表", description = "获取可用的项目模板")
     @GetMapping("/template/list")
     public Result<List<ProjectTemplateVO>> templateList() {

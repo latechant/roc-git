@@ -208,6 +208,8 @@ function shareTimeline(token) { return request({ url: '/v1/share/p/' + token + '
 function shareFiles(token) { return request({ url: '/v1/share/p/' + token + '/files', noAuth: true }) }
 // 任务转交
 function transferTask(taskId, data) { return request({ url: '/v1/task/' + taskId + '/transfer', method: 'POST', data }) }
+// 阶段推进：完成当前阶段并激活下一阶段（返回 { allCompleted, currentStageId }）
+function advanceStage(projectId, stageId) { return request({ url: '/v1/project/' + projectId + '/stage/' + stageId + '/advance', method: 'POST' }) }
 // 阶段操作（挂 /v1/project 下）
 function createStage(projectId, data) { return request({ url: `/v1/project/${projectId}/stage`, method: 'POST', data }) }
 function updateStage(projectId, stageId, data) { return request({ url: `/v1/project/${projectId}/stage/${stageId}`, method: 'PUT', data }) }
@@ -389,6 +391,7 @@ export default {
   shareTimeline,
   shareFiles,
   transferTask,
+  advanceStage,
   createStage,
   updateStage,
   deleteStage,

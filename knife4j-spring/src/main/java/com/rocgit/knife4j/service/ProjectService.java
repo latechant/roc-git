@@ -1,6 +1,7 @@
 package com.rocgit.knife4j.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rocgit.knife4j.common.BusinessException;
 import com.rocgit.knife4j.common.ResultCode;
@@ -84,6 +85,20 @@ public class ProjectService {
                 stageMapper.insert(stage);
                 order++;
             }
+        }
+
+        // 初始化第一个阶段为 active + 维护 current_stage_id（阶段推进闭环起点）
+        List<Stage> firsts = stageMapper.selectList(new LambdaQueryWrapper<Stage>()
+                .eq(Stage::getProjectId, project.getId())
+                .orderByAsc(Stage::getOrderNum));
+        if (!firsts.isEmpty()) {
+            Stage first = firsts.get(0);
+            first.setStatus("active");
+            first.setUpdatedAt(LocalDateTime.now());
+            stageMapper.updateById(first);
+            project.setCurrentStageId(first.getId());
+            project.setUpdatedAt(LocalDateTime.now());
+            projectMapper.updateById(project);
         }
 
         // 插入项目成员：可选；非空时逐条校验必须是该小组 active 成员，再批量写入
@@ -385,6 +400,65 @@ public class ProjectService {
         stageMapper.deleteById(stageId);
     }
 
+    /**
+     * 阶段推进：完成当前阶段 → 激活下一个阶段 → 维护 project.current_stage_id
+     * 返回 allCompleted（是否全部阶段完成，供前端提示可结项）
+     */
+    @Transactional
+    public Map<String, Object> advanceStage(Long projectId, Long stageId, Long userId) {
+        Project project = projectMapper.selectById(projectId);
+        if (project == null) {
+            throw new BusinessException(ResultCode.PROJECT_NOT_FOUND);
+        }
+        // 成员校验：必须是该项目所属小组的 active 成员
+        Long cnt = groupMemberMapper.selectCount(new LambdaQueryWrapper<GroupMember>()
+                .eq(GroupMember::getUserId, userId)
+                .eq(GroupMember::getGroupId, project.getGroupId())
+                .eq(GroupMember::getStatus, "active"));
+        if (cnt == null || cnt == 0) {
+            throw new BusinessException(ResultCode.NOT_GROUP_MEMBER);
+        }
+        Stage stage = stageMapper.selectById(stageId);
+        if (stage == null || !stage.getProjectId().equals(projectId)) {
+            throw new BusinessException(ResultCode.PROJECT_NOT_FOUND, "阶段不存在");
+        }
+        if ("completed".equals(stage.getStatus())) {
+            throw new BusinessException(ResultCode.CONFLICT, "该阶段已完成，无需重复推进");
+        }
+        stage.setStatus("completed");
+        stage.setUpdatedAt(LocalDateTime.now());
+        stageMapper.updateById(stage);
+
+        // 按 orderNum 找下一个未完成阶段 → 置 active；没有则视为全部完成
+        List<Stage> next = stageMapper.selectList(new LambdaQueryWrapper<Stage>()
+                .eq(Stage::getProjectId, projectId)
+                .gt(Stage::getOrderNum, stage.getOrderNum())
+                .orderByAsc(Stage::getOrderNum));
+        boolean allCompleted = next.isEmpty();
+        Long currentStageId = null;
+        if (!next.isEmpty()) {
+            Stage n = next.get(0);
+            n.setStatus("active");
+            n.setUpdatedAt(LocalDateTime.now());
+            stageMapper.updateById(n);
+            currentStageId = n.getId();
+            project.setCurrentStageId(n.getId());
+            project.setUpdatedAt(LocalDateTime.now());
+            projectMapper.updateById(project);
+        } else {
+            // 全部完成：current_stage_id 置空（updateById 会忽略 null，需显式 wrapper set null）
+            projectMapper.update(null, new LambdaUpdateWrapper<Project>()
+                    .eq(Project::getId, projectId)
+                    .set(Project::getCurrentStageId, null)
+                    .set(Project::getUpdatedAt, LocalDateTime.now()));
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("allCompleted", allCompleted);
+        data.put("currentStageId", currentStageId);
+        return data;
+    }
+
     // ==================== 模板管理 ====================
 
     public List<ProjectTemplateVO> getTemplateList() {
@@ -482,6 +556,7 @@ public class ProjectService {
         vo.setDescription(p.getDescription());
         vo.setProgress(p.getProgress());
         vo.setStatus(p.getStatus());
+        vo.setCurrentStageId(p.getCurrentStageId());
         vo.setCreatedAt(p.getCreatedAt());
 
         // 审核/提醒规则：反序列化为 Map 透出（null 容错）
