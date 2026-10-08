@@ -14,8 +14,9 @@
       <template v-else-if="child.tag === 'picker'">
         <picker :class="classes(child.className)" class="original-select" mode="selector" :range="child.className.includes('stage-pick') ? stageNames : memberNames" :value="child.value" @change="child.value = $event.detail.value"><view>{{ child.className.includes('stage-pick') ? (stageNames[child.value] || '所属阶段') : (memberNames[child.value] || memberNames[0]) }}</view></picker>
       </template>
-      <!-- 动态行：显式 data-* 绑定（uni-view 不透传 v-bind attrs 与 onClick，事件走 page-controller 的 document 级 click 委托） -->
-      <view v-else :class="classes(child.className)" :style="child.style"
+      <!-- H5：动态行用原生 div（不经过 uni-view 属性过滤，data-* 正常落 DOM，事件走 page-controller 的 document click 委托） -->
+      <!-- #ifdef H5 -->
+      <div v-else :class="classes(child.className)" :style="child.style"
         :data-action="child.attrs && child.attrs['data-action']"
         :data-stage-id="child.attrs && child.attrs['data-stage-id']"
         :data-task-id="child.attrs && child.attrs['data-task-id']"
@@ -28,7 +29,17 @@
           <NativeFragment v-if="sub.id && ui[sub.id]" :node-id="sub.id" />
           <text v-else>{{ sub.text }}</text>
         </template>
+      </div>
+      <!-- #endif -->
+      <!-- #ifndef H5 -->
+      <!-- 小程序端：view + @tap（事件走 ui 树 tap 分发） -->
+      <view v-else :class="classes(child.className)" :style="child.style" @tap="pc.tap(child.id, $event)">
+        <template v-for="(sub, si) in child.children" :key="sub.id || si">
+          <NativeFragment v-if="sub.id && ui[sub.id]" :node-id="sub.id" />
+          <text v-else>{{ sub.text }}</text>
+        </template>
       </view>
+      <!-- #endif -->
     </template>
     <text v-if="removable" class="stage-del" @tap="pc.removeRow(props.nodeId, props.nodeId)">×</text>
   </view>
