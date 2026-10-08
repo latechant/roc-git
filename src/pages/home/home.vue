@@ -713,8 +713,8 @@
 </template>
 </view>
 </view>
-<GroupPopup :show="controller.showGroupPopup === true" @close="controller.showGroupPopup = false" @joined="onJoined" />
-<ProjectListPopup :show="controller.showProjectList === true" :projects="controller.rocProjects || []" @close="controller.showProjectList = false" @select="onSelectProject" />
+<GroupPopup :show="controller.showGroupPopup === true" @close="controller.showGroupPopup = false" @joined="controller.onJoined" />
+<ProjectListPopup :show="controller.showProjectList === true" :projects="controller.rocProjects || []" @close="controller.showProjectList = false" @select="controller.onSelectProject" />
 </template>
 
 <script setup>
