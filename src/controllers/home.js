@@ -40,7 +40,9 @@ n7: async function (event) {
   }
 },
 n33: function (event) { event.preventDefault(); controller.showProjectList = true },
-n73: function (event) { event.preventDefault(); openProject(1) },
+n36: function (event) { event.preventDefault(); openProject(0) },
+n56: function (event) { event.preventDefault(); openProject(1) },
+n73: function (event) { event.preventDefault(); openProject(2) },
 n9: function(event) { showToast('分享') },
 n147: function(event) { event.preventDefault();showToast('已通过') },
 n154: function(event) { event.preventDefault();showToast('已通过') }
