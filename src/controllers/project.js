@@ -62,46 +62,45 @@ export default function () {
     document.querySelectorAll('.file-row').forEach(function(r){r.style.display=''});
   }
 
-  // 批量清理模式
-  var batchMode=false,batchSel=0;
+  // 批量清理模式（真实勾选集合 + batch-delete/batch-move 接口）
+  var batchMode=false,batchSelIds=[];
   function toggleBatch(){
-    batchMode=!batchMode;batchSel=0;
+    batchMode=!batchMode;batchSelIds=[];
     document.getElementById('batchBar').classList.toggle('hidden',!batchMode);
     document.getElementById('batchCount').textContent=0;
-    document.querySelectorAll('.batch-check').forEach(function(b){b.classList.toggle('hidden',!batchMode)});
+    document.querySelectorAll('[data-batch-check]').forEach(function(b){b.classList.toggle('hidden',!batchMode)});
     document.getElementById('batchBtn').classList.toggle('bg-blue-100',batchMode);
     document.getElementById('batchBtn').classList.toggle('bg-slate-50',!batchMode);
   }
-  function toggleCheck(el){
-    var c=el.querySelector('iconify-icon');
-    var checked=c.classList.toggle('hidden')?false:true;
-    if(checked){el.classList.add('bg-blue-600','border-blue-600');el.classList.remove('border-slate-300');batchSel++}
-    else{el.classList.remove('bg-blue-600','border-blue-600');el.classList.add('border-slate-300');batchSel--}
-    document.getElementById('batchCount').textContent=batchSel;
-  }
   function batchAction(type){
-    if(batchSel===0){showToast('请先选择文件');return}
+    if(batchSelIds.length===0){showToast('请先选择文件');return}
     if(type==='delete'){document.getElementById('batchConfirm').classList.remove('hidden')}
     else if(type==='hide'){
-      document.querySelectorAll('.file-row').forEach(function(r){
-        var c=r.querySelector('.batch-check');
-        if(c&&c.classList.contains('bg-blue-600')){r.style.display='none'}
-      });
-      toggleBatch();
-      showToast('已归档隐藏 '+batchSel+' 项');
-      document.getElementById('hiddenSection').classList.remove('hidden');
+      // 批量移动（归档语义：移到目标阶段）
+      api.projectStages(pid).then(function(stages){
+        var list=stages||[];
+        if(!list.length){showToast('暂无阶段可移动');return}
+        uni.showActionSheet({
+          itemList:list.map(function(s){return s.name||('阶段'+s.orderNum)}),
+          success:function(res){
+            api.batchMoveFile(batchSelIds,list[res.tapIndex].stageId).then(function(){
+              showToast('已移动 '+batchSelIds.length+' 项');
+              toggleBatch();loadProject(controller,pid)
+            }).catch(function(err){showToast((err&&err.message)||'移动失败')})
+          }
+        })
+      }).catch(function(){showToast('获取阶段失败')})
     }
   }
   function hideBatchConfirm(){document.getElementById('batchConfirm').classList.add('hidden')}
   function doBatchDelete(){
     if(document.getElementById('confirmInput').value.trim()!=='清理'){showToast('请输入「清理」确认');return}
-    document.querySelectorAll('.file-row').forEach(function(r){
-      var c=r.querySelector('.batch-check');
-      if(c&&c.classList.contains('bg-blue-600')){r.remove()}
-    });
-    hideBatchConfirm();
-    toggleBatch();
-    showToast('已清理冗余');
+    api.batchDeleteFile(batchSelIds).then(function(){
+      hideBatchConfirm();
+      toggleBatch();
+      showToast('已删除 '+batchSelIds.length+' 项');
+      loadProject(controller,pid)
+    }).catch(function(err){showToast((err&&err.message)||'删除失败')})
   }
 
   // 文件操作菜单
@@ -114,8 +113,26 @@ export default function () {
     document.getElementById('hiddenList').classList.toggle('hidden');
   }
 
-  // 邀请链接（功能点1）
-  function showInvite(){document.getElementById('inviteSection').classList.remove('hidden')}
+  // 邀请链接（功能点1）：展开时拉取小组真实邀请码；无则自动生成；复制真实链接
+  function showInvite(){
+    document.getElementById('inviteSection').classList.remove('hidden');
+    if (!controller.groupId) { showToast('未获取到小组信息'); return }
+    api.myGroups().then(function (groups) {
+      var g = (groups || []).find(function (x) { return x.groupId === controller.groupId })
+      var code = g && g.inviteCode
+      if (code) { setInviteLink(code); return }
+      // 无邀请码 → 重新生成
+      api.regenerateInviteCode(controller.groupId).then(function (res) {
+        var nc = res && (res.inviteCode || res.code)
+        if (nc) setInviteLink(nc)
+        else showToast('获取邀请码失败')
+      }).catch(function (err) { showToast((err && err.message) || '生成邀请码失败') })
+    }).catch(function () { showToast('获取小组信息失败') })
+  }
+  function setInviteLink(code){
+    var host = (typeof location !== 'undefined' && location.host) ? location.host : 'roc-git.com'
+    document.getElementById('inviteLink').value = 'https://' + host + '/join?code=' + code
+  }
   function hideInvite(){document.getElementById('inviteSection').classList.add('hidden')}
   function copyLink(){
     var input=document.getElementById('inviteLink');
@@ -230,7 +247,7 @@ n329: function(event) { showVersionHistory('访谈记录') },
 n337: function(event) { hideVersionDiff() },
 n338: function(event) { event.stopPropagation() },
 n341: function(event) { hideVersionDiff() },
-n364: function(event) { showToast('已回滚至 v3');hideVersionDiff() },
+n364: function(event) { showToast('请在版本列表中选择要回滚的版本');hideVersionDiff() },
 n365: function(event) { hideVersionDiff() },
 n366: function(event) { hideEditStage() },
 n367: function(event) { event.stopPropagation() },
@@ -264,9 +281,48 @@ n456: function(event) { clearFilter() },
 n457: function(event) { applyFilter() },
 n458: function(event) { hideFileMenu() },
 n459: function(event) { event.stopPropagation() },
-n467: function(event) { hideFileMenu();showToast('已标记闲置') },
-n472: function(event) { hideFileMenu();showToast('已归档隐藏') },
-n477: function(event) { hideFileMenu();showToast('已标为冗余') },
+n467: function(event) {
+    // 闲置 → 收藏 toggle（后端语义映射：favorite）
+    hideFileMenu()
+    if (!currentFileId) { showToast('请先选择文件'); return }
+    api.favoriteFile(currentFileId).then(function (res) {
+      showToast(res && res.isFavorite ? '已收藏' : '已取消收藏')
+      loadProject(controller, pid)
+    }).catch(function (err) { showToast((err && err.message) || '操作失败') })
+  },
+n472: function(event) {
+    // 归档 → 移动到阶段（后端语义映射：move 到目标阶段）
+    hideFileMenu()
+    if (!currentFileId) { showToast('请先选择文件'); return }
+    api.projectStages(pid).then(function (stages) {
+      var list = stages || []
+      if (!list.length) { showToast('暂无阶段可归档'); return }
+      uni.showActionSheet({
+        itemList: list.map(function (s) { return s.name || ('阶段' + s.orderNum) }),
+        success: function (res) {
+          api.moveFile(currentFileId, list[res.tapIndex].stageId).then(function () {
+            showToast('已移动')
+            loadProject(controller, pid)
+          }).catch(function (err) { showToast((err && err.message) || '移动失败') })
+        }
+      })
+    }).catch(function () { showToast('获取阶段失败') })
+  },
+n477: function(event) {
+    // 冗余 → 删除（后端语义映射：batch-delete 单文件）
+    hideFileMenu()
+    if (!currentFileId) { showToast('请先选择文件'); return }
+    uni.showModal({
+      content: '确定删除该文件（冗余清理）？',
+      success: function (res) {
+        if (!res.confirm) return
+        api.batchDeleteFile([currentFileId]).then(function () {
+          showToast('已删除')
+          loadProject(controller, pid)
+        }).catch(function (err) { showToast((err && err.message) || '删除失败') })
+      }
+    })
+  },
 n482: function(event) { hideFileMenu() },
 n489: function(event) { hideBatchConfirm() },
 n490: function(event) { doBatchDelete() },
@@ -285,8 +341,24 @@ n509: function(event) { showToast('已还原');hideUpload() },
 n515: function(event) { toggleMore() },
 n516: function(event) { event.stopPropagation() },
 n519: function(event) { toggleMore() },
-n521: function(event) { hideMore();showToast('已重命名') },
-n524: function(event) { hideMore();showToast('已设置') },
+n521: function(event) {
+  // 重命名：输入新名 → renameFile → 刷新
+  hideMore()
+  if (!currentFileId) { showToast('请先选择文件'); return }
+  uni.showModal({
+    title: '重命名文件', editable: true, placeholderText: '输入新文件名',
+    success: function (res) {
+      if (!res.confirm) return
+      const name = (res.content || '').trim()
+      if (!name) { showToast('文件名不能为空'); return }
+      api.renameFile(currentFileId, name).then(function () {
+        showToast('已重命名')
+        loadProject(controller, pid)
+      }).catch(function (err) { showToast((err && err.message) || '重命名失败') })
+    }
+  })
+},
+n524: function(event) { hideMore();showToast('设置暂未开放') },
 n527: function(event) { hideMore();showToast('已归档') },
     // 阶段弹窗：确认添加（addStageModal 表单 n394 名称 / n397 日期 / n400 描述）
     n401: function(event) {
@@ -334,6 +406,8 @@ n527: function(event) { hideMore();showToast('已归档') },
   var resubmitFileId = null
   // 当前编辑中的阶段 id（editStageModal 保存/删除用）
   var editStageId = null
+  // 当前查看版本的文件 id（versionDiffModal）
+  var versionFileId = null
   // 动态审核动作委托（buildFileRowHtml 的 data-action 按钮，page-controller.tap 分发）
   controller.setDynActions({
     'approve-file': function (attrs) {
@@ -386,6 +460,61 @@ n527: function(event) { hideMore();showToast('已归档') },
           }).catch(function (err) { showToast((err && err.message) || '删除失败') })
         }
       })
+    },
+    // 文件行：打开更多菜单（记录当前文件 id）
+    'file-menu': function (attrs) {
+      currentFileId = Number(attrs['data-file-id'])
+      document.getElementById('fileMenu').classList.remove('hidden')
+    },
+    // 文件行：历史版本（拉真实版本列表渲染进弹窗）
+    'file-version': function (attrs) {
+      versionFileId = Number(attrs['data-file-id'])
+      api.versionList(versionFileId).then(function (list) {
+        var versions = list || []
+        var html = versions.length
+          ? versions.map(function (v) {
+              var isCur = v.version === v.currentVersion || v.isCurrent
+              return '<div class="flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0">' +
+                '<div class="flex-1 min-w-0">' +
+                '<p class="text-[13px] font-medium text-slate-900">v' + (v.version || '') + (isCur ? ' <text class="text-emerald-500 text-[10px]">当前</text>' : '') + '</p>' +
+                '<p class="text-[11px] text-slate-400">' + (v.remark || v.name || '') + ' · ' + (v.createdAt ? String(v.createdAt).slice(0, 16).replace('T', ' ') : '') + '</p>' +
+                '</div>' +
+                (isCur ? '' : '<span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-[11px] font-medium shrink-0 ml-2" data-action="version-rollback" data-version="' + v.version + '">回滚</span>') +
+                '</div>'
+            }).join('')
+          : '<p class="text-[12px] text-slate-400 py-4 text-center">暂无历史版本</p>'
+        controller.appendHtml('n343', html)
+        document.getElementById('versionDiffModal').classList.remove('hidden')
+      }).catch(function (err) { showToast((err && err.message) || '获取版本失败') })
+    },
+    // 版本行：回滚（确认后 rollback → 刷新）
+    'version-rollback': function (attrs) {
+      const target = Number(attrs['data-version'])
+      uni.showModal({
+        content: '确定回滚到 v' + target + '？当前版本将更新为该版本内容。',
+        success: function (res) {
+          if (!res.confirm) return
+          api.versionRollback(versionFileId, target).then(function () {
+            showToast('已回滚至 v' + target)
+            hideVersionDiff()
+            loadProject(controller, pid)
+          }).catch(function (err) { showToast((err && err.message) || '回滚失败') })
+        }
+      })
+    },
+    // 文件行：批量勾选切换（this = 勾选框节点）
+    'batch-toggle': function (attrs) {
+      if (!batchMode) return
+      const id = Number(attrs['data-file-id'])
+      const idx = batchSelIds.indexOf(id)
+      if (idx >= 0) {
+        batchSelIds.splice(idx, 1)
+        this.className = String(this.className).replace('bg-blue-600 border-blue-600 text-white', 'border-slate-300 text-slate-400')
+      } else {
+        batchSelIds.push(id)
+        this.className = String(this.className).replace('border-slate-300 text-slate-400', 'bg-blue-600 border-blue-600 text-white')
+      }
+      document.getElementById('batchCount').textContent = batchSelIds.length
     },
     // 任务行：完成（completeTask）
     'complete-task': function (attrs) {

@@ -264,6 +264,15 @@ function uploadFile(file, params = {}) {
   })
   // #endif
 }
+// 文件操作（/v1/file）
+function moveFile(fileId, targetStageId) { return request({ url: `/v1/file/${fileId}/move`, method: 'PUT', data: { targetStageId } }) }
+function renameFile(fileId, name) { return request({ url: `/v1/file/${fileId}/rename`, method: 'PUT', data: { name } }) }
+function favoriteFile(fileId) { return request({ url: `/v1/file/${fileId}/favorite`, method: 'POST' }) }
+function batchDeleteFile(fileIds) { return request({ url: '/v1/file/batch-delete', method: 'DELETE', data: { fileIds } }) }
+function batchMoveFile(fileIds, targetStageId) { return request({ url: '/v1/file/batch-move', method: 'PUT', data: { fileIds, targetStageId } }) }
+// 版本（/v1/version）
+function versionList(fileId) { return request({ url: '/v1/version/list', params: { fileId } }) }
+function versionRollback(fileId, targetVersion) { return request({ url: `/v1/version/${fileId}/rollback`, method: 'POST', data: { targetVersion } }) }
 // 审核通过（无请求体）
 function approveFile(fileId) { return request({ url: `/v1/file/${fileId}/approve`, method: 'POST' }) }
 // 审核驳回（需原因，后端 @Valid RejectFileRequest）
@@ -373,5 +382,12 @@ export default {
   uploadFile,
   approveFile,
   rejectFile,
-  resubmitFile
+  resubmitFile,
+  moveFile,
+  renameFile,
+  favoriteFile,
+  batchDeleteFile,
+  batchMoveFile,
+  versionList,
+  versionRollback
 }

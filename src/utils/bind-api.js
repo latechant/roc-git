@@ -405,24 +405,31 @@ function buildFileRowHtml(f) {
     f.stageName
   ].filter(Boolean).join(' · ')
   let actions = ''
+  const versionBtn = '<span class="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-500 text-[11px] font-medium" data-action="file-version" data-file-id="' + f.fileId + '">历史版本</span>'
   if (f.status === 'pending') {
     actions = '<div class="flex items-center gap-2 mt-2">' +
+      versionBtn +
       '<span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-[11px] font-medium" data-action="approve-file" data-file-id="' + f.fileId + '">通过</span>' +
       '<span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 text-[11px] font-medium" data-action="reject-file" data-file-id="' + f.fileId + '">驳回</span>' +
       '</div>'
   } else if (f.status === 'rejected') {
     actions = '<div class="flex items-center gap-2 mt-2">' +
+      versionBtn +
       '<span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-[11px] font-medium" data-action="resubmit-file" data-file-id="' + f.fileId + '">重新提交</span>' +
       '</div>'
+  } else {
+    actions = '<div class="flex items-center gap-2 mt-2">' + versionBtn + '</div>'
   }
   return '<div class="file-row bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100" data-status="' + (f.status || '') + '">' +
     '<div class="flex items-center gap-3">' +
+    '<span class="batch-check hidden w-5 h-5 rounded-full border border-slate-300 text-[10px] text-slate-400 flex items-center justify-center shrink-0" data-action="batch-toggle" data-file-id="' + f.fileId + '">✓</span>' +
     '<span class="w-9 h-9 rounded-xl bg-sky-50 flex items-center justify-center shrink-0">📄</span>' +
     '<div class="flex-1 min-w-0">' +
     '<p class="text-[13px] font-medium text-slate-900 truncate">' + (f.name || '未命名文件') + '</p>' +
     '<p class="text-[11px] text-slate-400 mt-0.5">' + (meta || ' ') + '</p>' +
     '</div>' +
     '<span class="px-2 py-0.5 rounded-full ' + badge.cls + ' text-[10px] font-semibold">' + badge.text + '</span>' +
+    '<span class="text-slate-400 px-1.5 text-[15px] leading-none shrink-0" data-action="file-menu" data-file-id="' + f.fileId + '">⋯</span>' +
     '</div>' +
     actions +
     '</div>'
@@ -526,6 +533,7 @@ export function loadProject(controller, projectId) {
 
     // 项目所属小组的成员文字头像（前 4 位：头像首字/姓名/角色）
     if (detail && detail.groupId) {
+      controller.groupId = detail.groupId
       const members = await api.groupMembers(detail.groupId).catch(() => null)
       if (members && members.members && members.members.length) {
         const slots = [
