@@ -328,11 +328,10 @@ n489: function(event) { hideBatchConfirm() },
 n490: function(event) { doBatchDelete() },
 n495: function(event) { hideUpload() },
 n497: function(event) {
-    // 触发 H5 原生文件选择（模板静态隐藏 input#fileUploadInput；window.document 为原生 DOM，非适配器代理）
+    // 触发 H5 原生文件选择：运行时动态创建原生 input（模板静态 input 会被 uni 编译，不弹系统选择器）
     // #ifdef H5
-    var nativeDoc = (typeof window !== 'undefined') ? window.document : null
-    var el = nativeDoc && nativeDoc.getElementById('fileUploadInput')
-    if (el) { el.click(); return }
+    openFilePicker()
+    return
     // #endif
     showToast('当前环境暂不支持文件选择')
   },
@@ -431,9 +430,8 @@ n527: function(event) { hideMore();showToast('已归档') },
     'resubmit-file': function (attrs) {
       resubmitFileId = Number(attrs['data-file-id'])
       // #ifdef H5
-      var nativeDoc = (typeof window !== 'undefined') ? window.document : null
-      var el = nativeDoc && nativeDoc.getElementById('fileUploadInput')
-      if (el) { el.click(); return }
+      openFilePicker()
+      return
       // #endif
       showToast('当前环境暂不支持文件选择')
     },
@@ -538,6 +536,24 @@ n527: function(event) { hideMore();showToast('已归档') },
       })
     }
   })
+  // H5 原生文件选择器：运行时动态创建 input（静态模板 input 会被 uni 编译失效）
+  // #ifdef H5
+  function openFilePicker() {
+    var nativeDoc = (typeof window !== 'undefined') ? window.document : null
+    if (!nativeDoc) { showToast('当前环境暂不支持文件选择'); return }
+    var input = nativeDoc.createElement('input')
+    input.type = 'file'
+    input.style.display = 'none'
+    nativeDoc.body.appendChild(input)
+    input.onchange = function (e) { controller.onFileChange(e) }
+    input.onclick = function () { /* 空：阻止冒泡即可 */ }
+    input.click()
+    // 用后移除（change 后延迟清理，避免文件句柄先释放）
+    setTimeout(function () {
+      if (input.parentNode) input.parentNode.removeChild(input)
+    }, 1000)
+  }
+  // #endif
   controller.onFileChange = function (e) {
     var f = null
     // #ifdef H5
