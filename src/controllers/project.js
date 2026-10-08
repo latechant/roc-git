@@ -358,7 +358,20 @@ n521: function(event) {
   })
 },
 n524: function(event) { hideMore();showToast('设置暂未开放') },
-n527: function(event) { hideMore();showToast('已归档') },
+n527: function(event) {
+  // 归档：确认 → archiveProject → 刷新（首页当前项目自动消失、归档模块出现）
+  hideMore()
+  uni.showModal({
+    title: '归档项目', content: '归档后项目将从当前列表移至归档模块，可随时查看。确定归档？',
+    success: function (res) {
+      if (!res.confirm) return
+      api.archiveProject(pid).then(function () {
+        showToast('已归档')
+        loadProject(controller, pid)
+      }).catch(function (err) { showToast((err && err.message) || '归档失败') })
+    }
+  })
+},
     // 阶段弹窗：确认添加（addStageModal 表单 n394 名称 / n397 日期 / n400 描述）
     n401: function(event) {
       const name = (controller.ui.n394.value || '').trim()
@@ -580,6 +593,21 @@ n527: function(event) { hideMore();showToast('已归档') },
       loadProject(controller, pid)
     }).catch(function (err) {
       showToast((err && err.message) || '上传失败')
+    })
+  }
+
+  // 完成项目：确认 → completeProject → 刷新（首页该项目移入归档模块，进度 100%）
+  controller.doCompleteProject = function () {
+    hideMore()
+    uni.showModal({
+      title: '完成项目', content: '结项后项目状态将变为已完成（进度 100%），可在归档模块查看。确定完成？',
+      success: function (res) {
+        if (!res.confirm) return
+        api.completeProject(pid).then(function () {
+          showToast('已结项')
+          loadProject(controller, pid)
+        }).catch(function (err) { showToast((err && err.message) || '结项失败') })
+      }
     })
   }
   return controller

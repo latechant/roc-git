@@ -83,6 +83,13 @@ public class ProjectController {
         return Result.success("结项成功", null);
     }
 
+    @Operation(summary = "项目归档", description = "归档项目（当前列表自动排除）")
+    @PutMapping("/{projectId}/archive")
+    public Result<Void> archive(@PathVariable Long projectId) {
+        projectService.archiveProject(projectId);
+        return Result.success("归档成功", null);
+    }
+
     @Operation(summary = "项目进度", description = "获取项目整体进度")
     @GetMapping("/{projectId}/progress")
     public Result<Map<String, Object>> progress(@PathVariable Long projectId) {

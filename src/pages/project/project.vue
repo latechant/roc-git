@@ -2102,6 +2102,9 @@
 </span>
 </template>
 </button>
+<button class="original-button flex items-center gap-3 w-full px-4 py-3.5 active:opacity-60" @tap.stop="controller.doCompleteProject">
+<text class="text-[14px] text-emerald-600 font-medium">完成项目</text>
+</button>
 </template>
 </view>
 </template>

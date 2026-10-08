@@ -220,6 +220,18 @@ public class ProjectService {
         projectMapper.updateById(project);
     }
 
+    @Transactional
+    public void archiveProject(Long projectId) {
+        Project project = projectMapper.selectById(projectId);
+        if (project == null) {
+            throw new BusinessException(ResultCode.PROJECT_NOT_FOUND);
+        }
+        project.setStatus("archived");
+        project.setArchivedAt(LocalDateTime.now());
+        project.setUpdatedAt(LocalDateTime.now());
+        projectMapper.updateById(project);
+    }
+
     // ==================== 项目统计 ====================
 
     public Map<String, Object> getProjectProgress(Long projectId) {

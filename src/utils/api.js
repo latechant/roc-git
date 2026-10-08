@@ -192,6 +192,8 @@ function projectStages(projectId) { return request({ url: `/v1/project/${project
 function projectMembers(projectId) { return request({ url: `/v1/project/${projectId}/members` }) }
 function projectTemplateList() { return request({ url: '/v1/project/template/list' }) }
 function createProject(data) { return request({ url: '/v1/project/create', method: 'POST', data }) }
+function completeProject(projectId) { return request({ url: '/v1/project/' + projectId + '/complete', method: 'POST' }) }
+function archiveProject(projectId) { return request({ url: '/v1/project/' + projectId + '/archive', method: 'PUT' }) }
 // 阶段操作（挂 /v1/project 下）
 function createStage(projectId, data) { return request({ url: `/v1/project/${projectId}/stage`, method: 'POST', data }) }
 function updateStage(projectId, stageId, data) { return request({ url: `/v1/project/${projectId}/stage/${stageId}`, method: 'PUT', data }) }
@@ -360,6 +362,8 @@ export default {
   projectMembers,
   projectTemplateList,
   createProject,
+  completeProject,
+  archiveProject,
   createStage,
   updateStage,
   deleteStage,
