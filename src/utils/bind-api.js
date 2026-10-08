@@ -508,6 +508,8 @@ export function loadProject(controller, projectId) {
 
     // 先清空业务数据节点，接口失败/无数据时保持空态
     clearNodes(controller, PROJECT_CLEAR_IDS)
+    // 下线头部成员头像行（n16：n17 容器 + n18-n21 四个头像位）；不回填，不足 4 人不显示空白圈
+    hideNode(controller, 'n16')
     // 下线详情页「查看研讨记录 →」入口（n320，parent=n317），后端/数据保留
     hideNode(controller, 'n320')
 
