@@ -713,9 +713,9 @@
 </template>
 </view>
 </view>
-</template>
-
 <GroupPopup :show="controller.showGroupPopup === true" @close="controller.showGroupPopup = false" @joined="onJoined" />
+<ProjectListPopup :show="controller.showProjectList === true" :projects="controller.rocProjects || []" @close="controller.showProjectList = false" @select="onSelectProject" />
+</template>
 
 <script setup>
 import { provide } from 'vue'
@@ -726,6 +726,7 @@ import NativeDate from '../../components/NativeDate.vue'
 // #endif
 import createController from '../../controllers/home.js'
 import GroupPopup from '../../components/GroupPopup.vue'
+import ProjectListPopup from '../../components/ProjectListPopup.vue'
 const controller = createController()
 const { ui, classes, tap, iconSrc } = controller
 provide('pageController', controller)

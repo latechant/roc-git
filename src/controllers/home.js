@@ -39,7 +39,7 @@ n7: async function (event) {
     controller.showGroupPopup = true
   }
 },
-n33: function (event) { event.preventDefault(); openProject(0) },
+n33: function (event) { event.preventDefault(); controller.showProjectList = true },
 n73: function (event) { event.preventDefault(); openProject(1) },
 n9: function(event) { showToast('分享') },
 n147: function(event) { event.preventDefault();showToast('已通过') },
@@ -50,6 +50,14 @@ n154: function(event) { event.preventDefault();showToast('已通过') }
   controller.onJoined = async function () {
     const groups = await api.myGroups().catch(() => null)
     controller.rocGroups = Array.isArray(groups) ? groups : []
+  }
+
+  // 项目列表弹窗选中：关弹窗 → 写 storage → 跳对应项目详情
+  controller.onSelectProject = function (p) {
+    controller.showProjectList = false
+    if (!p) return
+    uni.setStorageSync('rocgit_current_project_id', p.projectId)
+    location.href = 'project.html'
   }
   return controller
 }
