@@ -10,11 +10,15 @@ import com.rocgit.knife4j.entity.version.VersionCompareVO;
 import com.rocgit.knife4j.mapper.FileMapper;
 import com.rocgit.knife4j.mapper.FileReviewMapper;
 import com.rocgit.knife4j.mapper.FileVersionMapper;
+import com.rocgit.knife4j.mapper.GroupMemberMapper;
+import com.rocgit.knife4j.mapper.ProjectMapper;
 import com.rocgit.knife4j.mapper.StageMapper;
 import com.rocgit.knife4j.mapper.UserMapper;
 import com.rocgit.knife4j.model.File;
 import com.rocgit.knife4j.model.FileReview;
 import com.rocgit.knife4j.model.FileVersion;
+import com.rocgit.knife4j.model.GroupMember;
+import com.rocgit.knife4j.model.Project;
 import com.rocgit.knife4j.model.Stage;
 import com.rocgit.knife4j.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * 文件服务（含文件版本逻辑）- 接入真实 MySQL
@@ -55,6 +60,10 @@ public class FileService {
     private UserMapper userMapper;
     @Autowired
     private StageMapper stageMapper;
+    @Autowired
+    private GroupMemberMapper groupMemberMapper;
+    @Autowired
+    private ProjectMapper projectMapper;
     @Autowired
     private NotifyService notifyService;
 
@@ -343,13 +352,37 @@ public class FileService {
     // ===================== 审核 / 收藏 / 我的 =====================
 
     /**
-     * 待审核文件（status=pending，分页）
+     * 待审核文件（status=pending，分页）——按当前登录用户过滤：所属小组 → 小组项目 → 项目内 pending 文件
      */
-    public Map<String, Object> pendingAudit(Integer pageNum, Integer pageSize) {
+    public Map<String, Object> pendingAudit(Long userId, Integer pageNum, Integer pageSize) {
+        // ① 用户 active 小组
+        List<GroupMember> groups = groupMemberMapper.selectList(new LambdaQueryWrapper<GroupMember>()
+                .eq(GroupMember::getUserId, userId)
+                .eq(GroupMember::getStatus, "active"));
+        if (groups == null || groups.isEmpty()) {
+            return emptyPage();
+        }
+        List<Long> groupIds = groups.stream().map(GroupMember::getGroupId).collect(Collectors.toList());
+        // ② 小组项目
+        List<Project> projects = projectMapper.selectList(new LambdaQueryWrapper<Project>()
+                .in(Project::getGroupId, groupIds));
+        if (projects == null || projects.isEmpty()) {
+            return emptyPage();
+        }
+        List<Long> projectIds = projects.stream().map(Project::getId).collect(Collectors.toList());
+        // ③ 项目内 pending 文件，时间倒序
         LambdaQueryWrapper<File> wrapper = new LambdaQueryWrapper<File>()
+                .in(File::getProjectId, projectIds)
                 .eq(File::getStatus, "pending")
                 .orderByDesc(File::getCreatedAt);
         return pageQuery(wrapper, pageNum, pageSize);
+    }
+
+    private Map<String, Object> emptyPage() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("total", 0);
+        data.put("list", new ArrayList<>());
+        return data;
     }
 
     /**

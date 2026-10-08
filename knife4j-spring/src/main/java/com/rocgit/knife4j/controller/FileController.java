@@ -147,9 +147,10 @@ public class FileController {
     @Operation(summary = "待审核列表", description = "当前用户的待审核文件列表")
     @GetMapping("/pending-audit")
     public Result<Map<String, Object>> pendingAudit(
+            @RequestAttribute("userId") String userId,
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "20") Integer pageSize) {
-        return Result.success(fileService.pendingAudit(pageNum, pageSize));
+        return Result.success(fileService.pendingAudit(Long.parseLong(userId), pageNum, pageSize));
     }
 
     @Operation(summary = "批量审核", description = "批量通过/驳回多个文件")
