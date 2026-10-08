@@ -603,7 +603,9 @@ export function createProjectFromForm(form) {
     name: form.name,
     description: form.description || '',
     stages: form.stages || [],
-    members: form.members || []
+    members: form.members || [],
+    auditRule: form.auditRule,
+    reminderRule: form.reminderRule
   })
 }
 

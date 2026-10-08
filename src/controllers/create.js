@@ -201,12 +201,17 @@ export default function () {
 
     try {
       showToast('正在创建项目…')
+      // 规则收集：挂单审核（n86）+ 截止提醒（n91）两个开关
+      const auditOn = !!ui.n86.checked
+      const remindOn = !!ui.n91.checked
       const data = await createProjectFromForm({
         groupId: group.groupId,
         name: name,
         description: description,
         stages: stages,
-        members: members
+        members: members,
+        auditRule: { requireAudit: auditOn, auditorRole: 'leader' },
+        reminderRule: { taskReminderDays: remindOn ? [3, 1] : [] }
       })
       const projectId = data && data.projectId
       if (!projectId) throw new Error('创建失败：未返回项目 id')
