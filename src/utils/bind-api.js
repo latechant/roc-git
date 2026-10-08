@@ -18,6 +18,14 @@ function setText(controller, id, value) {
   controller.ui[id].textContent = String(value)
 }
 
+/** 设置进度条填充宽度（0-100 → style.width；节点不存在跳过） */
+function setProgress(controller, id, pct) {
+  const node = controller.ui && controller.ui[id]
+  if (!node) return
+  const n = Number(pct)
+  node.style.width = (Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : 0) + '%'
+}
+
 /** 设置节点文字头像：首字 + 稳定底色（节点不存在则跳过） */
 function setAvatar(controller, id, name) {
   if (!controller.ui[id]) return
@@ -148,6 +156,7 @@ export function loadHome(controller) {
       const p0 = list[0]
       setText(controller, 'n42', p0.name)
       setText(controller, 'n41', `进度 ${p0.progress}%`)
+      setProgress(controller, 'n49', p0.progress)
       setText(controller, 'n47', `${p0.progress}%`)
       setAvatar(controller, 'n52', memberNames[0])
       setAvatar(controller, 'n53', memberNames[1])
@@ -337,6 +346,7 @@ export function loadProject(controller, projectId) {
       setText(controller, 'n6', detail.name)
       setText(controller, 'n7', `${detail.currentStage || ''}`.trim())
       setText(controller, 'n13', `${detail.progress}%`)
+      setProgress(controller, 'n15', detail.progress)
       setText(controller, 'n23', `${detail.fileCount}资料`)
       setText(controller, 'n24', `${detail.fileCount}待审`)
       setText(controller, 'n25', `${detail.completedTaskCount}版本`)
