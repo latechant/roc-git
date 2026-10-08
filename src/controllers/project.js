@@ -1,4 +1,5 @@
 import data from '../data/project.json'
+import { reactive } from 'vue'
 import { createPageController } from '../utils/page-controller.js'
 import { loadProject } from '../utils/bind-api.js'
 import api from '../utils/api.js'
@@ -6,7 +7,8 @@ import api from '../utils/api.js'
 // Original prototype actions operate on reactive Vue state through adapters.
 // No browser DOM, inline JavaScript or eval is required in the mini program.
 export default function () {
-  const controller = createPageController(data)
+  // controller 整体包一层 reactive：ui 原生响应式，成果弹窗等需模板感知的状态由此驱动（同 create.js 做法）
+  const controller = reactive(createPageController(data))
   const { document, location, navigator, setTimeout } = controller.adapters
 
   // 接入真实接口：读取创建页写入的项目 id（无则兜底项目 1，不破坏其他入口）
@@ -547,6 +549,26 @@ n527: function(event) {
           }).catch(function (err) { showToast((err && err.message) || '删除失败') })
         }
       })
+    },
+    // 任务行：转交（选成员 → transferTask → 刷新；被转交人收到 task 消息）
+    'transfer-task': function (attrs) {
+      const tid = Number(attrs['data-task-id'])
+      api.groupMembers(controller.groupId || 1).then(function (res) {
+        const mm = (res && res.data && res.data.members) || []
+        if (!mm.length) { showToast('小组暂无成员'); return }
+        const names = mm.map(function (m) { return m.nickname || ('成员' + m.userId) })
+        uni.showActionSheet({
+          itemList: names,
+          success: function (r) {
+            const target = mm[r.tapIndex]
+            if (!target) return
+            api.transferTask(tid, { newAssigneeId: target.userId, remark: '任务转交' }).then(function () {
+              showToast('已转交 ' + (target.nickname || ''))
+              loadProject(controller, pid)
+            }).catch(function (err) { showToast((err && err.message) || '转交失败') })
+          }
+        })
+      }).catch(function () { showToast('获取成员失败') })
     }
   })
   // H5 原生文件选择器：运行时动态创建 input（静态模板 input 会被 uni 编译失效）
@@ -609,6 +631,73 @@ n527: function(event) {
         }).catch(function (err) { showToast((err && err.message) || '结项失败') })
       }
     })
+  }
+
+  // 成果管理：列表 + 新建（归档/结项后记录阶段性成果）
+  controller.achvList = []
+  controller.achvTitle = ''
+  controller.achvDesc = ''
+  controller.showAchievements = false
+  controller.openAchievements = function () {
+    hideMore()
+    controller.achvTitle = ''
+    controller.achvDesc = ''
+    api.achievementList(pid).then(function (res) {
+      const raw = res && res.data
+      controller.achvList = Array.isArray(raw) ? raw : ((raw && raw.list) || [])
+      controller.showAchievements = true
+    }).catch(function () {
+      controller.achvList = []
+      controller.showAchievements = true
+    })
+  }
+  controller.saveAchievement = function () {
+    const title = (controller.achvTitle || '').trim()
+    if (!title) { showToast('请输入成果标题'); return }
+    api.achievementCreate({ projectId: pid, title: title, description: (controller.achvDesc || '').trim() || null }).then(function () {
+      showToast('成果已登记')
+      controller.achvTitle = ''
+      controller.achvDesc = ''
+      return api.achievementList(pid).then(function (res) {
+        const raw = res && res.data
+        controller.achvList = Array.isArray(raw) ? raw : ((raw && raw.list) || [])
+      })
+    }).catch(function (err) { showToast((err && err.message) || '登记失败') })
+  }
+  controller.delAchievement = function (aid) {
+    uni.showModal({
+      title: '删除成果', content: '确定删除该成果？',
+      success: function (res) {
+        if (!res.confirm) return
+        api.achievementDelete(aid).then(function () {
+          showToast('已删除')
+          return api.achievementList(pid).then(function (res2) {
+            const raw = res2 && res2.data
+            controller.achvList = Array.isArray(raw) ? raw : ((raw && raw.list) || [])
+          })
+        }).catch(function (err) { showToast((err && err.message) || '删除失败') })
+      }
+    })
+  }
+
+  // 结项分享：生成分享链接 → 展示 + 复制（公开访问页 #/pages/share/share?token=xxx）
+  controller.doShareProject = function () {
+    hideMore()
+    api.shareCreate({ projectId: pid }).then(function (res) {
+      const token = res && res.data && (res.data.shareToken || res.data.token)
+      if (!token) { showToast('生成失败'); return }
+      const base = (location.origin || '') + (location.pathname || '').replace(/\/[^/]*$/, '/')
+      const url = base + '#/pages/share/share?token=' + token
+      uni.showModal({
+        title: '分享链接已生成',
+        content: url,
+        confirmText: '复制链接', cancelText: '关闭',
+        success: function (r) {
+          if (!r.confirm) return
+          uni.setClipboardData({ data: url, success: function () { showToast('已复制') } })
+        }
+      })
+    }).catch(function (err) { showToast((err && err.message) || '生成失败') })
   }
   return controller
 }

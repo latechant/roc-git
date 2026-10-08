@@ -1310,6 +1310,19 @@
 </view>
 </template>
 </view>
+<!-- 溯源真实操作时间线（T5：activities 接口渲染） -->
+<view v-if="controller.activities && controller.activities.length" class="mt-1">
+<view v-for="(a, i) in controller.activities" :key="i" class="flex items-start gap-2 py-2.5 border-b border-slate-100">
+<view class="w-1.5 h-1.5 rounded-full bg-sky-400 mt-1.5 shrink-0"></view>
+<view class="flex-1 min-w-0">
+<text class="text-[12px] text-slate-700 block leading-relaxed">{{ a.action || a.title || '操作记录' }}{{ a.targetName ? ' · ' + a.targetName : '' }}</text>
+<text class="text-[10px] text-slate-400 block mt-0.5">{{ a.userName || '' }}{{ a.createdAt ? ' · ' + String(a.createdAt).replace('T',' ').slice(0,16) : '' }}</text>
+</view>
+</view>
+</view>
+<view v-if="controller.activitiesLoaded && !controller.activities.length" class="py-6">
+<text class="text-[11px] text-slate-400 block text-center">暂无操作记录</text>
+</view>
 </template>
 </view>
 </template>
@@ -2105,6 +2118,12 @@
 <button class="original-button flex items-center gap-3 w-full px-4 py-3.5 active:opacity-60" @tap.stop="controller.doCompleteProject">
 <text class="text-[14px] text-emerald-600 font-medium">完成项目</text>
 </button>
+<button class="original-button flex items-center gap-3 w-full px-4 py-3.5 active:opacity-60" @tap.stop="controller.openAchievements">
+<text class="text-[14px] text-sky-600 font-medium">成果管理</text>
+</button>
+<button class="original-button flex items-center gap-3 w-full px-4 py-3.5 active:opacity-60" @tap.stop="controller.doShareProject">
+<text class="text-[14px] text-violet-600 font-medium">生成分享链接</text>
+</button>
 </template>
 </view>
 </template>
@@ -2115,6 +2134,34 @@
 </template>
 </view>
 </template>
+</view>
+</view>
+<!-- 成果管理弹窗（静态，T3；类名用全局 tailwind/uni 兼容类） -->
+<view v-if="controller.showAchievements" class="fixed inset-0 z-40 bg-black/40 flex items-center justify-center" @tap="controller.showAchievements = false">
+<view class="w-80 max-h-[70vh] bg-white rounded-2xl p-4 flex flex-col" @tap.stop>
+<view class="flex items-center justify-between mb-3 shrink-0">
+<text class="text-[15px] font-semibold text-slate-900">项目成果</text>
+<text class="text-[15px] text-slate-400 px-2" @tap="controller.showAchievements = false">✕</text>
+</view>
+<view class="space-y-2 mb-3 shrink-0">
+<input class="border border-slate-200 rounded-lg px-3 py-2 text-[13px] w-full box-border" v-model="controller.achvTitle" placeholder="成果标题（必填）" />
+<textarea class="border border-slate-200 rounded-lg px-3 py-2 text-[13px] w-full box-border h-16" v-model="controller.achvDesc" placeholder="成果描述（可选）" />
+<button class="w-full bg-sky-600 text-white rounded-lg py-2 text-[13px] font-medium" @tap="controller.saveAchievement">登记成果</button>
+</view>
+<scroll-view class="flex-1 min-h-0" scroll-y :show-scrollbar="false">
+<view v-if="!controller.achvList.length" class="py-6"><text class="text-[12px] text-slate-400 block text-center">暂无成果，登记第一个吧</text></view>
+<view v-for="a in controller.achvList" :key="a.achievementId" class="border-b border-slate-100 py-2.5">
+<view class="flex items-center justify-between gap-2">
+<text class="text-[13px] font-medium text-slate-900 truncate">{{ a.title }}</text>
+<text class="text-[10px] text-sky-600 bg-sky-50 rounded px-1.5 py-0.5 shrink-0">{{ a.stageName || '未绑定阶段' }}</text>
+</view>
+<text v-if="a.description" class="text-[11px] text-slate-500 mt-1 block leading-relaxed">{{ a.description }}</text>
+<view class="flex items-center justify-between mt-1">
+<text class="text-[10px] text-slate-400">{{ a.contributorName || '' }}{{ a.createdAt ? ' · ' + String(a.createdAt).replace('T',' ').slice(0,10) : '' }}</text>
+<text class="text-[12px] text-rose-500 px-1" @tap="controller.delAchievement(a.achievementId)">删除</text>
+</view>
+</view>
+</scroll-view>
 </view>
 </view>
 </template>

@@ -47,6 +47,14 @@
         "navigationBarTitleText": "个人空间",
         "disableScroll": true
       }
+    },
+    {
+      "path": "pages/share/share",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "项目分享",
+        "disableScroll": true
+      }
     }
   ],
   "globalStyle": {

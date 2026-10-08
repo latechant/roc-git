@@ -330,6 +330,7 @@ function buildTaskRowHtml(t) {
   const ops = (t.status === 'completed')
     ? '<span class="px-2 py-0.5 rounded-lg bg-rose-50 text-rose-600 text-[10px] font-medium" data-action="delete-task" data-task-id="' + t.taskId + '">删除</span>'
     : '<span class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-600 text-[10px] font-medium" data-action="complete-task" data-task-id="' + t.taskId + '">完成</span>' +
+      '<span class="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-600 text-[10px] font-medium" data-action="transfer-task" data-task-id="' + t.taskId + '">转交</span>' +
       '<span class="px-2 py-0.5 rounded-lg bg-rose-50 text-rose-600 text-[10px] font-medium" data-action="delete-task" data-task-id="' + t.taskId + '">删除</span>'
   return '<div class="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2">' +
     '<span class="w-5 h-5 rounded-full bg-sky-400 text-[9px] font-bold text-white flex items-center justify-center shrink-0">' + av + '</span>' +
@@ -554,6 +555,14 @@ export function loadProject(controller, projectId) {
         })
       }
     }
+
+    // 溯源 tab：真实操作记录（activities）→ 挂到 controller.activities（模板 v-for 渲染）；隐藏静态占位卡 n289
+    hideNode(controller, 'n289')
+    controller.activities = []
+    controller.activitiesLoaded = false
+    const acts = await api.projectActivities(projectId, { pageNum: 1, pageSize: 50 }).catch(() => null)
+    controller.activities = Array.isArray(acts) ? acts : ((acts && (acts.list || acts.records)) || [])
+    controller.activitiesLoaded = true
   })
 }
 

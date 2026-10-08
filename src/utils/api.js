@@ -72,8 +72,8 @@ function request(opts = {}) {
 
   return new Promise((resolve, reject) => {
     const urlPath = (BASE_URL + url).replace(/^https?:\/\/[^/]+/, '')
-    // 这些接口本身不需要鉴权，不参与 401 跳转
-    const isPublic = /\/(login|health|config)\b/.test(urlPath)
+    // 这些接口本身不需要鉴权，不参与 401 跳转（share 公开访问页 /p/{token} 系列免登录）
+    const isPublic = /\/(login|health|config|share\/p\/)\b/.test(urlPath)
     uni.request({
       url: BASE_URL + url + query,
       method,
@@ -194,6 +194,20 @@ function projectTemplateList() { return request({ url: '/v1/project/template/lis
 function createProject(data) { return request({ url: '/v1/project/create', method: 'POST', data }) }
 function completeProject(projectId) { return request({ url: '/v1/project/' + projectId + '/complete', method: 'POST' }) }
 function archiveProject(projectId) { return request({ url: '/v1/project/' + projectId + '/archive', method: 'PUT' }) }
+// 成果展示（achievement）
+function achievementList(projectId) { return request({ url: '/v1/achievement/list', params: { projectId } }) }
+function achievementCreate(data) { return request({ url: '/v1/achievement/create', method: 'POST', data }) }
+function achievementUpdate(id, data) { return request({ url: '/v1/achievement/' + id, method: 'PUT', data }) }
+function achievementDelete(id) { return request({ url: '/v1/achievement/' + id, method: 'DELETE' }) }
+// 结项分享（share）
+function shareCreate(data) { return request({ url: '/v1/share/create', method: 'POST', data }) }
+function shareList(projectId) { return request({ url: '/v1/share/list', params: { projectId } }) }
+function shareRegenerate(shareId) { return request({ url: '/v1/share/' + shareId + '/regenerate', method: 'POST' }) }
+function shareOverview(token) { return request({ url: '/v1/share/p/' + token + '/overview', noAuth: true }) }
+function shareTimeline(token) { return request({ url: '/v1/share/p/' + token + '/timeline', noAuth: true }) }
+function shareFiles(token) { return request({ url: '/v1/share/p/' + token + '/files', noAuth: true }) }
+// 任务转交
+function transferTask(taskId, data) { return request({ url: '/v1/task/' + taskId + '/transfer', method: 'POST', data }) }
 // 阶段操作（挂 /v1/project 下）
 function createStage(projectId, data) { return request({ url: `/v1/project/${projectId}/stage`, method: 'POST', data }) }
 function updateStage(projectId, stageId, data) { return request({ url: `/v1/project/${projectId}/stage/${stageId}`, method: 'PUT', data }) }
@@ -364,6 +378,17 @@ export default {
   createProject,
   completeProject,
   archiveProject,
+  achievementList,
+  achievementCreate,
+  achievementUpdate,
+  achievementDelete,
+  shareCreate,
+  shareList,
+  shareRegenerate,
+  shareOverview,
+  shareTimeline,
+  shareFiles,
+  transferTask,
   createStage,
   updateStage,
   deleteStage,
