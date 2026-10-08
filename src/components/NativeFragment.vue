@@ -4,18 +4,12 @@
       <text v-if="child.text">{{ child.text }}</text>
       <input v-else-if="child.tag === 'input' && child.attrs.type !== 'date'" :class="classes(child.className)" class="original-input" :value="child.value" :placeholder="child.attrs.placeholder || ''" :maxlength="-1" @input="child.value = $event.detail.value" />
       <template v-else-if="child.tag === 'input' && child.attrs.type === 'date'">
-        <!-- #ifdef H5 -->
         <NativeDate :class="classes(child.className)" v-model:value="child.value" />
-        <!-- #endif -->
-        <!-- #ifndef H5 -->
-        <picker :class="classes(child.className)" class="original-date" mode="date" :value="child.value" @change="child.value = $event.detail.value"><view>{{ child.value ? child.value.replaceAll('-', '/') : '年/月/日' }}</view></picker>
-        <!-- #endif -->
       </template>
       <template v-else-if="child.tag === 'picker'">
         <picker :class="classes(child.className)" class="original-select" mode="selector" :range="child.className.includes('stage-pick') ? stageNames : memberNames" :value="child.value" @change="child.value = $event.detail.value"><view>{{ child.className.includes('stage-pick') ? (stageNames[child.value] || '所属阶段') : (memberNames[child.value] || memberNames[0]) }}</view></picker>
       </template>
-      <!-- H5：动态行用原生 div（不经过 uni-view 属性过滤，data-* 正常落 DOM，事件走 page-controller 的 document click 委托） -->
-      <!-- #ifdef H5 -->
+      <!-- 动态行：无条件原生 div（不经过 uni-view 属性过滤，data-* 正常落 DOM，事件走 page-controller 的 document click 委托） -->
       <div v-else :class="classes(child.className)" :style="child.style"
         :data-action="child.attrs && child.attrs['data-action']"
         :data-stage-id="child.attrs && child.attrs['data-stage-id']"
@@ -30,16 +24,6 @@
           <text v-else>{{ sub.text }}</text>
         </template>
       </div>
-      <!-- #endif -->
-      <!-- #ifndef H5 -->
-      <!-- 小程序端：view + @tap（事件走 ui 树 tap 分发） -->
-      <view v-else :class="classes(child.className)" :style="child.style" @tap="pc.tap(child.id, $event)">
-        <template v-for="(sub, si) in child.children" :key="sub.id || si">
-          <NativeFragment v-if="sub.id && ui[sub.id]" :node-id="sub.id" />
-          <text v-else>{{ sub.text }}</text>
-        </template>
-      </view>
-      <!-- #endif -->
     </template>
     <text v-if="removable" class="stage-del" @tap="pc.removeRow(props.nodeId, props.nodeId)">×</text>
   </view>
@@ -47,9 +31,7 @@
 
 <script setup>
 import { computed, inject } from 'vue'
-// #ifdef H5
 import NativeDate from './NativeDate.vue'
-// #endif
 const props = defineProps({ nodeId: { type: String, required: true }, removable: { type: Boolean, default: false } })
 const pc = inject('pageController')
 const { ui, classes } = pc
