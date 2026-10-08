@@ -20,6 +20,9 @@ public class CreateTaskRequest {
             requiredMode = Schema.RequiredMode.REQUIRED)
     private Long projectId;
 
+    @Schema(description = "所属阶段ID（可空，未分组任务不传）", example = "1")
+    private Long stageId;
+
     @NotBlank
     @Schema(description = "任务名称", example = "完成登录模块",
             requiredMode = Schema.RequiredMode.REQUIRED)

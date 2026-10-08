@@ -314,6 +314,7 @@
 <view v-if="!ui.n74.removed" :class="classes(ui.n74.className)" :style="ui.n74.style" class="original-div">
 <template v-if="ui.n74.textContent !== undefined"><text>{{ ui.n74.textContent }}</text></template><template v-else>
 <picker v-if="!ui.n75.removed" :class="classes(ui.n75.className)" :style="ui.n75.style" class="original-select" mode="selector" :range="memberNames" :value="ui.n75.value" @change="ui.n75.value = $event.detail.value"><view>{{ memberNames[ui.n75.value] || memberNames[0] }}</view></picker>
+<picker class="original-select stage-pick" mode="selector" :range="stageNames" :value="ui.n74.stageIdx || 0" @change="ui.n74.stageIdx = $event.detail.value"><view>{{ stageNames[ui.n74.stageIdx || 0] || '所属阶段' }}</view></picker>
 <input v-if="!ui.n76.removed" :class="classes(ui.n76.className)" :style="ui.n76.style" class="original-input" :value="ui.n76.value" @input="ui.n76.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
 <!-- #ifdef H5 -->
 <NativeDate v-if="!ui.n77.removed" :class="classes(ui.n77.className)" :style="ui.n77.style" v-model:value="ui.n77.value" />
@@ -327,6 +328,7 @@
 <view v-if="!ui.n78.removed" :class="classes(ui.n78.className)" :style="ui.n78.style" class="original-div">
 <template v-if="ui.n78.textContent !== undefined"><text>{{ ui.n78.textContent }}</text></template><template v-else>
 <picker v-if="!ui.n79.removed" :class="classes(ui.n79.className)" :style="ui.n79.style" class="original-select" mode="selector" :range="memberNames" :value="ui.n79.value" @change="ui.n79.value = $event.detail.value"><view>{{ memberNames[ui.n79.value] || memberNames[0] }}</view></picker>
+<picker class="original-select stage-pick" mode="selector" :range="stageNames" :value="ui.n78.stageIdx || 0" @change="ui.n78.stageIdx = $event.detail.value"><view>{{ stageNames[ui.n78.stageIdx || 0] || '所属阶段' }}</view></picker>
 <input v-if="!ui.n80.removed" :class="classes(ui.n80.className)" :style="ui.n80.style" class="original-input" :value="ui.n80.value" @input="ui.n80.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
 <!-- #ifdef H5 -->
 <NativeDate v-if="!ui.n81.removed" :class="classes(ui.n81.className)" :style="ui.n81.style" v-model:value="ui.n81.value" />
@@ -485,6 +487,20 @@ const memberNames = computed(() => {
   const pool = controller.rocMemberPool || []
   const names = pool.map(m => m.nickname || '')
   if (!names.length && controller.currentUserNickname) names.push(controller.currentUserNickname)
+  return names
+})
+// 所属阶段选择器数据：实时读阶段容器（n56）各行的阶段名输入，空名以「阶段N」占位（与收集索引对应）
+const stageNames = computed(() => {
+  const names = []
+  const collect = (n) => {
+    if (!n || n.removed) return
+    const input = (n.children || []).map(r => r.id ? controller.ui[r.id] : null)
+      .find(x => x && x.tag === 'input' && x.attrs.type !== 'date')
+    const v = input ? String(input.value || '').trim() : ''
+    names.push(v || ('阶段' + (names.length + 1)))
+  }
+  ;(controller.ui.n56.children || []).forEach(ref => ref.id && collect(controller.ui[ref.id]))
+  ;(controller.ui.n56.appended || []).forEach(id => collect(controller.ui[id]))
   return names
 })
 onUnload(controller.dispose)

@@ -12,7 +12,7 @@
         <!-- #endif -->
       </template>
       <template v-else-if="child.tag === 'picker'">
-        <picker :class="classes(child.className)" class="original-select" mode="selector" :range="memberNames" :value="child.value" @change="child.value = $event.detail.value"><view>{{ memberNames[child.value] || memberNames[0] }}</view></picker>
+        <picker :class="classes(child.className)" class="original-select" mode="selector" :range="child.className.includes('stage-pick') ? stageNames : memberNames" :value="child.value" @change="child.value = $event.detail.value"><view>{{ child.className.includes('stage-pick') ? (stageNames[child.value] || '所属阶段') : (memberNames[child.value] || memberNames[0]) }}</view></picker>
       </template>
       <view v-else :class="classes(child.className)" :style="child.style">
         <template v-for="(sub, si) in child.children" :key="sub.id || si">
@@ -43,6 +43,8 @@ const memberNames = computed(() => {
   if (!names.length && pc.currentUserNickname) names.push(pc.currentUserNickname)
   return names
 })
+// 所属阶段选择器数据：追加任务行的阶段选项（创建页已添加阶段名）
+const stageNames = computed(() => (pc.stageNames || []))
 </script>
 
 <script>

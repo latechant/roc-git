@@ -36,6 +36,7 @@ public class TaskService {
     public TaskVO createTask(CreateTaskRequest request, Long creatorId) {
         Task task = new Task();
         task.setProjectId(request.getProjectId());
+        task.setStageId(request.getStageId());
         task.setName(request.getName());
         task.setDescription(request.getDescription());
         task.setAssigneeId(request.getAssigneeId());

@@ -72,6 +72,18 @@ export default function () {
 
   // 追加一行「阶段名输入 + 日期」；title 传入则预填（模板用），否则留空待填
   var stageNo = 4
+  // 已添加阶段名数组（任务行"所属阶段"选择器选项；按收集顺序与后端 orderNum 对应）
+  controller.stageNames = []
+  // 从当前阶段行重建阶段名列表：空名以「阶段N」占位（索引语义与收集/映射一致）
+  controller.updateStageNames = function () {
+    var names = []
+    collectRows('n56').forEach(function (row) {
+      var n = rowInputs(row).find(function (x) { return x.attrs.type !== 'date' })
+      var v = n ? (n.value || '').trim() : ''
+      names.push(v || ('阶段' + (names.length + 1)))
+    })
+    controller.stageNames = names
+  }
   function addStage(title) {
     var no = (stageNo < 10 ? '0' : '') + stageNo
     stageNo++
@@ -82,6 +94,7 @@ export default function () {
       '<input class="flex-1 text-[13px] text-slate-900 outline-none bg-transparent" ' + titleInput + '>' +
       '<input type="date" class="text-[11px] text-slate-400 bg-transparent outline-none">' +
       '</div>')
+    controller.updateStageNames()
   }
 
   // 阶段模板：一键填充常见阶段流程（小白引导）
@@ -97,26 +110,32 @@ export default function () {
     collectRows('n56').forEach(function (r) { r.removed = true })
     stageNo = 1
     names.forEach(function (t) { addStage(t) })
+    controller.updateStageNames()
     showToast('已套用「' + (key === 'course' ? '课程项目' : key === 'research' ? '调研报告' : '敏捷迭代') + '」模板')
   }
 
   // 删除一行阶段：标记 removed（模板 v-if 不渲染，收集时 collectRows 自动跳过）
-  controller.removeRow = function (parentId, rowId) { ui[rowId].removed = true }
+  controller.removeRow = function (parentId, rowId) {
+    ui[rowId].removed = true
+    if (parentId === 'n56') controller.updateStageNames()
+  }
 
   // 点选/取消成员 chip：切换选中态（selected 响应式，模板即时反馈）
   controller.toggleMember = function (m) {
     if (m) m.selected = !m.selected
   }
 
-  // 追加一行「负责人 + 任务名输入 + 日期」；title 传入则预填（模板用），否则留空待填
+  // 追加一行「所属阶段 + 负责人 + 任务名输入 + 日期」；title 传入则预填（模板用），否则留空待填
   function addTask(title) {
     var taskInput = title ? 'value="' + title + '"' : 'placeholder="任务描述"'
     document.getElementById('tasks').insertAdjacentHTML('beforeend',
       '<div class="flex items-center gap-2 bg-white border border-slate-200 rounded-xl p-3">' +
+      '<picker mode="selector" class="stage-pick text-[11px] text-slate-400 bg-transparent outline-none" value="0">0</picker>' +
       '<picker mode="selector" value="0" class="text-[11px] text-slate-400 bg-transparent outline-none">0</picker>' +
       '<input class="flex-1 text-[13px] text-slate-900 outline-none bg-transparent" ' + taskInput + '>' +
       '<input type="date" class="text-[11px] text-slate-400 bg-transparent outline-none">' +
       '</div>')
+    controller.updateStageNames()
   }
 
   // 任务模板：一键批量预填常用任务（追加而非替换，可多次叠加）
@@ -177,7 +196,7 @@ export default function () {
       if (v) stages.push({ name: v, orderNum: stages.length + 1 })
     })
 
-    // 任务收集：非 date 输入框 = 任务名，date 输入框 = deadline；picker = 负责人（昵称索引）
+    // 任务收集：非 date 输入框 = 任务名，date 输入框 = deadline；负责人 picker（昵称索引）+ 阶段 picker（阶段索引）
     const pool = controller.rocMemberPool || []
     const tasks = []
     collectRows('n73').forEach(function (row) {
@@ -188,9 +207,17 @@ export default function () {
       if (!v) return
       // 负责人：行内 picker 的 value 为池昵称索引；无 picker（旧原型/兜底）默认当前用户
       let assigneeId = null
-      const picker = (row.children || []).map(ref => ref.id ? ui[ref.id] : null).find(n => n && n.tag === 'picker')
+      const picker = (row.children || []).map(ref => ref.id ? ui[ref.id] : null).find(n => n && n.tag === 'picker' && !(n.className || '').includes('stage-pick'))
       if (picker && pool[picker.value] != null) assigneeId = pool[picker.value].userId
-      tasks.push({ name: v, deadline: dateInput ? (dateInput.value || '') : '', assigneeId: assigneeId })
+      // 所属阶段：原型行读 ui[row.id].stageIdx（模板 @change 写入）；追加行读 stage-pick picker 的 value
+      let stageIdx = null
+      if (row.id && ui[row.id].stageIdx != null) stageIdx = Number(ui[row.id].stageIdx)
+      if (stageIdx == null) {
+        const stagePick = (row.children || []).map(ref => ref.id ? ui[ref.id] : null).find(n => n && n.tag === 'picker' && (n.className || '').includes('stage-pick'))
+        if (stagePick && stagePick.value != null) stageIdx = Number(stagePick.value)
+      }
+      if (stageIdx == null) stageIdx = 0
+      tasks.push({ name: v, deadline: dateInput ? (dateInput.value || '') : '', assigneeId: assigneeId, stageIdx: stageIdx })
     })
 
     // 成员收集：只收点选中的成员（默认全不选，点选加入）；不选任何人也允许创建
@@ -217,14 +244,21 @@ export default function () {
       if (!projectId) throw new Error('创建失败：未返回项目 id')
       uni.setStorageSync('rocgit_current_project_id', projectId)
 
+      // 任务-阶段绑定：后端返回的新阶段（orderNum 升序）与任务行收集索引一一对应
+      const createdStages = (data.stages || []).slice().sort(function (a, b) { return (a.orderNum || 0) - (b.orderNum || 0) })
+
       // 逐个创建任务（负责人=所选成员；未选/兜底回退当前用户；任一失败即 toast 并停止后续）
       if (tasks.length) {
+        if (!createdStages.length) { showToast('请先添加阶段，任务才能归属'); return }
         const profile = await api.getProfile().catch(function () { return null })
         const currentUserId = profile && profile.userId
         for (let k = 0; k < tasks.length; k++) {
           const t = tasks[k]
+          const st = createdStages[t.stageIdx]
+          if (!st) { showToast('任务「' + t.name + '」未匹配到所属阶段'); return }
           await api.createTask({
             projectId: projectId,
+            stageId: st.stageId,
             name: t.name,
             assigneeId: t.assigneeId || currentUserId,
             deadline: fmtDeadline(t.deadline)
