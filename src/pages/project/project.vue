@@ -2004,6 +2004,7 @@
 </view>
 </template>
 </button>
+<input v-if="!ui.n491.removed" type="file" id="fileUploadInput" class="hidden" @change="controller.onFileChange($event)" />
 <button v-if="!ui.n503.removed" :class="classes(ui.n503.className)" :style="ui.n503.style" class="original-button" @tap.stop="tap('n503', $event)">
 <template v-if="ui.n503.textContent !== undefined"><text>{{ ui.n503.textContent }}</text></template><template v-else>
 <view v-if="!ui.n504.removed" :class="classes(ui.n504.className)" :style="ui.n504.style" class="original-div">

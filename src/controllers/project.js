@@ -260,7 +260,15 @@ n482: function(event) { hideFileMenu() },
 n489: function(event) { hideBatchConfirm() },
 n490: function(event) { doBatchDelete() },
 n495: function(event) { hideUpload() },
-n497: function(event) { showToast('已选择文件');hideUpload() },
+n497: function(event) {
+    // 触发 H5 原生文件选择（模板静态隐藏 input#fileUploadInput；window.document 为原生 DOM，非适配器代理）
+    // #ifdef H5
+    var nativeDoc = (typeof window !== 'undefined') ? window.document : null
+    var el = nativeDoc && nativeDoc.getElementById('fileUploadInput')
+    if (el) { el.click(); return }
+    // #endif
+    showToast('当前环境暂不支持文件选择')
+  },
 n503: function(event) { showToast('已连接聊天');hideUpload() },
 n509: function(event) { showToast('已还原');hideUpload() },
 n515: function(event) { toggleMore() },
@@ -270,5 +278,23 @@ n521: function(event) { hideMore();showToast('已重命名') },
 n524: function(event) { hideMore();showToast('已设置') },
 n527: function(event) { hideMore();showToast('已归档') }
   })
+
+  // 文件选择回调：取原生 input.files[0] → 上传 → 成功关弹窗并重跑 loadProject 刷新文件列表
+  controller.onFileChange = function (e) {
+    var f = null
+    // #ifdef H5
+    var el = e && (e.target || (e.detail && e.detail.target))
+    f = el && el.files && el.files[0]
+    // #endif
+    if (!f) { showToast('未选择文件'); return }
+    showToast('上传中…')
+    api.uploadFile(f, { projectId: pid }).then(function () {
+      showToast('上传成功')
+      hideUpload()
+      loadProject(controller, pid)
+    }).catch(function (err) {
+      showToast((err && err.message) || '上传失败')
+    })
+  }
   return controller
 }

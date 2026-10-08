@@ -210,6 +210,54 @@ function readAll() { return request({ url: '/v1/message/read-all', method: 'POST
 function fileList(params) { return request({ url: '/v1/file/list', params }) }
 function fileDetail(fileId) { return request({ url: `/v1/file/${fileId}` }) }
 function pendingAudit(pageNum, pageSize) { return request({ url: '/v1/file/pending-audit', params: { pageNum, pageSize } }) }
+// 文件上传（勿复用上方 upload()：那是 /v1/upload 图片通用接口）。H5 用原生 FormData + XHR，微信端用 uni.uploadFile。
+// params: { projectId, stageId(可空), remark(可空) }
+function uploadFile(file, params = {}) {
+  const token = getToken()
+  // #ifdef H5
+  return new Promise((resolve, reject) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    if (params.projectId != null) fd.append('projectId', params.projectId)
+    if (params.stageId != null) fd.append('stageId', params.stageId)
+    if (params.remark) fd.append('remark', params.remark)
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', BASE_URL + '/v1/file/upload')
+    if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token)
+    xhr.onload = function () {
+      let body = null
+      try { body = JSON.parse(xhr.responseText) } catch (e) { /* ignore */ }
+      if (xhr.status >= 200 && xhr.status < 300 && body && body.code === 0) resolve(body.data)
+      else reject(new Error((body && body.message) || ('上传失败 HTTP ' + xhr.status)))
+    }
+    xhr.onerror = function () { reject(new Error('网络错误，上传失败')) }
+    xhr.send(fd)
+  })
+  // #endif
+  // #ifndef H5
+  return new Promise((resolve, reject) => {
+    uni.uploadFile({
+      url: BASE_URL + '/v1/file/upload',
+      filePath: file,
+      name: 'file',
+      header: token ? { Authorization: 'Bearer ' + token } : {},
+      formData: {
+        projectId: params.projectId,
+        stageId: params.stageId,
+        remark: params.remark
+      },
+      success: (res) => {
+        try {
+          const body = JSON.parse(res.data)
+          if (body.code === 0) resolve(body.data)
+          else reject(new Error(body.message || '上传失败'))
+        } catch (e) { reject(new Error('上传失败')) }
+      },
+      fail: (err) => reject(new Error((err && err.errMsg) || '上传失败'))
+    })
+  })
+  // #endif
+}
 
 // ============ 研讨/决策/公告（扩展，接口已预留） ============
 function discussionList(projectId, params) { return request({ url: '/v1/discussion/list', params: Object.assign({ projectId }, params) }) }
@@ -265,5 +313,6 @@ export default {
   announcementList,
   fileList,
   fileDetail,
-  pendingAudit
+  pendingAudit,
+  uploadFile
 }
