@@ -20,6 +20,14 @@ export default function () {
     setTimeout(function(){ t.classList.add('hidden'); }, 1500);
   }
 
+  // 打开首页"当前项目"卡片指向的项目：先写 storage 再跳（project.js 读取 storage 优先）
+  function openProject(i) {
+    var p = controller.rocProjects && controller.rocProjects[i]
+    if (!p) { showToast('暂无项目'); return }
+    uni.setStorageSync('rocgit_current_project_id', p.projectId)
+    location.href = 'project.html'
+  }
+
   controller.setHandlers({
 n7: async function (event) {
   event.preventDefault()
@@ -31,6 +39,8 @@ n7: async function (event) {
     controller.showGroupPopup = true
   }
 },
+n33: function (event) { event.preventDefault(); openProject(0) },
+n73: function (event) { event.preventDefault(); openProject(1) },
 n9: function(event) { showToast('分享') },
 n147: function(event) { event.preventDefault();showToast('已通过') },
 n154: function(event) { event.preventDefault();showToast('已通过') }

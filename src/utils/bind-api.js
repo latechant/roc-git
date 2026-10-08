@@ -126,6 +126,8 @@ export function loadHome(controller) {
     const gid = groups && groups.length ? groups[0].groupId : null
     const projects = gid ? await api.projectList(gid).catch(() => null) : null
     const list = projects || []
+    // 小组项目列表挂到 controller，供首页"当前项目"跳转取 id
+    controller.rocProjects = list
 
     // 顶部统计：进行中项目数 / 临期任务数 / 待审核文件数
     setText(controller, 'n14', String(list.filter(p => p.status === 'active').length))
