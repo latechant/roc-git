@@ -485,7 +485,7 @@ export function loadProject(controller, projectId) {
     // 隐藏原型阶段行 → 按真实阶段动态渲染（阶段名/序号/状态/起止/进度条 + 内嵌任务列表）
     STAGE_ROW_IDS.forEach((id) => hideNode(controller, id))
     const taskRes = await api.taskList(projectId, { pageNum: 1, pageSize: 50 }).catch(() => null)
-    const taskArr = (taskRes && (taskRes.list || taskRes.records)) || (Array.isArray(taskRes) ? taskRes : [])
+    const taskArr = (taskRes && (taskRes.list || taskRes.records || taskRes.tasks)) || (Array.isArray(taskRes) ? taskRes : [])
     if (stageArr.length) {
       const stageTaskMap = {}
       taskArr.forEach((t) => {
