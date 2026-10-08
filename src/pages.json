@@ -33,14 +33,6 @@
       }
     },
     {
-      "path": "pages/meeting/meeting",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": "研讨记录",
-        "disableScroll": true
-      }
-    },
-    {
       "path": "pages/messages/messages",
       "style": {
         "navigationStyle": "custom",

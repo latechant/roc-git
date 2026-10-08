@@ -242,7 +242,7 @@ n257: function(event) { showToast('已复制') },
 n283: function(event) { showToast('已取消') },
 n309: function(event) { showVersionDiff() },
 n311: function(event) { showVersionDiff() },
-n320: function(event) { location.href='meeting.html' },
+// n320: function(event) { location.href='meeting.html' },  // 研讨记录入口已下线（任务：前端隐藏，后端保留）
 n329: function(event) { showVersionHistory('访谈记录') },
 n337: function(event) { hideVersionDiff() },
 n338: function(event) { event.stopPropagation() },

@@ -119,6 +119,8 @@ export function loadHome(controller) {
 
     // 先清空本页所有业务数据节点：接口失败或数据为空时保持空态，不回退原型假数据
     clearNodes(controller, HOME_CLEAR_IDS)
+    // 下线「研讨记录」模块（任务：前端隐藏，后端/数据保留）：n95 = 研讨模块根，一次隐藏覆盖全部子节点
+    hideNode(controller, 'n95')
 
     // 今日日期
     const now = new Date()
@@ -198,7 +200,8 @@ export function loadHome(controller) {
       hideNode(controller, 'n73')
     }
 
-    // 研讨记录（取第一个项目的研讨列表前2条）
+    // 研讨记录（取第一个项目的研讨列表前2条）——已下线（前端隐藏，接口/数据保留），恢复时取消注释
+    /*
     let dl = []
     if (list.length) {
       const pid0 = list[0].projectId
@@ -223,6 +226,7 @@ export function loadHome(controller) {
     } else {
       hideNode(controller, 'n108')
     }
+    */
 
     // 临期任务（前2条）
     if (dueArr.length) {
@@ -489,6 +493,8 @@ export function loadProject(controller, projectId) {
 
     // 先清空业务数据节点，接口失败/无数据时保持空态
     clearNodes(controller, PROJECT_CLEAR_IDS)
+    // 下线详情页「查看研讨记录 →」入口（n320，parent=n317），后端/数据保留
+    hideNode(controller, 'n320')
 
     const detail = await api.projectDetail(projectId)
     if (detail) {
