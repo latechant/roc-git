@@ -119,8 +119,8 @@ export function loadHome(controller) {
 
     // 先清空本页所有业务数据节点：接口失败或数据为空时保持空态，不回退原型假数据
     clearNodes(controller, HOME_CLEAR_IDS)
-    // 下线「研讨记录」模块（任务：前端隐藏，后端/数据保留）：n95 = 研讨模块根，一次隐藏覆盖全部子节点
-    hideNode(controller, 'n95')
+    // 下线「研讨记录」模块（任务：前端隐藏，后端/数据保留）：n94 = 研讨模块根，覆盖 n95 标题行 + n98 记录列表（含 n99/n103/n104/n106/n108/n112/n113/n115/n118 查看全部）全部子节点
+    hideNode(controller, 'n94')
 
     // 今日日期
     const now = new Date()
