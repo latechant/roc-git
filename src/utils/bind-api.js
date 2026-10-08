@@ -346,9 +346,17 @@ function buildTaskRowHtml(t) {
 }
 
 // 构造阶段行 HTML（含进度条 + 内嵌任务列表；appendHtml 解析内联 style）
+// 视觉主次：active（进行中）突出 > completed > pending 灰化
 function buildStageRowHtml(s, index, tasks) {
   const no = (index < 9 ? '0' : '') + (index + 1)
   const badge = stageStatusText(s.status)
+  const st = s.status || 'pending'
+  const v = st === 'active'
+    ? { card: 'border-blue-300 shadow-md ring-1 ring-blue-100', badge: 'bg-blue-600 text-white', name: 'text-blue-900', dim: '' }
+    : st === 'completed'
+      ? { card: 'border-slate-100', badge: 'bg-emerald-500 text-white', name: 'text-slate-900', dim: '' }
+      : { card: 'border-slate-100 opacity-75', badge: 'bg-slate-100 text-slate-500', name: 'text-slate-700', dim: '' }
+  const doneMark = st === 'completed' ? ' <text class="text-emerald-500 text-[11px] font-semibold">✓</text>' : ''
   const sp = s.progress != null ? s.progress : Math.round((s.completedTaskCount || 0) / ((s.taskCount || s.totalTaskCount) || 1) * 100)
   const range = [s.startDate, s.endDate].filter(Boolean).map(d => String(d).slice(5)).join(' ~ ')
   const taskHtml = (tasks && tasks.length)
@@ -358,18 +366,18 @@ function buildStageRowHtml(s, index, tasks) {
       '</div>'
     : ''
   const stageOps = '<div class="flex items-center gap-2 mt-2">' +
-    (s.status !== 'completed'
+    (st !== 'completed'
       ? '<span class="px-2.5 py-1 rounded-lg bg-blue-600 text-white text-[11px] font-medium" data-action="advance-stage" data-stage-id="' + s.stageId + '">完成本阶段</span>' +
         '<span class="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-600 text-[11px] font-medium" data-action="edit-stage" data-stage-id="' + s.stageId + '">编辑</span>' +
         '<span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 text-[11px] font-medium" data-action="delete-stage" data-stage-id="' + s.stageId + '">删除</span>'
       : '<span class="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-600 text-[11px] font-medium" data-action="edit-stage" data-stage-id="' + s.stageId + '">编辑</span>' +
         '<span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 text-[11px] font-medium" data-action="delete-stage" data-stage-id="' + s.stageId + '">删除</span>') +
     '</div>'
-  return '<div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">' +
+  return '<div class="bg-white rounded-2xl p-4 shadow-sm border ' + v.card + v.dim + '">' +
     '<div class="flex items-center gap-3">' +
-    '<span class="w-6 h-6 rounded-full bg-blue-50 text-[11px] font-semibold text-blue-600 flex items-center justify-center shrink-0">' + no + '</span>' +
+    '<span class="w-6 h-6 rounded-full ' + v.badge + ' text-[11px] font-semibold flex items-center justify-center shrink-0">' + no + '</span>' +
     '<div class="flex-1 min-w-0">' +
-    '<p class="text-[13px] font-medium text-slate-900">' + (s.name || '未命名阶段') + '</p>' +
+    '<p class="text-[13px] font-medium ' + v.name + '">' + (s.name || '未命名阶段') + doneMark + '</p>' +
     (range ? '<p class="text-[11px] text-slate-400 mt-0.5">' + range + '</p>' : '') +
     '</div>' +
     '<span class="px-2 py-0.5 rounded-full ' + badge.cls + ' text-[10px] font-semibold">' + badge.text + '</span>' +

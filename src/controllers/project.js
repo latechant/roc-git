@@ -450,14 +450,25 @@ n527: function(event) {
       // #endif
       showToast('当前环境暂不支持文件选择')
     },
-    // 阶段行：编辑（预填弹窗表单并记录 stageId）
+    // 阶段行：编辑（editable 弹窗预填阶段名 → 改名保存刷新；模板无 editStageModal 节点，弃用旧引用）
     'edit-stage': function (attrs) {
-      editStageId = Number(attrs['data-stage-id'])
+      const sid = Number(attrs['data-stage-id'])
       api.projectStages(pid).then(function (stages) {
-        const s = (stages || []).find(x => x.stageId === editStageId)
-        controller.ui.n375.value = (s && s.name) || ''
-        controller.ui.n378.value = (s && s.endDate) ? String(s.endDate).slice(0, 10) : ''
-        document.getElementById('editStageModal').classList.remove('hidden')
+        const arr = Array.isArray(stages) ? stages : ((stages && (stages.list || stages.records)) || [])
+        const s = arr.find(x => x.stageId === sid)
+        uni.showModal({
+          title: '编辑阶段', editable: true, placeholderText: '阶段名称',
+          content: (s && s.name) || '',
+          success: function (res) {
+            if (!res.confirm) return
+            const name = (res.content || '').trim()
+            if (!name) { showToast('阶段名不能为空'); return }
+            api.updateStage(pid, sid, { name: name }).then(function () {
+              showToast('已更新')
+              loadProject(controller, pid)
+            }).catch(function (err) { showToast((err && err.message) || '更新失败') })
+          }
+        })
       }).catch(function () { showToast('获取阶段信息失败') })
     },
     // 阶段行：删除（确认后真实删除并刷新）

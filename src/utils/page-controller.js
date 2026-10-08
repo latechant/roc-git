@@ -122,6 +122,20 @@ export function createPageController(data) {
   function tap(id, nativeEvent) {
     let stopped = false, prevented = false
     const event = { nativeEvent, stopPropagation() { stopped = true }, preventDefault() { prevented = true } }
+    // 兜底分发：点击落在真实 DOM 的 [data-action] 元素（含动态行内嵌子按钮）→ 按 data-* 构造 attrs 直接调 dynActions
+    const target = nativeEvent && nativeEvent.target
+    if (target && target.closest) {
+      const de = target.closest('[data-action]')
+      if (de) {
+        const attrs = {}
+        for (let i = 0; i < de.attributes.length; i++) attrs[de.attributes[i].name] = de.attributes[i].value
+        const action = attrs['data-action']
+        if (action && typeof dynActions[action] === 'function') {
+          dynActions[action].call(de, attrs, event)
+          return
+        }
+      }
+    }
     let current = ui[id]
     while (current) {
       // 动态行动作委托：动态 HTML 节点带 data-action（+data-* 载荷）→ controller.setDynActions 注册的处理器
