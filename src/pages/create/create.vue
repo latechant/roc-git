@@ -321,6 +321,7 @@
 <!-- #ifndef H5 -->
 <picker v-if="!ui.n77.removed" :class="classes(ui.n77.className)" :style="ui.n77.style" class="original-date" mode="date" :value="ui.n77.value" @change="ui.n77.value = $event.detail.value"><view>{{ ui.n77.value ? ui.n77.value.replaceAll('-', '/') : '年/月/日' }}</view></picker>
 <!-- #endif -->
+<text class="stage-del tap-target-lg" @tap="controller.removeRow('n73', 'n74')">×</text>
 </template>
 </view>
 <view v-if="!ui.n78.removed" :class="classes(ui.n78.className)" :style="ui.n78.style" class="original-div">
@@ -333,6 +334,7 @@
 <!-- #ifndef H5 -->
 <picker v-if="!ui.n81.removed" :class="classes(ui.n81.className)" :style="ui.n81.style" class="original-date" mode="date" :value="ui.n81.value" @change="ui.n81.value = $event.detail.value"><view>{{ ui.n81.value ? ui.n81.value.replaceAll('-', '/') : '年/月/日' }}</view></picker>
 <!-- #endif -->
+<text class="stage-del tap-target-lg" @tap="controller.removeRow('n73', 'n78')">×</text>
 </template>
 </view>
 </template>
