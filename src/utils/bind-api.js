@@ -136,8 +136,9 @@ export function loadHome(controller) {
     const gid = groups && groups.length ? groups[0].groupId : null
     const projects = gid ? await api.projectList(gid).catch(() => null) : null
     const list = projects || []
-    // 小组项目列表挂到 controller，供首页"当前项目"跳转取 id
-    controller.rocProjects = list
+    // 当前项目仅显示进行中项目（与顶部"进行中 N"、卡片跳转、查看全部弹窗口径一致）
+    const activeList = list.filter(p => p.status === 'active')
+    controller.rocProjects = activeList
 
     // 顶部统计：进行中项目数 / 临期任务数 / 待审核文件数
     setText(controller, 'n14', String(list.filter(p => p.status === 'active').length))
@@ -153,9 +154,9 @@ export function loadHome(controller) {
     const memberList = (members && members.members) || []
     const memberNames = memberList.map((m) => m.nickname)
 
-    // 项目1：名称/进度/阶段文案/成员头像
-    if (list.length) {
-      const p0 = list[0]
+    // 项目1：名称/进度/阶段文案/成员头像（只显示进行中项目，口径与顶部"进行中 N"一致）
+    if (activeList.length) {
+      const p0 = activeList[0]
       setText(controller, 'n42', p0.name)
       setText(controller, 'n41', `进度 ${p0.progress}%`)
       setProgress(controller, 'n49', p0.progress)
@@ -175,8 +176,8 @@ export function loadHome(controller) {
     }
 
     // 项目2
-    if (list.length > 1) {
-      const p1 = list[1]
+    if (activeList.length > 1) {
+      const p1 = activeList[1]
       setText(controller, 'n60', p1.name)
       setText(controller, 'n59', `进度 ${p1.progress}%`)
       setText(controller, 'n65', `${p1.progress}%`)
@@ -188,8 +189,8 @@ export function loadHome(controller) {
     }
 
     // 项目3
-    if (list.length > 2) {
-      const p2 = list[2]
+    if (activeList.length > 2) {
+      const p2 = activeList[2]
       setText(controller, 'n77', p2.name)
       setText(controller, 'n76', p2.status === 'active' ? '进行中' : '筹备中')
       setText(controller, 'n82', `${p2.progress}%`)

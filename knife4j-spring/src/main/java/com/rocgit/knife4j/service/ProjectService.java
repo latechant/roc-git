@@ -229,10 +229,13 @@ public class ProjectService {
         if (project == null) {
             throw new BusinessException(ResultCode.PROJECT_NOT_FOUND);
         }
-        project.setStatus("completed");
-        project.setProgress(100);
-        project.setUpdatedAt(LocalDateTime.now());
-        projectMapper.updateById(project);
+        // 显式置空 current_stage_id（updateById 忽略 null 字段）
+        projectMapper.update(null, new LambdaUpdateWrapper<Project>()
+                .eq(Project::getId, projectId)
+                .set(Project::getStatus, "completed")
+                .set(Project::getProgress, 100)
+                .set(Project::getCurrentStageId, null)
+                .set(Project::getUpdatedAt, LocalDateTime.now()));
     }
 
     @Transactional
@@ -409,6 +412,10 @@ public class ProjectService {
         Project project = projectMapper.selectById(projectId);
         if (project == null) {
             throw new BusinessException(ResultCode.PROJECT_NOT_FOUND);
+        }
+        // 仅进行中的项目可推进阶段（归档/结项后禁止）
+        if (!"active".equals(project.getStatus())) {
+            throw new BusinessException(ResultCode.BAD_REQUEST, "仅进行中的项目可推进阶段");
         }
         // 成员校验：必须是该项目所属小组的 active 成员
         Long cnt = groupMemberMapper.selectCount(new LambdaQueryWrapper<GroupMember>()
