@@ -71,10 +71,25 @@ public class TaskService {
         return paginate(all, pageNum, pageSize);
     }
 
+    // 仅进行中项目过滤：结项 / 归档项目其未完成任务不再出现在待办与临期列表
+    private List<Long> activeProjectIds() {
+        return projectMapper.selectList(
+                        new LambdaQueryWrapper<Project>().eq(Project::getStatus, "active"))
+                .stream().map(Project::getId).collect(Collectors.toList());
+    }
+
     public Map<String, Object> getMyTasks(Long userId, String status, Boolean overdue,
                                          Integer pageNum, Integer pageSize) {
+        List<Long> activeIds = activeProjectIds();
+        if (activeIds.isEmpty()) {
+            Map<String, Object> empty = new HashMap<>();
+            empty.put("total", 0);
+            empty.put("tasks", new ArrayList<>());
+            return empty;
+        }
         LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<Task>()
                 .eq(Task::getAssigneeId, userId)
+                .in(Task::getProjectId, activeIds)
                 .orderByDesc(Task::getCreatedAt);
         if (status != null && !status.isEmpty()) {
             wrapper.eq(Task::getStatus, status);
@@ -89,11 +104,16 @@ public class TaskService {
     }
 
     public List<TaskVO> getDueSoonTasks(Long userId, Integer days) {
+        List<Long> activeIds = activeProjectIds();
+        if (activeIds.isEmpty()) {
+            return Collections.emptyList();
+        }
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime deadline = now.plusDays(days);
         List<Task> tasks = taskMapper.selectList(
                 new LambdaQueryWrapper<Task>()
                         .eq(Task::getAssigneeId, userId)
+                        .in(Task::getProjectId, activeIds)
                         .gt(Task::getDeadline, now)
                         .lt(Task::getDeadline, deadline)
                         .ne(Task::getStatus, "completed")

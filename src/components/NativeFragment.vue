@@ -1,5 +1,13 @@
 <template>
-  <view v-if="!node.removed" :class="classes(node.className)" :style="node.style">
+  <view v-if="!node.removed" :class="classes(node.className)" :style="node.style"
+    :data-action="node.attrs && node.attrs['data-action']"
+    :data-stage-id="node.attrs && node.attrs['data-stage-id']"
+    :data-task-id="node.attrs && node.attrs['data-task-id']"
+    :data-file-id="node.attrs && node.attrs['data-file-id']"
+    :data-version="node.attrs && node.attrs['data-version']"
+    :data-id="node.attrs && node.attrs['data-id']"
+    :data-pid="node.attrs && node.attrs['data-pid']"
+    :data-cat="node.attrs && node.attrs['data-cat']">
     <template v-for="(child, index) in items" :key="child.id || index">
       <text v-if="child.text">{{ child.text }}</text>
       <input v-else-if="child.tag === 'input' && child.attrs.type !== 'date'" :class="classes(child.className)" class="original-input" :value="child.value" :placeholder="child.attrs.placeholder || ''" :maxlength="-1" @input="child.value = $event.detail.value" />

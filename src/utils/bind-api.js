@@ -525,6 +525,8 @@ export function loadProject(controller, projectId) {
     }
 
     // 文件列表：隐藏原型假行 → 按真实文件动态渲染（appendHtml 追加进 n60.appended；模板无 id="fileList" 节点，勿用 getElementById）
+    // 先清空旧追加行：loadProject 会被各类操作反复调用，不清空会导致文件行每次翻倍累积、DOM 膨胀卡死（同 create 页 loadCreateMembers 的清空写法）
+    if (controller.ui.n60) controller.ui.n60.appended = []
     FILE_ROW_IDS.forEach((id) => hideNode(controller, id))
     const files = await api.fileList({ projectId }).catch(() => null)
     const fileArr = (files && (files.list || files.records)) || (Array.isArray(files) ? files : [])
@@ -535,6 +537,8 @@ export function loadProject(controller, projectId) {
     const stages = await api.projectStages(projectId).catch(() => null)
     const stageArr = Array.isArray(stages) ? stages : (stages && (stages.list || stages.records)) || []
     // 隐藏原型阶段行 → 按真实阶段动态渲染（阶段名/序号/状态/起止/进度条 + 内嵌任务列表）
+    // 先清空旧追加行（同 n60：loadProject 反复调用，不清空则阶段卡每次翻倍累积直至卡死）
+    if (controller.ui.n173) controller.ui.n173.appended = []
     STAGE_ROW_IDS.forEach((id) => hideNode(controller, id))
     const taskRes = await api.taskList(projectId, { pageNum: 1, pageSize: 50 }).catch(() => null)
     const taskArr = (taskRes && (taskRes.list || taskRes.records || taskRes.tasks)) || (Array.isArray(taskRes) ? taskRes : [])
@@ -738,6 +742,9 @@ export function loadMessages(controller) {
 
     // 隐藏原型消息行与三个原型分组容器，改为按真实类型动态分组渲染
     ;['n21', 'n31', 'n41', 'n54', 'n61', 'n70', 'n18', 'n51', 'n68'].forEach((id) => hideNode(controller, id))
+
+    // 清空旧追加的时间桶行（loadMessages 反复调用，不清空则消息桶每次翻倍累积）
+    if (controller.ui.n13) controller.ui.n13.appended = []
 
     if (items.length) {
       // 先按 今天/昨天/更早 分桶（message-list 已时间倒序），桶内再按类型分组

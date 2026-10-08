@@ -507,6 +507,8 @@ n527: function(event) {
                 '</div>'
             }).join('')
           : '<p class="text-[12px] text-slate-400 py-4 text-center">暂无历史版本</p>'
+        // 清空旧追加的版本行（弹窗反复打开会累积，与 n60/n173 同理）
+        if (controller.ui.n343) controller.ui.n343.appended = []
         controller.appendHtml('n343', html)
         document.getElementById('versionDiffModal').classList.remove('hidden')
       }).catch(function (err) { showToast((err && err.message) || '获取版本失败') })
