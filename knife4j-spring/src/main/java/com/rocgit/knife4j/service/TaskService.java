@@ -220,6 +220,7 @@ public class TaskService {
         TaskVO vo = new TaskVO();
         vo.setTaskId(t.getId());
         vo.setProjectId(t.getProjectId());
+        vo.setStageId(t.getStageId());
         vo.setName(t.getName());
         vo.setDescription(t.getDescription());
         vo.setAssigneeId(t.getAssigneeId());

@@ -290,6 +290,7 @@
 </view>
 </template>
 </view>
+<NativeFragment v-for="childId in ui.n60.appended" :key="childId" :node-id="childId" />
 </template>
 </view>
 <view v-if="!ui.n78.removed" :class="classes(ui.n78.className)" :style="ui.n78.style" class="original-div">
@@ -903,6 +904,7 @@
 </button>
 </template>
 </view>
+<NativeFragment v-for="childId in ui.n173.appended" :key="childId" :node-id="childId" />
 </template>
 </view>
 <view v-if="!ui.n237.removed" :class="classes(ui.n237.className)" :style="ui.n237.style" class="original-div">

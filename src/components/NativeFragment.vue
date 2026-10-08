@@ -15,7 +15,10 @@
         <picker :class="classes(child.className)" class="original-select" mode="selector" :range="memberNames" :value="child.value" @change="child.value = $event.detail.value"><view>{{ memberNames[child.value] || memberNames[0] }}</view></picker>
       </template>
       <view v-else :class="classes(child.className)" :style="child.style">
-        <text v-for="(label, labelIndex) in child.children" :key="labelIndex">{{ label.text }}</text>
+        <template v-for="(sub, si) in child.children" :key="sub.id || si">
+          <NativeFragment v-if="sub.id && ui[sub.id]" :node-id="sub.id" />
+          <text v-else>{{ sub.text }}</text>
+        </template>
       </view>
     </template>
     <text v-if="removable" class="stage-del" @tap="pc.removeRow(props.nodeId, props.nodeId)">×</text>

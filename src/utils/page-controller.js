@@ -83,8 +83,18 @@ export function createPageController(data) {
       const tag = token.match(/^<([\w-]+)/)?.[1]
       if (!tag) continue
       const attrs = Object.fromEntries([...token.matchAll(/([\w-]+)="([^"]*)"/g)].map(m => [m[1], m[2]]))
+      // 解析内联 style="k:v;k:v" → 驼峰 style 对象（动态行进度条等需要）
+      const style = {}
+      if (attrs.style) {
+        attrs.style.split(';').filter(Boolean).forEach(pair => {
+          const idx = pair.indexOf(':')
+          if (idx < 0) return
+          const k = pair.slice(0, idx).trim(), v = pair.slice(idx + 1).trim()
+          if (k) style[k.replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = v
+        })
+      }
       const id = `added${nextId++}`, parent = stack.at(-1)
-      ui[id] = { id, parent, tag, attrs, className: attrs.class || '', style: {}, value: attrs.value || '', checked: false, removed: false, children: [], appended: [] }
+      ui[id] = { id, parent, tag, attrs, className: attrs.class || '', style, value: attrs.value || '', checked: false, removed: false, children: [], appended: [] }
       if (parent === parentId) ui[parentId].appended.push(id)
       else ui[parent].children.push({ id })
       if (!['input', 'br', 'img'].includes(tag)) stack.push(id)
@@ -126,6 +136,7 @@ export function createPageController(data) {
   }
   return {
     ui, classes, tap, iconSrc,
+    appendHtml: appendFragment,
     adapters: { document, location, navigator, setTimeout: scheduled },
     setHandlers(value) { handlers = value },
     dispose() { timers.forEach(id => globalThis.clearTimeout(id)); timers.clear() }

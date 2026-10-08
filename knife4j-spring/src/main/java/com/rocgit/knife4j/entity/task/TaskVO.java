@@ -19,6 +19,9 @@ public class TaskVO {
     @Schema(description = "所属项目ID")
     private Long projectId;
 
+    @Schema(description = "所属阶段ID")
+    private Long stageId;
+
     @Schema(description = "项目名称")
     private String projectName;
 

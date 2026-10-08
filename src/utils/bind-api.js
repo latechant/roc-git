@@ -288,6 +288,123 @@ export function loadHome(controller) {
 //   溯源时间线 + 版本对比/多维筛选/标记闲置/批量清理等弹层里的业务数据。
 // 静态标签不清：总体进度/文件/阶段/成员/溯源等列名与按钮、格式/状态/排序等
 //   固定筛选选项词、上传资料/项目设置弹层的固定菜单项。
+// ==================== 项目详情页：文件/阶段/任务动态行 ====================
+
+// 文件列表原型假行（parent=n60 的 7 行 file-row）
+const FILE_ROW_IDS = ['n61', 'n78', 'n95', 'n112', 'n124', 'n137', 'n154']
+
+// 阶段原型行（n173=space-y-3 容器内，n174/n184/n224 是阶段行本体；n600/n235 是入口按钮保留）
+const STAGE_ROW_IDS = ['n174', 'n184', 'n224']
+
+// 阶段状态文案映射（后端 StageVO.status：pending/in_progress/completed）
+function stageStatusText(status) {
+  const map = {
+    pending: ['bg-slate-100 text-slate-500', '待开始'],
+    in_progress: ['bg-blue-50 text-blue-600', '进行中'],
+    completed: ['bg-emerald-50 text-emerald-600', '已完成']
+  }
+  const m = map[status] || ['bg-slate-100 text-slate-500', status || '待开始']
+  return { cls: m[0], text: m[1] }
+}
+
+// 任务状态徽章映射（后端 TaskVO.status：pending/in_progress/completed/abandoned）
+function taskStatusText(status) {
+  const map = {
+    pending: ['text-slate-400', '待开始'],
+    in_progress: ['text-blue-600', '进行中'],
+    completed: ['text-emerald-600', '已完成'],
+    abandoned: ['text-rose-400', '已放弃']
+  }
+  const m = map[status] || ['text-slate-400', status || '待开始']
+  return { cls: m[0], text: m[1] }
+}
+
+// 任务行 HTML（嵌在阶段卡内，负责人首字头像 + 名称 + 截止 + 状态）
+function buildTaskRowHtml(t) {
+  const badge = taskStatusText(t.status)
+  const av = (t.assigneeName || '?').slice(0, 1)
+  return '<div class="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2">' +
+    '<span class="w-5 h-5 rounded-full bg-sky-400 text-[9px] font-bold text-white flex items-center justify-center shrink-0">' + av + '</span>' +
+    '<div class="flex-1 min-w-0">' +
+    '<p class="text-[12px] text-slate-900 truncate">' + (t.name || '未命名任务') + '</p>' +
+    (t.deadline ? '<p class="text-[10px] text-slate-400">截止 ' + String(t.deadline).slice(5, 10) + '</p>' : '') +
+    '</div>' +
+    '<span class="text-[10px] ' + badge.cls + '">' + badge.text + '</span>' +
+    '</div>'
+}
+
+// 构造阶段行 HTML（含进度条 + 内嵌任务列表；appendHtml 解析内联 style）
+function buildStageRowHtml(s, index, tasks) {
+  const no = (index < 9 ? '0' : '') + (index + 1)
+  const badge = stageStatusText(s.status)
+  const sp = s.progress != null ? s.progress : Math.round((s.completedTaskCount || 0) / ((s.taskCount || s.totalTaskCount) || 1) * 100)
+  const range = [s.startDate, s.endDate].filter(Boolean).map(d => String(d).slice(5)).join(' ~ ')
+  const taskHtml = (tasks && tasks.length)
+    ? '<div class="mt-3 pt-3 border-t border-slate-100 space-y-2">' +
+      '<p class="text-[12px] font-semibold text-slate-700">任务分工</p>' +
+      tasks.map(t => buildTaskRowHtml(t)).join('') +
+      '</div>'
+    : ''
+  return '<div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">' +
+    '<div class="flex items-center gap-3">' +
+    '<span class="w-6 h-6 rounded-full bg-blue-50 text-[11px] font-semibold text-blue-600 flex items-center justify-center shrink-0">' + no + '</span>' +
+    '<div class="flex-1 min-w-0">' +
+    '<p class="text-[13px] font-medium text-slate-900">' + (s.name || '未命名阶段') + '</p>' +
+    (range ? '<p class="text-[11px] text-slate-400 mt-0.5">' + range + '</p>' : '') +
+    '</div>' +
+    '<span class="px-2 py-0.5 rounded-full ' + badge.cls + ' text-[10px] font-semibold">' + badge.text + '</span>' +
+    '</div>' +
+    '<div class="mt-3 h-1.5 bg-slate-100 rounded-full">' +
+    '<div class="h-full bg-blue-600 rounded-full" style="width:' + (sp || 0) + '%"></div>' +
+    '</div>' +
+    taskHtml +
+    '</div>'
+}
+
+// 文件状态徽章映射（后端 FileVO.status：pending/approved/rejected）
+function fileStatusBadge(status) {
+  const map = {
+    pending: ['bg-amber-50 text-amber-600', '待审核'],
+    approved: ['bg-emerald-50 text-emerald-600', '已通过'],
+    rejected: ['bg-rose-50 text-rose-600', '已驳回']
+  }
+  const m = map[status] || ['bg-slate-100 text-slate-500', status || '未知']
+  return { cls: m[0], text: m[1] }
+}
+
+function formatFileSize(size) {
+  if (!size && size !== 0) return ''
+  if (size < 1024) return size + ' B'
+  if (size < 1024 * 1024) return (size / 1024).toFixed(0) + ' KB'
+  return (size / 1024 / 1024).toFixed(1) + ' MB'
+}
+
+function formatFileTime(t) {
+  if (!t) return ''
+  return String(t).slice(5, 10)
+}
+
+// 构造文件行 HTML（DOM-adapter appendFragment 解析 → ui.n60.appended）
+function buildFileRowHtml(f) {
+  const badge = fileStatusBadge(f.status)
+  const meta = [
+    f.uploader && f.uploader.nickname,
+    f.version ? 'v' + f.version : '',
+    formatFileSize(f.size),
+    f.stageName
+  ].filter(Boolean).join(' · ')
+  return '<div class="file-row bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100" data-status="' + (f.status || '') + '">' +
+    '<div class="flex items-center gap-3">' +
+    '<span class="w-9 h-9 rounded-xl bg-sky-50 flex items-center justify-center shrink-0">📄</span>' +
+    '<div class="flex-1 min-w-0">' +
+    '<p class="text-[13px] font-medium text-slate-900 truncate">' + (f.name || '未命名文件') + '</p>' +
+    '<p class="text-[11px] text-slate-400 mt-0.5">' + (meta || ' ') + '</p>' +
+    '</div>' +
+    '<span class="px-2 py-0.5 rounded-full ' + badge.cls + ' text-[10px] font-semibold">' + badge.text + '</span>' +
+    '</div>' +
+    '</div>'
+}
+
 const PROJECT_CLEAR_IDS = [
   // 头部：项目名/阶段/进度/成员头像/资料·待审·版本数
   'n6', 'n7', 'n13',
@@ -354,10 +471,31 @@ export function loadProject(controller, projectId) {
       setText(controller, 'n25', `${detail.completedTaskCount}版本`)
     }
 
+    // 文件列表：隐藏原型假行 → 按真实文件动态渲染（appendFragment 追加进 n60.appended）
+    FILE_ROW_IDS.forEach((id) => hideNode(controller, id))
+    const files = await api.fileList({ projectId }).catch(() => null)
+    const fileArr = (files && (files.list || files.records)) || (Array.isArray(files) ? files : [])
+    const fileListEl = controller.adapters.document.getElementById('fileList')
+    if (fileListEl && fileArr.length) {
+      fileArr.forEach((f) => fileListEl.insertAdjacentHTML('beforeend', buildFileRowHtml(f)))
+    }
+
     const stages = await api.projectStages(projectId).catch(() => null)
-    if (stages && stages.length) {
-      // 作业阶段区：取第一阶段（stages[0]）进度 —— 有 progress 字段直接用，否则按完成任务数/任务数计算；无任务兜底 0
-      const s0 = stages[0]
+    const stageArr = Array.isArray(stages) ? stages : (stages && (stages.list || stages.records)) || []
+    // 隐藏原型阶段行 → 按真实阶段动态渲染（阶段名/序号/状态/起止/进度条 + 内嵌任务列表）
+    STAGE_ROW_IDS.forEach((id) => hideNode(controller, id))
+    const taskRes = await api.taskList(projectId, { pageNum: 1, pageSize: 50 }).catch(() => null)
+    const taskArr = (taskRes && (taskRes.list || taskRes.records)) || (Array.isArray(taskRes) ? taskRes : [])
+    if (stageArr.length) {
+      const stageTaskMap = {}
+      taskArr.forEach((t) => {
+        const sid = t.stageId
+        if (sid == null) return
+        ;(stageTaskMap[sid] = stageTaskMap[sid] || []).push(t)
+      })
+      stageArr.forEach((s, i) => controller.appendHtml('n173', buildStageRowHtml(s, i, stageTaskMap[s.stageId])))
+      // 作业阶段区标题：取第一阶段进度
+      const s0 = stageArr[0]
       const sp = s0.progress != null ? s0.progress : Math.round((s0.completedTaskCount || 0) / ((s0.taskCount || s0.totalTaskCount) || 1) * 100)
       setText(controller, 'n199', sp + '%')
       setProgress(controller, 'n201', sp)
