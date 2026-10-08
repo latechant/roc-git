@@ -319,10 +319,14 @@ function taskStatusText(status) {
   return { cls: m[0], text: m[1] }
 }
 
-// 任务行 HTML（嵌在阶段卡内，负责人首字头像 + 名称 + 截止 + 状态）
+// 任务行 HTML（嵌在阶段卡内，负责人首字头像 + 名称 + 截止 + 状态；完成/删除操作）
 function buildTaskRowHtml(t) {
   const badge = taskStatusText(t.status)
   const av = (t.assigneeName || '?').slice(0, 1)
+  const ops = (t.status === 'completed')
+    ? '<span class="px-2 py-0.5 rounded-lg bg-rose-50 text-rose-600 text-[10px] font-medium" data-action="delete-task" data-task-id="' + t.taskId + '">删除</span>'
+    : '<span class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-600 text-[10px] font-medium" data-action="complete-task" data-task-id="' + t.taskId + '">完成</span>' +
+      '<span class="px-2 py-0.5 rounded-lg bg-rose-50 text-rose-600 text-[10px] font-medium" data-action="delete-task" data-task-id="' + t.taskId + '">删除</span>'
   return '<div class="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2">' +
     '<span class="w-5 h-5 rounded-full bg-sky-400 text-[9px] font-bold text-white flex items-center justify-center shrink-0">' + av + '</span>' +
     '<div class="flex-1 min-w-0">' +
@@ -330,6 +334,7 @@ function buildTaskRowHtml(t) {
     (t.deadline ? '<p class="text-[10px] text-slate-400">截止 ' + String(t.deadline).slice(5, 10) + '</p>' : '') +
     '</div>' +
     '<span class="text-[10px] ' + badge.cls + '">' + badge.text + '</span>' +
+    ops +
     '</div>'
 }
 
@@ -345,6 +350,10 @@ function buildStageRowHtml(s, index, tasks) {
       tasks.map(t => buildTaskRowHtml(t)).join('') +
       '</div>'
     : ''
+  const stageOps = '<div class="flex items-center gap-2 mt-2">' +
+    '<span class="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-600 text-[11px] font-medium" data-action="edit-stage" data-stage-id="' + s.stageId + '">编辑</span>' +
+    '<span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 text-[11px] font-medium" data-action="delete-stage" data-stage-id="' + s.stageId + '">删除</span>' +
+    '</div>'
   return '<div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">' +
     '<div class="flex items-center gap-3">' +
     '<span class="w-6 h-6 rounded-full bg-blue-50 text-[11px] font-semibold text-blue-600 flex items-center justify-center shrink-0">' + no + '</span>' +
@@ -358,6 +367,7 @@ function buildStageRowHtml(s, index, tasks) {
     '<div class="h-full bg-blue-600 rounded-full" style="width:' + (sp || 0) + '%"></div>' +
     '</div>' +
     taskHtml +
+    stageOps +
     '</div>'
 }
 

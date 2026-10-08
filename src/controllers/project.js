@@ -204,7 +204,18 @@ n216: function(event) { this.parentElement.remove() },
 n222: function(event) { this.parentElement.remove() },
 n230: function(event) { editStage(this) },
 n232: function(event) { deleteStage(this) },
-n235: function(event) { applyTemplate() },
+n235: function(event) {
+    // 应用模板：拉真实模板列表，选择后提示（后端详情页无"应用模板"接口，模板在创建项目时选择）
+    api.projectTemplateList().then(function (list) {
+      var names = (list || []).map(function (t) { return t.name || ('模板' + t.templateId) })
+      if (!names.length) { showToast('暂无可用模板'); return }
+      uni.showActionSheet({
+        itemList: names,
+        success: function () { showToast('模板将在创建新项目时应用（详情页暂不支持替换阶段）') },
+        fail: function () { /* 取消 */ }
+      })
+    }).catch(function () { showToast('获取模板失败') })
+  },
 n240: function(event) { showInvite() },
 n244: function(event) { hideInvite() },
 n250: function(event) { copyLink() },
@@ -276,11 +287,53 @@ n516: function(event) { event.stopPropagation() },
 n519: function(event) { toggleMore() },
 n521: function(event) { hideMore();showToast('已重命名') },
 n524: function(event) { hideMore();showToast('已设置') },
-n527: function(event) { hideMore();showToast('已归档') }
+n527: function(event) { hideMore();showToast('已归档') },
+    // 阶段弹窗：确认添加（addStageModal 表单 n394 名称 / n397 日期 / n400 描述）
+    n401: function(event) {
+      const name = (controller.ui.n394.value || '').trim()
+      if (!name) { showToast('请输入阶段名称'); return }
+      api.createStage(pid, { name: name, startDate: controller.ui.n397.value || null, endDate: controller.ui.n397.value || null }).then(function () {
+        showToast('阶段已添加')
+        hideAddStage()
+        controller.ui.n394.value = ''
+        controller.ui.n397.value = ''
+        loadProject(controller, pid)
+      }).catch(function (err) { showToast((err && err.message) || '添加失败') })
+    },
+    // 阶段弹窗：删除（editStageModal 底部按钮）
+    n383: function(event) {
+      if (!editStageId) { hideEditStage(); return }
+      uni.showModal({
+        content: '确定删除此阶段？',
+        success: function (res) {
+          if (!res.confirm) return
+          api.deleteStage(pid, editStageId).then(function () {
+            showToast('已删除')
+            editStageId = null
+            hideEditStage()
+            loadProject(controller, pid)
+          }).catch(function (err) { showToast((err && err.message) || '删除失败') })
+        }
+      })
+    },
+    // 阶段弹窗：保存（editStageModal 表单 n375 名称 / n378 日期）
+    n384: function(event) {
+      if (!editStageId) { hideEditStage(); return }
+      const name = (controller.ui.n375.value || '').trim()
+      if (!name) { showToast('请输入阶段名称'); return }
+      api.updateStage(pid, editStageId, { name: name, startDate: controller.ui.n378.value || null, endDate: controller.ui.n378.value || null }).then(function () {
+        showToast('已保存')
+        editStageId = null
+        hideEditStage()
+        loadProject(controller, pid)
+      }).catch(function (err) { showToast((err && err.message) || '保存失败') })
+    }
   })
 
   // 文件选择回调：取原生 input.files[0] → 上传 → 成功关弹窗并重跑 loadProject 刷新文件列表
   var resubmitFileId = null
+  // 当前编辑中的阶段 id（editStageModal 保存/删除用）
+  var editStageId = null
   // 动态审核动作委托（buildFileRowHtml 的 data-action 按钮，page-controller.tap 分发）
   controller.setDynActions({
     'approve-file': function (attrs) {
@@ -309,6 +362,51 @@ n527: function(event) { hideMore();showToast('已归档') }
       if (el) { el.click(); return }
       // #endif
       showToast('当前环境暂不支持文件选择')
+    },
+    // 阶段行：编辑（预填弹窗表单并记录 stageId）
+    'edit-stage': function (attrs) {
+      editStageId = Number(attrs['data-stage-id'])
+      api.projectStages(pid).then(function (stages) {
+        const s = (stages || []).find(x => x.stageId === editStageId)
+        controller.ui.n375.value = (s && s.name) || ''
+        controller.ui.n378.value = (s && s.endDate) ? String(s.endDate).slice(0, 10) : ''
+        document.getElementById('editStageModal').classList.remove('hidden')
+      }).catch(function () { showToast('获取阶段信息失败') })
+    },
+    // 阶段行：删除（确认后真实删除并刷新）
+    'delete-stage': function (attrs) {
+      const sid = Number(attrs['data-stage-id'])
+      uni.showModal({
+        content: '确定删除此阶段？',
+        success: function (res) {
+          if (!res.confirm) return
+          api.deleteStage(pid, sid).then(function () {
+            showToast('已删除')
+            loadProject(controller, pid)
+          }).catch(function (err) { showToast((err && err.message) || '删除失败') })
+        }
+      })
+    },
+    // 任务行：完成（completeTask）
+    'complete-task': function (attrs) {
+      api.completeTask(Number(attrs['data-task-id']), {}).then(function () {
+        showToast('任务已完成')
+        loadProject(controller, pid)
+      }).catch(function (err) { showToast((err && err.message) || '操作失败') })
+    },
+    // 任务行：删除（确认后真实删除并刷新）
+    'delete-task': function (attrs) {
+      const tid = Number(attrs['data-task-id'])
+      uni.showModal({
+        content: '确定删除此任务？',
+        success: function (res) {
+          if (!res.confirm) return
+          api.deleteTask(tid).then(function () {
+            showToast('已删除')
+            loadProject(controller, pid)
+          }).catch(function (err) { showToast((err && err.message) || '删除失败') })
+        }
+      })
     }
   })
   controller.onFileChange = function (e) {

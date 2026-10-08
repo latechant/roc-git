@@ -192,6 +192,10 @@ function projectStages(projectId) { return request({ url: `/v1/project/${project
 function projectMembers(projectId) { return request({ url: `/v1/project/${projectId}/members` }) }
 function projectTemplateList() { return request({ url: '/v1/project/template/list' }) }
 function createProject(data) { return request({ url: '/v1/project/create', method: 'POST', data }) }
+// 阶段操作（挂 /v1/project 下）
+function createStage(projectId, data) { return request({ url: `/v1/project/${projectId}/stage`, method: 'POST', data }) }
+function updateStage(projectId, stageId, data) { return request({ url: `/v1/project/${projectId}/stage/${stageId}`, method: 'PUT', data }) }
+function deleteStage(projectId, stageId) { return request({ url: `/v1/project/${projectId}/stage/${stageId}`, method: 'DELETE' }) }
 
 // ============ 任务 ============
 function myTasks(params) { return request({ url: '/v1/task/my-tasks', params }) }
@@ -199,6 +203,8 @@ function taskList(projectId, params) { return request({ url: '/v1/task/list', pa
 function taskDetail(taskId) { return request({ url: `/v1/task/${taskId}` }) }
 function dueSoonTasks(days) { return request({ url: '/v1/task/due-soon', params: { days } }) }
 function createTask(data) { return request({ url: '/v1/task/create', method: 'POST', data }) }
+function updateTask(taskId, data) { return request({ url: `/v1/task/${taskId}`, method: 'PUT', data }) }
+function deleteTask(taskId) { return request({ url: `/v1/task/${taskId}`, method: 'DELETE' }) }
 function completeTask(taskId, data) { return request({ url: `/v1/task/${taskId}/complete`, method: 'POST', data: data || {} }) }
 
 // ============ 消息 ============
@@ -344,11 +350,16 @@ export default {
   projectMembers,
   projectTemplateList,
   createProject,
+  createStage,
+  updateStage,
+  deleteStage,
   myTasks,
   taskList,
   taskDetail,
   dueSoonTasks,
   createTask,
+  updateTask,
+  deleteTask,
   completeTask,
   unreadCount,
   messageList,
