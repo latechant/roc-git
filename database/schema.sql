@@ -83,6 +83,8 @@ CREATE TABLE `project` (
   `created_by`       BIGINT UNSIGNED NOT NULL COMMENT '创建人（user.id）',
   `is_shared`        TINYINT NOT NULL DEFAULT 0 COMMENT '是否已分享：0=否，1=是',
   `share_token`      VARCHAR(64)  DEFAULT NULL COMMENT '结项分享Token',
+  `audit_rule`       VARCHAR(255) DEFAULT NULL COMMENT '审核规则JSON',
+  `reminder_rule`    VARCHAR(255) DEFAULT NULL COMMENT '提醒规则JSON',
   `archived_at`      DATETIME     DEFAULT NULL COMMENT '归档时间',
   `created_at`       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at`       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',

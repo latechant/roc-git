@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 项目详情 VO
@@ -48,6 +49,12 @@ public class ProjectDetailVO {
 
     @Schema(description = "已完成任务数")
     private Integer completedTaskCount;
+
+    @Schema(description = "审核规则")
+    private Map<String, Object> auditRule;
+
+    @Schema(description = "提醒规则")
+    private Map<String, Object> reminderRule;
 
     @Schema(description = "创建时间")
     private LocalDateTime createdAt;

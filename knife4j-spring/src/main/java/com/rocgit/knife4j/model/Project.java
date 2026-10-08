@@ -35,6 +35,10 @@ public class Project {
 
     private String shareToken;
 
+    private String auditRule;
+
+    private String reminderRule;
+
     private LocalDateTime archivedAt;
 
     private LocalDateTime createdAt;

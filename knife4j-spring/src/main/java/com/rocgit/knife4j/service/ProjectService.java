@@ -1,6 +1,7 @@
 package com.rocgit.knife4j.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rocgit.knife4j.common.BusinessException;
 import com.rocgit.knife4j.common.ResultCode;
 import com.rocgit.knife4j.dto.project.*;
@@ -40,6 +41,8 @@ public class ProjectService {
     @Autowired
     private ProjectMemberMapper projectMemberMapper;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     // ==================== 项目 CRUD ====================
 
     @Transactional
@@ -54,6 +57,15 @@ public class ProjectService {
         project.setIsShared(0);
         project.setCreatedAt(LocalDateTime.now());
         project.setUpdatedAt(LocalDateTime.now());
+        // 审核/提醒规则：非空则序列化为 JSON 存列
+        try {
+            project.setAuditRule(request.getAuditRule() != null
+                    ? objectMapper.writeValueAsString(request.getAuditRule()) : null);
+            project.setReminderRule(request.getReminderRule() != null
+                    ? objectMapper.writeValueAsString(request.getReminderRule()) : null);
+        } catch (Exception e) {
+            throw new BusinessException(ResultCode.BAD_REQUEST, "规则序列化失败: " + e.getMessage());
+        }
         projectMapper.insert(project);
 
         // 插入阶段：优先用模板，其次用 request 自带的 stages
@@ -459,6 +471,20 @@ public class ProjectService {
         vo.setProgress(p.getProgress());
         vo.setStatus(p.getStatus());
         vo.setCreatedAt(p.getCreatedAt());
+
+        // 审核/提醒规则：反序列化为 Map 透出（null 容错）
+        try {
+            if (p.getAuditRule() != null) {
+                vo.setAuditRule(objectMapper.readValue(p.getAuditRule(),
+                        new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {}));
+            }
+            if (p.getReminderRule() != null) {
+                vo.setReminderRule(objectMapper.readValue(p.getReminderRule(),
+                        new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {}));
+            }
+        } catch (Exception ignored) {
+            // 规则 JSON 异常不阻断详情返回
+        }
 
         // stages
         List<Stage> stages = stageMapper.selectList(
