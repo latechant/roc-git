@@ -501,13 +501,12 @@ export function loadProject(controller, projectId) {
       setText(controller, 'n25', `${detail.completedTaskCount}版本`)
     }
 
-    // 文件列表：隐藏原型假行 → 按真实文件动态渲染（appendFragment 追加进 n60.appended）
+    // 文件列表：隐藏原型假行 → 按真实文件动态渲染（appendHtml 追加进 n60.appended；模板无 id="fileList" 节点，勿用 getElementById）
     FILE_ROW_IDS.forEach((id) => hideNode(controller, id))
     const files = await api.fileList({ projectId }).catch(() => null)
     const fileArr = (files && (files.list || files.records)) || (Array.isArray(files) ? files : [])
-    const fileListEl = controller.adapters.document.getElementById('fileList')
-    if (fileListEl && fileArr.length) {
-      fileArr.forEach((f) => fileListEl.insertAdjacentHTML('beforeend', buildFileRowHtml(f)))
+    if (fileArr.length) {
+      fileArr.forEach((f) => controller.appendHtml('n60', buildFileRowHtml(f)))
     }
 
     const stages = await api.projectStages(projectId).catch(() => null)
