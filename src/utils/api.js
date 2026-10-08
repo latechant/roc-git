@@ -211,6 +211,7 @@ function completeTask(taskId, data) { return request({ url: `/v1/task/${taskId}/
 function unreadCount() { return request({ url: '/v1/message/unread-count' }) }
 function messageList(params) { return request({ url: '/v1/message/list', params }) }
 function readAll() { return request({ url: '/v1/message/read-all', method: 'POST' }) }
+function readMessage(id) { return request({ url: '/v1/message/' + id + '/read', method: 'POST' }) }
 
 // ============ 文件 ============
 function fileList(params) { return request({ url: '/v1/file/list', params }) }
@@ -373,6 +374,7 @@ export default {
   unreadCount,
   messageList,
   readAll,
+  readMessage,
   discussionList,
   decisionList,
   announcementList,

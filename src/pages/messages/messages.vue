@@ -328,6 +328,7 @@
 
 </template>
 </view>
+<NativeFragment v-for="childId in ui.n13.appended" :key="childId" :node-id="childId" />
 </template>
 </scroll-view>
 <view v-if="!ui.n78.removed" :class="classes(ui.n78.className)" :style="ui.n78.style" class="original-nav">

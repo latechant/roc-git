@@ -622,6 +622,74 @@ const MESSAGES_CLEAR_IDS = [
   'n74', 'n75', 'n76'
 ]
 
+// 消息类型 → 页面分组映射（后端 message.type：audit/task/system/mention）
+const MESSAGE_GROUP_DEFS = [
+  { type: 'audit', cat: 'review', label: '审核通知', icon: '审', iconBg: 'bg-amber-50', iconFg: 'text-amber-600', badge: 'text-amber-600' },
+  { type: 'task', cat: 'deadline', label: '截止提醒', icon: '任', iconBg: 'bg-rose-50', iconFg: 'text-rose-600', badge: 'text-rose-600' },
+  { type: 'system', cat: 'version', label: '版本变更', icon: '版', iconBg: 'bg-violet-50', iconFg: 'text-violet-600', badge: 'text-violet-600' },
+  { type: 'mention', cat: 'meeting', label: '研讨互动', icon: '研', iconBg: 'bg-emerald-50', iconFg: 'text-emerald-600', badge: 'text-emerald-600' }
+]
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
+function formatMessageTime(t) {
+  if (!t) return ''
+  return String(t).replace('T', ' ').slice(0, 16)
+}
+
+function buildMessageRowHtml(m) {
+  const g = MESSAGE_GROUP_DEFS.find((d) => d.type === m.type) || MESSAGE_GROUP_DEFS[0]
+  const unreadDot = m.read ? '' : '<span class="w-2 h-2 bg-rose-500 rounded-full mt-2 shrink-0"></span>'
+  const title = escapeHtml(m.title)
+  const content = escapeHtml(m.content)
+  return '<a class="notice flex items-start gap-3 bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100" data-cat="' + g.cat + '" data-action="msg-open" data-id="' + (m.id || '') + '" data-pid="' + (m.projectId || '') + '">' +
+    '<div class="w-9 h-9 rounded-xl ' + g.iconBg + ' flex items-center justify-center shrink-0">' +
+    '<span class="' + g.iconFg + ' text-[13px] font-semibold">' + g.icon + '</span></div>' +
+    '<div class="flex-1 min-w-0">' +
+    '<div class="flex items-center justify-between gap-2">' +
+    '<p class="text-[13px] font-medium text-slate-900 truncate">' + title + '</p>' +
+    '<span class="text-[10px] font-semibold ' + g.badge + ' shrink-0">' + g.label.slice(0, 2) + '</span>' +
+    '</div>' +
+    '<p class="text-[11px] text-slate-500 mt-1 leading-relaxed">' + content + '</p>' +
+    '<p class="text-[11px] text-slate-400 mt-1">' + formatMessageTime(m.createdAt) + '</p>' +
+    '</div>' + unreadDot + '</a>'
+}
+
+function timeBucket(t) {
+  if (!t) return '更早'
+  const d = new Date(String(t).replace(' ', 'T'))
+  if (isNaN(d.getTime())) return '更早'
+  const now = new Date()
+  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const startYest = new Date(startToday.getTime() - 86400000)
+  if (d >= startToday) return '今天'
+  if (d >= startYest) return '昨天'
+  return '更早'
+}
+
+function buildMessageGroupHtml(g, items) {
+  return '<div class="px-5 mt-6">' +
+    '<p class="text-[11px] font-semibold text-slate-400 uppercase mb-2">' + g.label + '</p>' +
+    '<div class="space-y-2">' + items.map(buildMessageRowHtml).join('') + '</div></div>'
+}
+
+function buildMessageTimeBucketHtml(bucket, items) {
+  // 时间桶（今天/昨天/更早）→ 桶内按类型分组
+  const byType = {}
+  items.forEach((m) => { (byType[m.type] = byType[m.type] || []).push(m) })
+  let html = '<div class="px-5 mt-6"><p class="text-[11px] font-semibold text-slate-400 uppercase mb-2">' + bucket + '</p>'
+  MESSAGE_GROUP_DEFS.forEach((g) => {
+    const arr = byType[g.type]
+    if (!arr || !arr.length) return
+    html += '<div class="space-y-2 mb-3">' + arr.map(buildMessageRowHtml).join('') + '</div>'
+  })
+  return html + '</div>'
+}
+
 export function loadMessages(controller) {
   return safe(async () => {
     const ok = await requireLogin()
@@ -640,15 +708,39 @@ export function loadMessages(controller) {
       hideNode(controller, 'n5')
     }
 
-    const list = await api.messageList({ pageNum: 1, pageSize: 10 })
-    const items = list && list.list ? list.list : []
+    const list = await api.messageList({ pageNum: 1, pageSize: 50 })
+    const items = (list && (list.list || list.records)) || (Array.isArray(list) ? list : [])
+
+    // 隐藏原型消息行与三个原型分组容器，改为按真实类型动态分组渲染
+    ;['n21', 'n31', 'n41', 'n54', 'n61', 'n70', 'n18', 'n51', 'n68'].forEach((id) => hideNode(controller, id))
+
     if (items.length) {
-      setText(controller, 'n26', items[0].title)
+      // 先按 今天/昨天/更早 分桶（message-list 已时间倒序），桶内再按类型分组
+      const buckets = {}
+      items.forEach((m) => { const b = timeBucket(m.createdAt); (buckets[b] = buckets[b] || []).push(m) })
+      let rendered = 0
+      ;['今天', '昨天', '更早'].forEach((b) => {
+        const arr = buckets[b]
+        if (!arr || !arr.length) return
+        controller.appendHtml('n13', buildMessageTimeBucketHtml(b, arr))
+        rendered++
+      })
+      // 全部消息类型都不在已知分组（理论不发生）：隐藏统计卡并置空态
+      if (!rendered) {
+        hideNode(controller, 'n14')
+        setEmptyState(controller, 'n77', '暂无消息')
+      }
     } else {
-      // 无数据空态：隐藏统计卡(n14)、三个分组容器(n18/n51/n68)及其全部卡片本体，
-      // 在滚动容器内用 setEmptyState 显示浅灰提示
-      ;['n14', 'n18', 'n51', 'n68', 'n21', 'n31', 'n41', 'n54', 'n61', 'n70'].forEach((id) => hideNode(controller, id))
-      setEmptyState(controller, 'n77', '暂无消息，去完成第一个项目吧')
+      // 无数据空态：隐藏统计卡(n14)，在滚动容器内显示浅灰提示；按有无项目区分文案
+      hideNode(controller, 'n14')
+      let hasProject = false
+      const groups = await api.myGroups().catch(() => null)
+      const gl = (groups && (groups.list || groups.records)) || (Array.isArray(groups) ? groups : [])
+      if (gl.length) {
+        const pl = await api.projectList(gl[0].groupId).catch(() => null)
+        hasProject = !!((pl && (pl.list || pl.records)) || (Array.isArray(pl) && pl.length) || (pl && pl.length))
+      }
+      setEmptyState(controller, 'n77', hasProject ? '暂无消息' : '暂无消息，去完成第一个项目吧')
     }
   })
 }

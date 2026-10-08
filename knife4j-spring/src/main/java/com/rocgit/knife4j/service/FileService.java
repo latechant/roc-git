@@ -119,6 +119,24 @@ public class FileService {
         fileVersionMapper.insert(v);
 
         notifyService.logOperation(projectId, uploaderId, "upload", "file", f.getId(), originalName, "上传文件 v1");
+
+        // 通知组长：新文件待审核（组长 = 项目所属小组 role=leader 且 active 的成员）
+        Project proj = projectMapper.selectById(projectId);
+        if (proj != null) {
+            List<GroupMember> leaders = groupMemberMapper.selectList(new LambdaQueryWrapper<GroupMember>()
+                    .eq(GroupMember::getGroupId, proj.getGroupId())
+                    .eq(GroupMember::getRole, "leader")
+                    .eq(GroupMember::getStatus, "active"));
+            if (leaders != null && !leaders.isEmpty()) {
+                User uploader = userMapper.selectById(uploaderId);
+                String uploaderName = uploader != null && uploader.getNickname() != null
+                        ? uploader.getNickname() : "成员";
+                for (GroupMember leader : leaders) {
+                    notifyService.sendMessage(leader.getUserId(), projectId, "audit", "新文件待审核",
+                            uploaderName + " 上传了《" + originalName + "》，待你审核");
+                }
+            }
+        }
         return toVO(fileMapper.selectById(f.getId()), new HashMap<>(), new HashMap<>());
     }
 
