@@ -178,6 +178,7 @@ export function loadHome(controller) {
       setText(controller, 'n60', p1.name)
       setText(controller, 'n59', `进度 ${p1.progress}%`)
       setText(controller, 'n65', `${p1.progress}%`)
+      setProgress(controller, 'n67', p1.progress)
       setAvatar(controller, 'n70', memberNames[0])
       setAvatar(controller, 'n71', memberNames[1])
     } else {
@@ -190,6 +191,7 @@ export function loadHome(controller) {
       setText(controller, 'n77', p2.name)
       setText(controller, 'n76', p2.status === 'active' ? '进行中' : '筹备中')
       setText(controller, 'n82', `${p2.progress}%`)
+      setProgress(controller, 'n84', p2.progress)
       setAvatar(controller, 'n87', memberNames[0])
       setText(controller, 'n88', memberList[0] && memberList[0].role === 'leader' ? '组长' : '组员')
     } else {
@@ -354,7 +356,11 @@ export function loadProject(controller, projectId) {
 
     const stages = await api.projectStages(projectId).catch(() => null)
     if (stages && stages.length) {
-      // 阶段列表在 n40 区域，为多节点；此处仅展示第一个阶段名（保留扩展）
+      // 作业阶段区：取第一阶段（stages[0]）进度 —— 有 progress 字段直接用，否则按完成任务数/任务数计算；无任务兜底 0
+      const s0 = stages[0]
+      const sp = s0.progress != null ? s0.progress : Math.round((s0.completedTaskCount || 0) / ((s0.taskCount || s0.totalTaskCount) || 1) * 100)
+      setText(controller, 'n199', sp + '%')
+      setProgress(controller, 'n201', sp)
     }
 
     // 项目所属小组的成员文字头像（前 4 位：头像首字/姓名/角色）
