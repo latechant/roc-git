@@ -283,12 +283,6 @@
 <image v-if="!ui.n606.removed" :class="classes(ui.n606.className)" :style="ui.n606.style" class="original-icon" :src="iconSrc('n606')" style="width:16px;height:16px" mode="aspectFit" />
 </template>
 </view>
-<button v-if="!ui.n235.removed" :class="classes(ui.n235.className)" :style="ui.n235.style" class="original-button" @tap.stop="tap('n235', $event)">
-<template v-if="ui.n235.textContent !== undefined"><text>{{ ui.n235.textContent }}</text></template><template v-else>
-<image v-if="!ui.n236.removed" :class="classes(ui.n236.className)" :style="ui.n236.style" class="original-icon" :src="iconSrc('n236')" style="width:15px;height:15px" mode="aspectFit" />
-<text>应用系统默认阶段模板 </text>
-</template>
-</button>
 </template>
 </view>
 <NativeFragment v-for="childId in ui.n173.appended" :key="childId" :node-id="childId" />

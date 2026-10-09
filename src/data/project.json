@@ -3880,9 +3880,6 @@
                                          },
                                          {
                                              "id":  "n224"
-                                         },
-                                         {
-                                             "id":  "n235"
                                          }
                                      ]
                     },
@@ -5208,50 +5205,6 @@
                                              "text":  "按资料整理结果撰写报告"
                                          }
                                      ]
-                    },
-                    {
-                        "id":  "n235",
-                        "tag":  "button",
-                        "parent":  "n173",
-                        "attrs":  {
-                                      "onclick":  "applyTemplate()",
-                                      "class":  "w-full py-3 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-[12px] text-slate-400 flex items-center justify-center gap-2"
-                                  },
-                        "className":  "w-full py-3 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-[12px] text-slate-400 flex items-center justify-center gap-2",
-                        "style":  {
-
-                                  },
-                        "removed":  false,
-                        "value":  "",
-                        "checked":  false,
-                        "children":  [
-                                         {
-                                             "id":  "n236"
-                                         },
-                                         {
-                                             "text":  "应用系统默认阶段模板 "
-                                         }
-                                     ]
-                    },
-                    {
-                        "id":  "n236",
-                        "tag":  "iconify-icon",
-                        "parent":  "n235",
-                        "attrs":  {
-                                      "icon":  "lucide:layout-template",
-                                      "width":  "15"
-                                  },
-                        "className":  "",
-                        "style":  {
-
-                                  },
-                        "removed":  false,
-                        "value":  "",
-                        "checked":  false,
-                        "children":  [
-
-                                     ],
-                        "iconFile":  "layout-template--slate-400"
                     },
                     {
                         "id":  "n237",

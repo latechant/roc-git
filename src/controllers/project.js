@@ -152,7 +152,6 @@ export default function () {
   }
   function showAddStage(){document.getElementById('addStageModal').classList.remove('hidden')}
   function hideAddStage(){document.getElementById('addStageModal').classList.add('hidden')}
-  function applyTemplate(){showToast('已应用系统默认模板')}
   function addTaskInStage(){showToast('请在「添加」中输入任务')}
 
   // 溯源搜索（功能点13）
@@ -223,18 +222,6 @@ n216: function(event) { this.parentElement.remove() },
 n222: function(event) { this.parentElement.remove() },
 n230: function(event) { editStage(this) },
 n232: function(event) { deleteStage(this) },
-n235: function(event) {
-    // 应用模板：拉真实模板列表，选择后提示（后端详情页无"应用模板"接口，模板在创建项目时选择）
-    api.projectTemplateList().then(function (list) {
-      var names = (list || []).map(function (t) { return t.name || ('模板' + t.templateId) })
-      if (!names.length) { showToast('暂无可用模板'); return }
-      uni.showActionSheet({
-        itemList: names,
-        success: function () { showToast('模板将在创建新项目时应用（详情页暂不支持替换阶段）') },
-        fail: function () { /* 取消 */ }
-      })
-    }).catch(function () { showToast('获取模板失败') })
-  },
 n240: function(event) { showInvite() },
 n244: function(event) { hideInvite() },
 n250: function(event) { copyLink() },
