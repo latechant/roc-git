@@ -281,12 +281,6 @@ export function loadHome(controller) {
 //   固定筛选选项词、上传资料/项目设置弹层的固定菜单项。
 // ==================== 项目详情页：文件/阶段/任务动态行 ====================
 
-// 文件列表原型假行（parent=n60 的 7 行 file-row）
-const FILE_ROW_IDS = ['n61', 'n78', 'n95', 'n112', 'n124', 'n137', 'n154']
-
-// 阶段原型行（n173=space-y-3 容器内，n174/n184/n224 是阶段行本体；n600/n235 是入口按钮保留）
-const STAGE_ROW_IDS = ['n174', 'n184', 'n224']
-
 // 阶段状态文案映射（后端 StageVO.status：pending/in_progress/completed）
 function stageStatusText(status) {
   const map = {
@@ -440,60 +434,12 @@ function buildFileRowHtml(f) {
     '</div>'
 }
 
-const PROJECT_CLEAR_IDS = [
-  // 头部：项目名/阶段/进度/成员头像/资料·待审·版本数
-  'n6', 'n7', 'n13',
-  'n18', 'n19', 'n20', 'n21',
-  'n23', 'n24', 'n25',
-  // 工具区计数
-  'n40', 'n55',
-  // 文件列表（名称/元信息/状态）
-  'n68', 'n69', 'n70',
-  'n85', 'n86', 'n87',
-  'n102', 'n103', 'n104',
-  'n119', 'n120', 'n121',
-  'n129', 'n130', 'n131',
-  'n144', 'n145', 'n146',
-  'n158',
-  'n166', 'n167',
-  // 作业阶段（序号/名称/状态/时间/进度）
-  'n177', 'n178', 'n182', 'n183',
-  'n187', 'n188', 'n194', 'n195', 'n199',
-  'n227', 'n228', 'n234',
-  // 任务分工
-  'n207', 'n208', 'n209',
-  'n213', 'n214', 'n215',
-  'n219', 'n220', 'n221',
-  // 小组成员（头像/姓名/角色/徽章）
-  'n261', 'n263', 'n264', 'n265',
-  'n267', 'n269', 'n270', 'n271',
-  'n273', 'n275', 'n276', 'n277',
-  'n279', 'n281', 'n282',
-  // 溯源时间线
-  'n299', 'n300',
-  'n308', 'n309', 'n310',
-  'n318', 'n319',
-  'n327', 'n328',
-  'n335', 'n336',
-  // 版本对比弹层
-  'n346', 'n347', 'n350', 'n351', 'n352',
-  'n357', 'n358', 'n362',
-  // 多维筛选弹层里的阶段/上传者人名选项
-  'n427', 'n428', 'n429',
-  'n434', 'n436', 'n438',
-  // 标记闲置弹层的文件预览
-  'n464', 'n465',
-  // 批量清理弹层标题（含项数）
-  'n485'
-]
-
 export function loadProject(controller, projectId) {
   return safe(async () => {
     const ok = await requireLogin()
     if (!ok) return
 
-    // 先清空业务数据节点，接口失败/无数据时保持空态
-    clearNodes(controller, PROJECT_CLEAR_IDS)
+    // 模板已删除文件/阶段/任务全部原型假行与各槽位假文本（第三批瘦身），无需 clearNodes
     // 下线头部成员头像行（n16：n17 容器 + n18-n21 四个头像位）；不回填，不足 4 人不显示空白圈
     hideNode(controller, 'n16')
     // 下线详情页「查看研讨记录 →」入口（n320，parent=n317），后端/数据保留
@@ -513,7 +459,6 @@ export function loadProject(controller, projectId) {
     // 文件列表：隐藏原型假行 → 按真实文件动态渲染（appendHtml 追加进 n60.appended；模板无 id="fileList" 节点，勿用 getElementById）
     // 先清空旧追加行：loadProject 会被各类操作反复调用，不清空会导致文件行每次翻倍累积、DOM 膨胀卡死（同 create 页 loadCreateMembers 的清空写法）
     if (controller.ui.n60) controller.ui.n60.appended = []
-    FILE_ROW_IDS.forEach((id) => hideNode(controller, id))
     const files = await api.fileList({ projectId }).catch(() => null)
     const fileArr = (files && (files.list || files.records)) || (Array.isArray(files) ? files : [])
     if (fileArr.length) {
@@ -525,7 +470,6 @@ export function loadProject(controller, projectId) {
     // 隐藏原型阶段行 → 按真实阶段动态渲染（阶段名/序号/状态/起止/进度条 + 内嵌任务列表）
     // 先清空旧追加行（同 n60：loadProject 反复调用，不清空则阶段卡每次翻倍累积直至卡死）
     if (controller.ui.n173) controller.ui.n173.appended = []
-    STAGE_ROW_IDS.forEach((id) => hideNode(controller, id))
     const taskRes = await api.taskList(projectId, { pageNum: 1, pageSize: 50 }).catch(() => null)
     const taskArr = (taskRes && (taskRes.list || taskRes.records || taskRes.tasks)) || (Array.isArray(taskRes) ? taskRes : [])
     if (stageArr.length) {
@@ -536,11 +480,7 @@ export function loadProject(controller, projectId) {
         ;(stageTaskMap[sid] = stageTaskMap[sid] || []).push(t)
       })
       stageArr.forEach((s, i) => controller.appendHtml('n173', buildStageRowHtml(s, i, stageTaskMap[s.stageId])))
-      // 作业阶段区标题：取第一阶段进度
-      const s0 = stageArr[0]
-      const sp = s0.progress != null ? s0.progress : Math.round((s0.completedTaskCount || 0) / ((s0.taskCount || s0.totalTaskCount) || 1) * 100)
-      setText(controller, 'n199', sp + '%')
-      setProgress(controller, 'n201', sp)
+      // 阶段区标题进度文本节点（n199/n201）已随假阶段行删除（第三批瘦身），头部 n6/n7/n13 已有总体进度
     }
 
     // 项目所属小组的成员文字头像（前 4 位：头像首字/姓名/角色）
