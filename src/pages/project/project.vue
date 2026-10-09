@@ -144,12 +144,6 @@
 </button>
 <view v-if="!ui.n35.removed" :class="classes(ui.n35.className)" :style="ui.n35.style" class="original-div">
 <template v-if="ui.n35.textContent !== undefined"><text>{{ ui.n35.textContent }}</text></template><template v-else>
-<button v-if="!ui.n36.removed" :class="classes(ui.n36.className)" :style="ui.n36.style" class="original-button" @tap.stop="tap('n36', $event)">
-<template v-if="ui.n36.textContent !== undefined"><text>{{ ui.n36.textContent }}</text></template><template v-else>
-<image v-if="!ui.n37.removed" :class="classes(ui.n37.className)" :style="ui.n37.style" class="original-icon" :src="iconSrc('n37')" style="width:15px;height:15px" mode="aspectFit" />
-<text>关键词搜索… </text>
-</template>
-</button>
 <button v-if="!ui.n38.removed" :class="classes(ui.n38.className)" :style="ui.n38.style" class="original-button" @tap.stop="tap('n38', $event)">
 <template v-if="ui.n38.textContent !== undefined"><text>{{ ui.n38.textContent }}</text></template><template v-else>
 <image v-if="!ui.n39.removed" :class="classes(ui.n39.className)" :style="ui.n39.style" class="original-icon" :src="iconSrc('n39')" style="width:16px;height:16px" mode="aspectFit" />
@@ -259,30 +253,6 @@
 </view>
 <view v-if="!ui.n173.removed" :class="classes(ui.n173.className)" :style="ui.n173.style" class="original-div">
 <template v-if="ui.n173.textContent !== undefined"><text>{{ ui.n173.textContent }}</text></template><template v-else>
-<view v-if="!ui.n600.removed" :class="classes(ui.n600.className)" :style="ui.n600.style" class="original-div" @tap.stop="tap('n600', $event)">
-<template v-if="ui.n600.textContent !== undefined"><text>{{ ui.n600.textContent }}</text></template><template v-else>
-<view v-if="!ui.n601.removed" :class="classes(ui.n601.className)" :style="ui.n601.style" class="original-div">
-<template v-if="ui.n601.textContent !== undefined"><text>{{ ui.n601.textContent }}</text></template><template v-else>
-<image v-if="!ui.n602.removed" :class="classes(ui.n602.className)" :style="ui.n602.style" class="original-icon" :src="iconSrc('n602')" style="width:18px;height:18px" mode="aspectFit" />
-</template>
-</view>
-<view v-if="!ui.n603.removed" :class="classes(ui.n603.className)" :style="ui.n603.style" class="original-div">
-<template v-if="ui.n603.textContent !== undefined"><text>{{ ui.n603.textContent }}</text></template><template v-else>
-<view v-if="!ui.n604.removed" :class="classes(ui.n604.className)" :style="ui.n604.style" class="original-p">
-<template v-if="ui.n604.textContent !== undefined"><text>{{ ui.n604.textContent }}</text></template><template v-else>
-<text>多维文件检索 / 清理</text>
-</template>
-</view>
-<view v-if="!ui.n605.removed" :class="classes(ui.n605.className)" :style="ui.n605.style" class="original-p">
-<template v-if="ui.n605.textContent !== undefined"><text>{{ ui.n605.textContent }}</text></template><template v-else>
-<text>按关键词、格式、阶段、状态精准定位</text>
-</template>
-</view>
-</template>
-</view>
-<image v-if="!ui.n606.removed" :class="classes(ui.n606.className)" :style="ui.n606.style" class="original-icon" :src="iconSrc('n606')" style="width:16px;height:16px" mode="aspectFit" />
-</template>
-</view>
 </template>
 </view>
 <NativeFragment v-for="childId in ui.n173.appended" :key="childId" :node-id="childId" />
