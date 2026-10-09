@@ -84,15 +84,27 @@ export default function () {
     })
     controller.stageNames = names
   }
-  function addStage(title) {
+  // 当前日期 + offset 天 → YYYY-MM-DD（阶段模板默认日期用）
+  function fmtDate(offsetDays) {
+    var d = new Date(Date.now() + offsetDays * 24 * 3600 * 1000)
+    var p = function (x) { return String(x).padStart(2, '0') }
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate())
+  }
+  // Date → YYYY-MM-DD（startDate 推算用）
+  function fmtDateOnly(d) {
+    var p = function (x) { return String(x).padStart(2, '0') }
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate())
+  }
+  function addStage(title, dateVal) {
     var no = (stageNo < 10 ? '0' : '') + stageNo
     stageNo++
     var titleInput = title ? 'value="' + title + '"' : 'placeholder="阶段标题"'
+    var dateAttr = dateVal ? 'value="' + dateVal + '"' : ''
     document.getElementById('stages').insertAdjacentHTML('beforeend',
       '<div class="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2.5">' +
       '<span class="text-[12px] font-medium text-slate-700 w-6">' + no + '</span>' +
       '<input class="flex-1 text-[13px] text-slate-900 outline-none bg-transparent" ' + titleInput + '>' +
-      '<input type="date" class="text-[11px] text-slate-400 bg-transparent outline-none">' +
+      '<input type="date" class="text-[11px] text-slate-400 bg-transparent outline-none" ' + dateAttr + '>' +
       '</div>')
     controller.updateStageNames()
   }
@@ -109,7 +121,7 @@ export default function () {
     if (!names) return
     collectRows('n56').forEach(function (r) { r.removed = true })
     stageNo = 1
-    names.forEach(function (t) { addStage(t) })
+    names.forEach(function (t, i) { addStage(t, fmtDate(i * 7)) })
     controller.updateStageNames()
     showToast('已套用「' + (key === 'course' ? '课程项目' : key === 'research' ? '调研报告' : '敏捷迭代') + '」模板')
   }
@@ -188,12 +200,24 @@ export default function () {
     if (!group) { showToast('请先加入/创建小组'); return }
     const description = ui.n36.value || ''
 
-    // 阶段收集：每行取非 date 输入框 value，非空则收（orderNum 连续递增）
+    // 阶段收集：每行取非 date 输入框 value + date 输入框 endDate（startDate 取上一阶段 endDate+1）
     const stages = []
+    let prevEnd = ''
     collectRows('n56').forEach(function (row) {
-      const nameInput = rowInputs(row).find(function (n) { return n.attrs.type !== 'date' })
+      const inputs = rowInputs(row)
+      const nameInput = inputs.find(function (n) { return n.attrs.type !== 'date' })
+      const dateInput = inputs.find(function (n) { return n.attrs.type === 'date' })
       const v = nameInput ? (nameInput.value || '').trim() : ''
-      if (v) stages.push({ name: v, orderNum: stages.length + 1 })
+      if (!v) return
+      const endDate = dateInput && dateInput.value ? String(dateInput.value).slice(0, 10) : null
+      let startDate = null
+      if (prevEnd) {
+        const d = new Date(prevEnd + 'T00:00:00')
+        d.setDate(d.getDate() + 1)
+        startDate = fmtDateOnly(d)
+      }
+      stages.push({ name: v, orderNum: stages.length + 1, startDate: startDate, endDate: endDate })
+      if (endDate) prevEnd = endDate
     })
 
     // 任务收集：非 date 输入框 = 任务名，date 输入框 = deadline；负责人 picker（昵称索引）+ 阶段 picker（阶段索引）

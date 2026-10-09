@@ -79,6 +79,8 @@ public class ProjectService {
                 stage.setProjectId(project.getId());
                 stage.setName(item.getName());
                 stage.setOrderNum(item.getOrderNum() != null ? item.getOrderNum() : order);
+                stage.setStartDate(item.getStartDate());
+                stage.setEndDate(item.getEndDate());
                 stage.setStatus("pending");
                 stage.setCreatedAt(LocalDateTime.now());
                 stage.setUpdatedAt(LocalDateTime.now());

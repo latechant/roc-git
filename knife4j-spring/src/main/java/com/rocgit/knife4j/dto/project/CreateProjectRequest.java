@@ -50,6 +50,12 @@ public class CreateProjectRequest {
 
         @Schema(description = "阶段顺序", example = "1")
         private Integer orderNum;
+
+        @Schema(description = "开始日期", example = "2026-10-01")
+        private java.time.LocalDate startDate;
+
+        @Schema(description = "结束日期", example = "2026-10-07")
+        private java.time.LocalDate endDate;
     }
 
     @Data
