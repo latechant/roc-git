@@ -633,25 +633,10 @@ export function loadProfile(controller) {
 // ==================== 消息页 ====================
 // 节点映射（messages.vue）：
 //   n5 汇总条数  n16 本周分组条数  n17 分类统计
-//   消息项1(待审核)：n26 标题  n27 状态标签  n28 描述  n29 时间·项目
-//   消息项2(临期)：n36 标题  n37 状态标签  n38 描述  n39 时间·项目
-//   消息项3(成果)：n46 标题  n47 版本标签  n48 描述  n49 时间·项目
-//   消息项4(研讨,昨天)：n58 标题  n59 描述  n60 时间·项目
-//   消息项5(系统提醒,昨天)：n65 标题  n66 描述  n67 时间
-//   消息项6(更早)：n74 标题  n75 描述  n76 时间·项目
-// 静态标签不清：n4 消息 / n6 全部已读 / n8~n12 分类按钮 /
-//   n19 今天 / n52 昨天 / n69 更早 等日期分隔符 / 底部导航
-const MESSAGES_CLEAR_IDS = [
-  'n5', 'n16', 'n17',
-  'n26', 'n27', 'n28', 'n29',
-  'n36', 'n37', 'n38', 'n39',
-  'n46', 'n47', 'n48', 'n49',
-  'n58', 'n59', 'n60',
-  'n65', 'n66', 'n67',
-  'n74', 'n75', 'n76'
-]
-
-// 消息类型 → 页面分组映射（后端 message.type：audit/task/system/mention）
+//   n13 消息列表容器（appendHtml 目标）/ n77 空态
+// 模板已删除全部原型假消息行与分组容器（n18/n51/n68 整块），
+// 不再需要 clearNodes —— 统计节点 n5/n16/n17 假文本已在模板清空，
+// loadMessages 直接 setText / hideNode 控制。
 const MESSAGE_GROUP_DEFS = [
   { type: 'audit', cat: 'review', label: '审核通知', icon: '审', iconBg: 'bg-amber-50', iconFg: 'text-amber-600', badge: 'text-amber-600' },
   { type: 'task', cat: 'deadline', label: '截止提醒', icon: '任', iconBg: 'bg-rose-50', iconFg: 'text-rose-600', badge: 'text-rose-600' },
@@ -727,9 +712,6 @@ export function loadMessages(controller) {
     const ok = await requireLogin()
     if (!ok) return
 
-    // 先清空业务数据节点，接口失败/无数据时保持空态
-    clearNodes(controller, MESSAGES_CLEAR_IDS)
-
     const unread = await api.unreadCount()
     const total = unread && typeof unread.total === 'number' ? unread.total : 0
     if (total > 0) {
@@ -743,9 +725,6 @@ export function loadMessages(controller) {
 
     const list = await api.messageList({ pageNum: 1, pageSize: 50 })
     const items = (list && (list.list || list.records)) || (Array.isArray(list) ? list : [])
-
-    // 隐藏原型消息行与三个原型分组容器，改为按真实类型动态分组渲染
-    ;['n21', 'n31', 'n41', 'n54', 'n61', 'n70', 'n18', 'n51', 'n68'].forEach((id) => hideNode(controller, id))
 
     // 清空旧追加的时间桶行（loadMessages 反复调用，不清空则消息桶每次翻倍累积）
     if (controller.ui.n13) controller.ui.n13.appended = []
