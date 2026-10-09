@@ -740,7 +740,7 @@ const CREATE_MEMBER_TEXT_IDS = ['n43', 'n44', 'n45', 'n47', 'n48', 'n50', 'n51']
 // 原型 3 个假成员行（整行隐藏）
 const CREATE_MEMBER_ROW_IDS = ['n42', 'n46', 'n49']
 // 原型阶段/任务假输入框（清 value）
-const CREATE_INPUT_IDS = ['n27', 'n36', 'n59', 'n63', 'n67', 'n76', 'n80', 'n77', 'n81']
+const CREATE_INPUT_IDS = ['n27', 'n36', 'n59', 'n63', 'n67']
 
 /** 清空输入框/文本域的 value（节点不存在则跳过） */
 function clearInputValue(controller, id) {

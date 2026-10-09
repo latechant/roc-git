@@ -138,14 +138,15 @@ export default function () {
   }
 
   // 追加一行「所属阶段 + 负责人 + 任务名输入 + 日期」；title 传入则预填（模板用），否则留空待填
-  function addTask(title) {
+  function addTask(title, dateVal) {
     var taskInput = title ? 'value="' + title + '"' : 'placeholder="任务描述"'
+    var dateAttr = dateVal ? 'value="' + dateVal + '"' : ''
     document.getElementById('tasks').insertAdjacentHTML('beforeend',
       '<div class="flex items-center gap-2 bg-white border border-slate-200 rounded-xl p-3">' +
       '<picker mode="selector" class="stage-pick text-[11px] text-slate-400 bg-transparent outline-none" value="0">0</picker>' +
       '<picker mode="selector" value="0" class="text-[11px] text-slate-400 bg-transparent outline-none">0</picker>' +
       '<input class="flex-1 text-[13px] text-slate-900 outline-none bg-transparent" ' + taskInput + '>' +
-      '<input type="date" class="text-[11px] text-slate-400 bg-transparent outline-none">' +
+      '<input type="date" class="text-[11px] text-slate-400 bg-transparent outline-none" ' + dateAttr + '>' +
       '</div>')
     controller.updateStageNames()
   }
@@ -159,7 +160,7 @@ export default function () {
   controller.applyTaskTemplate = function (key) {
     var names = TASK_TEMPLATES[key]
     if (!names) return
-    names.forEach(function (t) { addTask(t) })
+    names.forEach(function (t, i) { addTask(t, fmtDate(i + 1)) })
     showToast('已添加「' + (key === 'dev' ? '通用开发' : '报告答辩') + '」任务模板')
   }
 

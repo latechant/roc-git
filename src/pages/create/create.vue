@@ -311,34 +311,6 @@
 </view>
 <view v-if="!ui.n73.removed" :class="classes(ui.n73.className)" :style="ui.n73.style" class="original-div">
 <template v-if="ui.n73.textContent !== undefined"><text>{{ ui.n73.textContent }}</text></template><template v-else>
-<view v-if="!ui.n74.removed" :class="classes(ui.n74.className)" :style="ui.n74.style" class="original-div">
-<template v-if="ui.n74.textContent !== undefined"><text>{{ ui.n74.textContent }}</text></template><template v-else>
-<picker v-if="!ui.n75.removed" :class="classes(ui.n75.className)" :style="ui.n75.style" class="original-select" mode="selector" :range="memberNames" :value="ui.n75.value" @change="ui.n75.value = $event.detail.value"><view>{{ memberNames[ui.n75.value] || memberNames[0] }}</view></picker>
-<picker class="original-select stage-pick" mode="selector" :range="stageNames" :value="ui.n74.stageIdx || 0" @change="ui.n74.stageIdx = $event.detail.value"><view>{{ stageNames[ui.n74.stageIdx || 0] || '所属阶段' }}</view></picker>
-<input v-if="!ui.n76.removed" :class="classes(ui.n76.className)" :style="ui.n76.style" class="original-input" :value="ui.n76.value" @input="ui.n76.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
-<!-- #ifdef H5 -->
-<NativeDate v-if="!ui.n77.removed" :class="classes(ui.n77.className)" :style="ui.n77.style" v-model:value="ui.n77.value" />
-<!-- #endif -->
-<!-- #ifndef H5 -->
-<picker v-if="!ui.n77.removed" :class="classes(ui.n77.className)" :style="ui.n77.style" class="original-date" mode="date" :value="ui.n77.value" @change="ui.n77.value = $event.detail.value"><view>{{ ui.n77.value ? ui.n77.value.replaceAll('-', '/') : '年/月/日' }}</view></picker>
-<!-- #endif -->
-<text class="stage-del tap-target-lg" @tap="controller.removeRow('n73', 'n74')">×</text>
-</template>
-</view>
-<view v-if="!ui.n78.removed" :class="classes(ui.n78.className)" :style="ui.n78.style" class="original-div">
-<template v-if="ui.n78.textContent !== undefined"><text>{{ ui.n78.textContent }}</text></template><template v-else>
-<picker v-if="!ui.n79.removed" :class="classes(ui.n79.className)" :style="ui.n79.style" class="original-select" mode="selector" :range="memberNames" :value="ui.n79.value" @change="ui.n79.value = $event.detail.value"><view>{{ memberNames[ui.n79.value] || memberNames[0] }}</view></picker>
-<picker class="original-select stage-pick" mode="selector" :range="stageNames" :value="ui.n78.stageIdx || 0" @change="ui.n78.stageIdx = $event.detail.value"><view>{{ stageNames[ui.n78.stageIdx || 0] || '所属阶段' }}</view></picker>
-<input v-if="!ui.n80.removed" :class="classes(ui.n80.className)" :style="ui.n80.style" class="original-input" :value="ui.n80.value" @input="ui.n80.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
-<!-- #ifdef H5 -->
-<NativeDate v-if="!ui.n81.removed" :class="classes(ui.n81.className)" :style="ui.n81.style" v-model:value="ui.n81.value" />
-<!-- #endif -->
-<!-- #ifndef H5 -->
-<picker v-if="!ui.n81.removed" :class="classes(ui.n81.className)" :style="ui.n81.style" class="original-date" mode="date" :value="ui.n81.value" @change="ui.n81.value = $event.detail.value"><view>{{ ui.n81.value ? ui.n81.value.replaceAll('-', '/') : '年/月/日' }}</view></picker>
-<!-- #endif -->
-<text class="stage-del tap-target-lg" @tap="controller.removeRow('n73', 'n78')">×</text>
-</template>
-</view>
 </template>
 <NativeFragment v-for="childId in ui.n73.appended" :key="childId" :node-id="childId" removable />
 </view>
