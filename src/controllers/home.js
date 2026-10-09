@@ -43,6 +43,13 @@ n33: function (event) { event.preventDefault(); controller.showProjectList = tru
 n36: function (event) { event.preventDefault(); openProject(0) },
 n56: function (event) { event.preventDefault(); openProject(1) },
 n73: function (event) { event.preventDefault(); openProject(2) },
+n158: function (event) {
+  event.preventDefault()
+  var p = controller.rocArchived && controller.rocArchived[0]
+  if (!p) { showToast('暂无归档项目'); return }
+  uni.setStorageSync('rocgit_current_project_id', p.projectId)
+  location.href = 'project.html'
+},
 n9: function(event) { showToast('分享') },
 n147: function(event) { event.preventDefault();showToast('已通过') },
 n154: function(event) { event.preventDefault();showToast('已通过') }

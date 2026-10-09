@@ -151,7 +151,6 @@ public class ProjectService {
     public List<ProjectVO> listProjects(Long groupId) {
         LambdaQueryWrapper<Project> wrapper = new LambdaQueryWrapper<Project>()
                 .eq(Project::getGroupId, groupId)
-                .ne(Project::getStatus, "archived")
                 .orderByDesc(Project::getCreatedAt);
         List<Project> list = projectMapper.selectList(wrapper);
         return list.stream().map(this::toProjectVO).collect(Collectors.toList());

@@ -168,7 +168,7 @@
 <image v-if="!ui.n42.removed" :class="classes(ui.n42.className)" :style="ui.n42.style" class="original-icon" :src="iconSrc('n42')" style="width:17px;height:17px" mode="aspectFit" />
 </template>
 </view>
-<view v-if="!ui.n43.removed" :class="classes(ui.n43.className)" :style="ui.n43.style" class="original-span">
+<view v-if="!ui.n43.removed" :class="classes(ui.n43.className)" :style="ui.n43.style" class="original-span" @tap.stop="tap('n43', $event)">
 <template v-if="ui.n43.textContent !== undefined"><text>{{ ui.n43.textContent }}</text></template><template v-else>
 <text>进行中项目</text>
 </template>
@@ -632,10 +632,13 @@
 </view>
 </template>
 
+<ProjectListPopup :show="controller.showProjectList === true" :projects="controller.rocProjects || []" title="进行中项目" @close="controller.showProjectList = false" @select="controller.onSelectProject" />
+
 <script setup>
 import { provide } from 'vue'
 import { onUnload } from '@dcloudio/uni-app'
 import NativeFragment from '../../components/NativeFragment.vue'
+import ProjectListPopup from '../../components/ProjectListPopup.vue'
 // #ifdef H5
 import NativeDate from '../../components/NativeDate.vue'
 // #endif

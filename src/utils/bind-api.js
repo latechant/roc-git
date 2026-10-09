@@ -256,6 +256,7 @@ export function loadHome(controller) {
 
     // 归档项目（取已完成项目第一个）
     const archived = list.filter(p => p.status === 'completed' || p.status === 'archived')
+    controller.rocArchived = archived
     if (archived.length) {
       const a0 = archived[0]
       setText(controller, 'n162', a0.name)
@@ -553,6 +554,14 @@ export function loadProfile(controller) {
       setText(controller, 'n21', stats.approvedFiles)        // 版本数
       setText(controller, 'n24', stats.completedTasks)       // 待审数
     }
+
+    // 进行中项目计数 + 列表（与首页口径一致：本组 active 项目），供 n43 弹窗使用
+    const groups = await api.myGroups().catch(() => null)
+    const gid = groups && groups.length ? groups[0].groupId : null
+    const projects = gid ? await api.projectList(gid).catch(() => null) : null
+    const activeList = (projects || []).filter(p => p.status === 'active')
+    controller.rocProjects = activeList
+    setText(controller, 'n44', String(activeList.length))
   })
 }
 

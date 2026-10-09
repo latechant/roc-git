@@ -1,12 +1,17 @@
 import data from '../data/profile.json'
+import { reactive } from 'vue'
 import { createPageController } from '../utils/page-controller.js'
 import { loadProfile } from '../utils/bind-api.js'
 
 // Original prototype actions operate on reactive Vue state through adapters.
 // No browser DOM, inline JavaScript or eval is required in the mini program.
 export default function () {
-  const controller = createPageController(data)
+  const controller = reactive(createPageController(data))
   const { document, location, navigator, setTimeout } = controller.adapters
+
+  // 弹窗状态：进行中项目列表弹窗（复用 ProjectListPopup）
+  controller.showProjectList = false
+  controller.rocProjects = []
 
   // 接入真实接口：后端个人资料/统计覆盖原型数据
   loadProfile(controller)
@@ -22,6 +27,7 @@ export default function () {
 
   controller.setHandlers({
 n14: function(event) { showToast('编辑资料') },
+n43: function(event) { event.preventDefault(); controller.showProjectList = true },
 n46: function(event) { showToast('已加载') },
 n51: function(event) { showArchive() },
 n58: function(event) { showToast('存储正常') },
@@ -35,5 +41,13 @@ n109: function(event) { event.stopPropagation() },
 n112: function(event) { hideArchive() },
 n161: function(event) { doArchive() }
   })
+
+  // 弹窗选中项目：关弹窗 → 写 storage → 跳对应项目详情（与 home.js 同款）
+  controller.onSelectProject = function (p) {
+    controller.showProjectList = false
+    if (!p) return
+    uni.setStorageSync('rocgit_current_project_id', p.projectId)
+    location.href = 'project.html'
+  }
   return controller
 }

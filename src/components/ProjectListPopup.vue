@@ -2,7 +2,7 @@
   <view v-if="show" class="project-popup-mask" @tap="emit('close')">
     <view class="project-popup-card" @tap.stop>
       <view class="project-popup-header">
-        <text class="project-popup-title">当前项目</text>
+        <text class="project-popup-title">{{ title }}</text>
         <text class="project-popup-close" @tap="emit('close')">✕</text>
       </view>
 
@@ -30,7 +30,8 @@
 <script setup>
 defineProps({
   show: { type: Boolean, default: false },
-  projects: { type: Array, default: () => [] }
+  projects: { type: Array, default: () => [] },
+  title: { type: String, default: '当前项目' }
 })
 const emit = defineEmits(['close', 'select'])
 </script>
