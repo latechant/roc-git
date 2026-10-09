@@ -40,6 +40,7 @@ public class MessageService {
         vo.setTitle(m.getTitle());
         vo.setContent(m.getContent());
         vo.setRead(m.getIsRead() != null && m.getIsRead() == 1);
+        vo.setProjectId(m.getProjectId());
         vo.setLink(m.getLink());
         vo.setCreatedAt(m.getCreatedAt());
         return vo;
@@ -139,6 +140,18 @@ public class MessageService {
             wrapper.eq(Message::getType, request.getType());
         }
         messageMapper.update(upd, wrapper);
+    }
+
+    /** 删除消息（仅限自己的） */
+    @Transactional
+    public void deleteMessage(Long messageId, Long userId) {
+        int affected = messageMapper.delete(
+                new LambdaQueryWrapper<Message>()
+                        .eq(Message::getId, messageId)
+                        .eq(Message::getUserId, userId));
+        if (affected == 0) {
+            throw new BusinessException(ResultCode.NOT_FOUND, "消息不存在");
+        }
     }
 
     /** 单类型订阅开关：插入或更新 user_subscription */

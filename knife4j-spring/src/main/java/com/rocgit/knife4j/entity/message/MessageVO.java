@@ -27,6 +27,9 @@ public class MessageVO {
     @Schema(description = "是否已读")
     private Boolean read;
 
+    @Schema(description = "关联项目ID")
+    private Long projectId;
+
     @Schema(description = "关联URL（点击跳转）")
     private String link;
 

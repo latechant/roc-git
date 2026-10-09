@@ -27,6 +27,11 @@ export default function () {
         uni.setStorageSync('rocgit_current_project_id', Number(pid))
         location.href = 'project.html'
       }
+    },
+    'msg-del': function (attrs) {
+      const mid = attrs['data-id']
+      if (!mid) return
+      api.deleteMessage(mid).then(function () { loadMessages(controller) }).catch(function () {})
     }
   })
   function filter(cat){

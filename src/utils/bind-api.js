@@ -675,7 +675,8 @@ function buildMessageRowHtml(m) {
   const unreadDot = m.read ? '' : '<span class="w-2 h-2 bg-rose-500 rounded-full mt-2 shrink-0"></span>'
   const title = escapeHtml(m.title)
   const content = escapeHtml(m.content)
-  return '<a class="notice flex items-start gap-3 bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100" data-cat="' + g.cat + '" data-action="msg-open" data-id="' + (m.id || '') + '" data-pid="' + (m.projectId || '') + '">' +
+  const dimmed = m.read ? ' opacity-55' : ''
+  return '<a class="notice flex items-start gap-3 bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100' + dimmed + '" data-cat="' + g.cat + '" data-action="msg-open" data-id="' + (m.messageId || '') + '" data-pid="' + (m.projectId || '') + '">' +
     '<div class="w-9 h-9 rounded-xl ' + g.iconBg + ' flex items-center justify-center shrink-0">' +
     '<span class="' + g.iconFg + ' text-[13px] font-semibold">' + g.icon + '</span></div>' +
     '<div class="flex-1 min-w-0">' +
@@ -685,7 +686,9 @@ function buildMessageRowHtml(m) {
     '</div>' +
     '<p class="text-[11px] text-slate-500 mt-1 leading-relaxed">' + content + '</p>' +
     '<p class="text-[11px] text-slate-400 mt-1">' + formatMessageTime(m.createdAt) + '</p>' +
-    '</div>' + unreadDot + '</a>'
+    '</div>' + unreadDot +
+    '<span class="shrink-0 text-[11px] text-slate-400 px-2 py-1" data-action="msg-del" data-id="' + (m.messageId || '') + '">删除</span>' +
+    '</a>'
 }
 
 function timeBucket(t) {
@@ -735,6 +738,7 @@ export function loadMessages(controller) {
     } else {
       // 0 条变更：隐藏标题下的汇总条数，避免 "0 条变更" 挂出
       hideNode(controller, 'n5')
+      hideNode(controller, 'n16')
     }
 
     const list = await api.messageList({ pageNum: 1, pageSize: 50 })

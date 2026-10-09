@@ -230,6 +230,7 @@ function unreadCount() { return request({ url: '/v1/message/unread-count' }) }
 function messageList(params) { return request({ url: '/v1/message/list', params }) }
 function readAll() { return request({ url: '/v1/message/read-all', method: 'POST' }) }
 function readMessage(id) { return request({ url: '/v1/message/' + id + '/read', method: 'POST' }) }
+function deleteMessage(id) { return request({ url: '/v1/message/' + id, method: 'DELETE' }) }
 
 // ============ 文件 ============
 function fileList(params) { return request({ url: '/v1/file/list', params }) }
@@ -407,6 +408,7 @@ export default {
   messageList,
   readAll,
   readMessage,
+  deleteMessage,
   discussionList,
   decisionList,
   announcementList,

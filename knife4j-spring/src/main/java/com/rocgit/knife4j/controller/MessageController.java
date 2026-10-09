@@ -54,6 +54,14 @@ public class MessageController {
         return Result.success("已标记已读", null);
     }
 
+    @Operation(summary = "删除消息", description = "删除单条消息（仅限自己的）")
+    @DeleteMapping("/{messageId}")
+    public Result<Void> deleteMessage(@RequestAttribute("userId") String userId,
+                                      @PathVariable Long messageId) {
+        messageService.deleteMessage(messageId, Long.parseLong(userId));
+        return Result.success("删除成功", null);
+    }
+
     @Operation(summary = "全部已读", description = "将所有/指定类型的消息标记为已读")
     @PostMapping("/read-all")
     public Result<Void> readAll(@RequestAttribute("userId") String userId,
