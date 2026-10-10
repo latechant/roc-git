@@ -21,6 +21,39 @@
       </view>
     </view>
 
+    <!-- ========== 小组切换条 ========== -->
+    <view class="group-switcher" @tap="onToggleGroupSwitcher">
+      <view class="group-switcher__inner">
+        <text class="group-switcher__icon">👥</text>
+        <text class="group-switcher__name">{{ currentGroupName }}</text>
+        <text class="group-switcher__arrow" :class="{ 'group-switcher__arrow--up': showGroupSwitcher }">▾</text>
+      </view>
+    </view>
+
+    <!-- 小组下拉面板 -->
+    <view v-if="showGroupSwitcher" class="group-dropdown-mask" @tap="showGroupSwitcher = false">
+      <view class="group-dropdown" @tap.stop>
+        <view v-if="!groupStore.groups.length" class="group-dropdown__empty">
+          <text class="group-dropdown__empty-text">暂无小组</text>
+        </view>
+        <view v-else class="group-dropdown__list">
+          <view
+            v-for="g in groupStore.groups"
+            :key="g.groupId"
+            class="group-dropdown__item"
+            :class="{ 'group-dropdown__item--active': g.groupId === groupStore.currentGroupId }"
+            @tap="onSwitchGroup(g)"
+          >
+            <text class="group-dropdown__item-name">{{ g.name }}</text>
+            <text v-if="g.groupId === groupStore.currentGroupId" class="group-dropdown__item-badge">当前</text>
+          </view>
+        </view>
+        <view class="group-dropdown__footer">
+          <text class="group-dropdown__manage" @tap="onOpenGroupManage">管理小组</text>
+        </view>
+      </view>
+    </view>
+
     <!-- 可滚动内容区 -->
     <scroll-view class="home-scroll" scroll-y :show-scrollbar="false" @scrolltolower="onLoadMore">
 
@@ -216,12 +249,19 @@ const loading = ref(false)
 // 弹窗
 const showGroupPopup = ref(false)
 const showProjectList = ref(false)
+const showGroupSwitcher = ref(false)
 
 // ---------- 计算属性 ----------
 const dateText = computed(() => {
   const now = new Date()
   const wd = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][now.getDay()]
   return `${wd}，${now.getMonth() + 1}月${now.getDate()}日`
+})
+
+const currentGroupName = computed(() => {
+  if (!groupStore.currentGroupId) return '未加入小组'
+  const g = groupStore.groups.find(x => x.groupId === groupStore.currentGroupId)
+  return g ? g.name : '未加入小组'
 })
 
 const stats = computed(() => ({
@@ -252,10 +292,9 @@ function formatTime(dateStr) {
 async function loadData() {
   loading.value = true
   try {
-    // 1. 小组列表
-    const groups = await api.myGroups().catch(() => null)
-    const groupList = Array.isArray(groups) ? groups : []
-    const gid = groupList.length ? groupList[0].groupId : null
+    // 1. 小组列表（走 groupStore）
+    await groupStore.fetchMyGroups().catch(() => {})
+    const gid = groupStore.currentGroupId
 
     // 2. 项目列表
     let projects = []
@@ -268,8 +307,10 @@ async function loadData() {
 
     // 3. 小组成员
     if (gid) {
-      const members = await api.groupMembers(gid).catch(() => null)
-      memberList.value = (members && members.members) || []
+      await groupStore.fetchMembers(gid).catch(() => {})
+      memberList.value = groupStore.members
+    } else {
+      memberList.value = []
     }
 
     // 4. 临期任务（7天内）
@@ -296,10 +337,34 @@ function onShare() {
   uni.showToast({ title: '分享', icon: 'none' })
 }
 
+/** 切换小组下拉面板 */
+function onToggleGroupSwitcher() {
+  if (!groupStore.groups.length) {
+    // 无小组时直接打开 GroupPopup
+    showGroupPopup.value = true
+    return
+  }
+  showGroupSwitcher.value = !showGroupSwitcher.value
+}
+
+/** 切换当前小组 */
+async function onSwitchGroup(g) {
+  showGroupSwitcher.value = false
+  if (g.groupId === groupStore.currentGroupId) return
+  groupStore.setCurrentGroup(g.groupId)
+  // 切换后重新加载项目和成员
+  loadData()
+}
+
+/** 打开小组管理弹窗 */
+function onOpenGroupManage() {
+  showGroupSwitcher.value = false
+  showGroupPopup.value = true
+}
+
 /** 点击加号（创建项目） */
 async function onCreate() {
-  const groups = await api.myGroups().catch(() => null)
-  if (groups && groups.length) {
+  if (groupStore.groups.length) {
     uni.navigateTo({ url: '/pages/create/create' })
   } else {
     uni.showToast({ title: '请先加入/创建小组', icon: 'none' })
@@ -436,6 +501,114 @@ onShow(() => {
 }
 .home-header__icon {
   font-size: 18px;
+}
+
+/* ---------- 小组切换条 ---------- */
+.group-switcher {
+  padding: 0 20px 12px;
+  background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+}
+.group-switcher__inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 6px 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.group-switcher__icon {
+  font-size: 14px;
+}
+.group-switcher__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.group-switcher__arrow {
+  font-size: 12px;
+  color: #64748b;
+  transition: transform 0.2s;
+}
+.group-switcher__arrow--up {
+  transform: rotate(180deg);
+}
+
+/* 小组下拉面板 */
+.group-dropdown-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 900;
+}
+.group-dropdown {
+  position: absolute;
+  left: 20px;
+  top: 100px;
+  width: 220px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+.group-dropdown__empty {
+  padding: 20px;
+  text-align: center;
+}
+.group-dropdown__empty-text {
+  font-size: 13px;
+  color: #94a3b8;
+}
+.group-dropdown__list {
+  max-height: 240px;
+  overflow-y: auto;
+}
+.group-dropdown__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.group-dropdown__item:last-child {
+  border-bottom: none;
+}
+.group-dropdown__item--active {
+  background: #eff6ff;
+}
+.group-dropdown__item-name {
+  font-size: 14px;
+  color: #334155;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.group-dropdown__item-badge {
+  font-size: 11px;
+  color: #2563eb;
+  background: #dbeafe;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+.group-dropdown__footer {
+  padding: 10px 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+}
+.group-dropdown__manage {
+  font-size: 13px;
+  color: #2563eb;
+  font-weight: 500;
 }
 
 /* ---------- 滚动区 ---------- */
