@@ -13,12 +13,65 @@
         <view v-else-if="!groups.length" class="group-popup-empty"><text class="group-popup-empty-text">暂无小组</text></view>
         <view v-else class="group-popup-list">
           <view v-for="g in groups" :key="g.groupId || g.name" class="group-popup-item">
-            <text class="group-popup-item-name">{{ g.name }}</text>
+            <!-- 小组名称行 -->
+            <view class="group-popup-item-header">
+              <view v-if="editingGroupId === g.groupId" class="group-popup-edit-row">
+                <input
+                  class="group-popup-edit-input"
+                  v-model="editingName"
+                  :maxlength="-1"
+                  placeholder="输入新名称"
+                  @blur="onSaveRename(g)"
+                  @confirm="onSaveRename(g)"
+                />
+                <text class="group-popup-edit-cancel" @tap.stop="cancelEdit">取消</text>
+              </view>
+              <view v-else class="group-popup-name-row" @tap="onToggleExpand(g)">
+                <text class="group-popup-item-name">{{ g.name }}</text>
+                <text class="group-popup-item-arrow" :class="{ 'group-popup-item-arrow--up': expandedGroupId === g.groupId }">▾</text>
+              </view>
+              <text v-if="isLeader(g)" class="group-popup-item-tag group-popup-item-tag--leader" @tap.stop="onStartRename(g)">重命名</text>
+            </view>
+
+            <!-- 邀请码行 -->
             <view class="group-popup-invite-row">
               <text v-if="inviteCodeMap[g.groupId]" class="group-popup-invite-code">{{ inviteCodeMap[g.groupId] }}</text>
               <text v-else class="group-popup-invite-get" @tap="onFetchInvite(g)">获取邀请码</text>
               <text v-if="inviteCodeMap[g.groupId]" class="group-popup-invite-act" @tap="onCopyInvite(g)">复制</text>
               <text v-if="inviteCodeMap[g.groupId]" class="group-popup-invite-act" @tap="onRegenerateInvite(g)">重新生成</text>
+            </view>
+
+            <!-- 展开的成员列表 -->
+            <view v-if="expandedGroupId === g.groupId" class="group-popup-members">
+              <view class="group-popup-members-title">
+                <text class="group-popup-members-title-text">成员（{{ getMemberCount(g.groupId) }}）</text>
+                <text v-if="!isLeader(g)" class="group-popup-leave" @tap="onLeaveGroup(g)">退出小组</text>
+              </view>
+
+              <view v-if="memberLoadingMap[g.groupId]" class="group-popup-empty group-popup-empty--sm">
+                <text class="group-popup-empty-text">加载中…</text>
+              </view>
+              <view v-else class="group-popup-member-list">
+                <view
+                  v-for="m in getMembers(g.groupId)"
+                  :key="m.userId || m.nickname"
+                  class="group-popup-member-item"
+                >
+                  <MemberAvatar :name="m.nickname" size="sm" />
+                  <view class="group-popup-member-info">
+                    <text class="group-popup-member-name">{{ m.nickname }}</text>
+                    <text v-if="m.role === 'leader'" class="group-popup-member-role">组长</text>
+                    <text v-else class="group-popup-member-role group-popup-member-role--member">组员</text>
+                  </view>
+                  <text
+                    v-if="isLeader(g) && m.role !== 'leader'"
+                    class="group-popup-member-action"
+                    @tap="onTransferLeader(g, m)"
+                  >设为组长</text>
+                </view>
+              </view>
+
+              <text v-if="isLeader(g)" class="group-popup-leave-tip">组长需先转让组长才能退出</text>
             </view>
           </view>
         </view>
@@ -51,20 +104,32 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { useUserStore } from '../stores/index.js'
 import api from '../utils/api.js'
+import MemberAvatar from './MemberAvatar.vue'
 
 const props = defineProps({
   show: { type: Boolean, default: false }
 })
 const emit = defineEmits(['close', 'joined'])
 
+const userStore = useUserStore()
+
 const groups = ref([])
 const loading = ref(false)
 const createName = ref('')
 const joinCode = ref('')
 const inviteCode = ref('')
-// 邀请码展示：优先读本地 storage（创建成功时写入），无则按需拉取 / 重新生成
 const inviteCodeMap = ref({})
+
+// 展开状态
+const expandedGroupId = ref(null)
+const memberMap = ref({})          // { groupId: [members] }
+const memberLoadingMap = ref({})   // { groupId: true/false }
+
+// 重命名状态
+const editingGroupId = ref(null)
+const editingName = ref('')
 
 function storageKey(groupId) { return 'rocgit_group_invite_' + groupId }
 
@@ -75,6 +140,130 @@ function loadInviteCodes() {
     if (cached) map[g.groupId] = cached
   })
   inviteCodeMap.value = map
+}
+
+/** 判断当前用户是否是该小组组长 */
+function isLeader(g) {
+  const members = memberMap.value[g.groupId]
+  if (!members) return false
+  const myId = userStore.userId
+  return members.some(m => m.userId === myId && m.role === 'leader')
+}
+
+/** 获取小组成员（用于模板） */
+function getMembers(groupId) {
+  const list = memberMap.value[groupId] || []
+  // 组长置顶
+  const leader = list.find(m => m.role === 'leader')
+  const others = list.filter(m => m.role !== 'leader')
+  return leader ? [leader, ...others] : others
+}
+
+function getMemberCount(groupId) {
+  return (memberMap.value[groupId] || []).length
+}
+
+/** 展开/收起成员列表 */
+async function onToggleExpand(g) {
+  if (expandedGroupId.value === g.groupId) {
+    expandedGroupId.value = null
+    return
+  }
+  expandedGroupId.value = g.groupId
+  // 未加载过则加载
+  if (!memberMap.value[g.groupId] && !memberLoadingMap.value[g.groupId]) {
+    await loadMembers(g.groupId)
+  }
+}
+
+/** 加载小组成员 */
+async function loadMembers(groupId) {
+  memberLoadingMap.value = { ...memberLoadingMap.value, [groupId]: true }
+  try {
+    const res = await api.groupMembers(groupId).catch(() => null)
+    const list = (res && res.members) || []
+    memberMap.value = { ...memberMap.value, [groupId]: list }
+  } finally {
+    memberLoadingMap.value = { ...memberLoadingMap.value, [groupId]: false }
+  }
+}
+
+/** 开始重命名 */
+function onStartRename(g) {
+  editingGroupId.value = g.groupId
+  editingName.value = g.name
+}
+
+/** 取消重命名 */
+function cancelEdit() {
+  editingGroupId.value = null
+  editingName.value = ''
+}
+
+/** 保存重命名 */
+async function onSaveRename(g) {
+  const name = (editingName.value || '').trim()
+  if (!name) {
+    cancelEdit()
+    return
+  }
+  if (name === g.name) {
+    cancelEdit()
+    return
+  }
+  try {
+    await api.updateGroup(g.groupId, { name })
+    const idx = groups.value.findIndex(x => x.groupId === g.groupId)
+    if (idx >= 0) {
+      groups.value[idx] = { ...groups.value[idx], name }
+    }
+    showToast('已重命名')
+  } catch (e) {
+    showToast('重命名失败')
+  }
+  cancelEdit()
+}
+
+/** 退出小组 */
+function onLeaveGroup(g) {
+  uni.showModal({
+    title: '退出小组',
+    content: `确定要退出「${g.name}」吗？退出后将无法再查看小组项目。`,
+    confirmColor: '#ef4444',
+    success: async (res) => {
+      if (!res.confirm) return
+      try {
+        await api.leaveGroup(g.groupId)
+        showToast('已退出')
+        await load()
+        emit('joined')
+      } catch (e) {
+        showToast('退出失败')
+      }
+    }
+  })
+}
+
+/** 转让组长 */
+function onTransferLeader(g, member) {
+  uni.showModal({
+    title: '转让组长',
+    content: `确定要将组长转让给「${member.nickname}」吗？`,
+    confirmColor: '#2563eb',
+    success: async (res) => {
+      if (!res.confirm) return
+      try {
+        await api.transferLeader(g.groupId, member.userId)
+        showToast('已转让')
+        // 刷新成员列表
+        await loadMembers(g.groupId)
+        await load()
+        emit('joined')
+      } catch (e) {
+        showToast('转让失败')
+      }
+    }
+  })
 }
 
 function onFetchInvite(g) {
@@ -108,7 +297,6 @@ function onCopyInvite(g) {
 }
 
 function showToast(msg) {
-  // 尽量复用页面 toast，取不到则用 uni 内置
   const t = document && document.getElementById && document.getElementById('toast')
   if (t) {
     t.textContent = msg
@@ -124,6 +312,10 @@ async function load() {
   const data = await api.myGroups().catch(() => null)
   groups.value = Array.isArray(data) ? data : []
   loadInviteCodes()
+  // 清空成员缓存（可能有变化）
+  memberMap.value = {}
+  memberLoadingMap.value = {}
+  expandedGroupId.value = null
   loading.value = false
 }
 
@@ -135,7 +327,6 @@ async function onCreate() {
   const res = await api.createGroup({ name }).catch((e) => null)
   if (!res) { showToast('创建失败'); return }
   inviteCode.value = res.inviteCode || res.code || ''
-  // 创建成功即落盘邀请码，列表项邀请码行直接展示
   if (res.groupId && inviteCode.value) {
     uni.setStorageSync(storageKey(res.groupId), inviteCode.value)
     inviteCodeMap.value = Object.assign({}, inviteCodeMap.value, { [res.groupId]: inviteCode.value })
@@ -176,8 +367,8 @@ function onMaskTap() { emit('close') }
   justify-content: center;
 }
 .group-popup-card {
-  width: 300px;
-  max-height: 80vh;
+  width: 320px;
+  max-height: 85vh;
   background: #fff;
   border-radius: 16px;
   padding: 20px;
@@ -213,6 +404,9 @@ function onMaskTap() { emit('close') }
 .group-popup-empty {
   padding: 12px 0;
 }
+.group-popup-empty--sm {
+  padding: 8px 0;
+}
 .group-popup-empty-text {
   font-size: 13px;
   color: #94a3b8;
@@ -222,18 +416,82 @@ function onMaskTap() { emit('close') }
   flex-direction: column;
 }
 .group-popup-item {
-  padding: 8px 0;
+  padding: 10px 0;
   border-bottom: 1px solid #f1f5f9;
+}
+.group-popup-item:last-child {
+  border-bottom: none;
+}
+.group-popup-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.group-popup-name-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 .group-popup-item-name {
   font-size: 14px;
   color: #334155;
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+.group-popup-item-arrow {
+  font-size: 11px;
+  color: #94a3b8;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.group-popup-item-arrow--up {
+  transform: rotate(180deg);
+}
+.group-popup-item-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.group-popup-item-tag--leader {
+  color: #2563eb;
+  background: #dbeafe;
+}
+
+/* 重命名编辑 */
+.group-popup-edit-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.group-popup-edit-input {
+  flex: 1;
+  height: 28px;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  padding: 0 8px;
+  font-size: 13px;
+  background: #eff6ff;
+  box-sizing: border-box;
+}
+.group-popup-edit-cancel {
+  font-size: 12px;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
 .group-popup-invite-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 .group-popup-invite-code {
   font-size: 12px;
@@ -251,6 +509,79 @@ function onMaskTap() { emit('close') }
   border-radius: 6px;
   padding: 2px 8px;
 }
+
+/* 成员列表 */
+.group-popup-members {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #e2e8f0;
+}
+.group-popup-members-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.group-popup-members-title-text {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+.group-popup-leave {
+  font-size: 12px;
+  color: #ef4444;
+}
+.group-popup-leave-tip {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 6px;
+  display: block;
+  text-align: center;
+}
+.group-popup-member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.group-popup-member-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.group-popup-member-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.group-popup-member-name {
+  font-size: 13px;
+  color: #334155;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.group-popup-member-role {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #fef3c7;
+  color: #b45309;
+  flex-shrink: 0;
+}
+.group-popup-member-role--member {
+  background: #f1f5f9;
+  color: #64748b;
+}
+.group-popup-member-action {
+  font-size: 11px;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
 .group-popup-row {
   display: flex;
   align-items: center;
@@ -281,10 +612,5 @@ function onMaskTap() { emit('close') }
 .group-popup-invite-label {
   font-size: 13px;
   color: #64748b;
-}
-.group-popup-invite-code {
-  font-size: 14px;
-  font-weight: 600;
-  color: #2563eb;
 }
 </style>

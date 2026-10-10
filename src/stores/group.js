@@ -83,6 +83,36 @@ export const useGroupStore = defineStore('group', {
       this.currentGroupId = groupId
       this.members = []
     },
+
+    /** 更新小组名称（仅组长） */
+    async updateGroupName(groupId, name) {
+      const res = await api.updateGroup(groupId, { name })
+      // 更新本地列表
+      const idx = this.groups.findIndex(g => g.groupId === groupId)
+      if (idx >= 0) {
+        this.groups[idx] = { ...this.groups[idx], name }
+      }
+      return res
+    },
+
+    /** 退出小组（组长不可退出） */
+    async leaveGroup(groupId) {
+      await api.leaveGroup(groupId)
+      // 从列表中移除
+      this.groups = this.groups.filter(g => g.groupId !== groupId)
+      // 如果退出的是当前小组，切换到第一个
+      if (this.currentGroupId === groupId) {
+        this.currentGroupId = this.groups.length ? this.groups[0].groupId : null
+        this.members = []
+      }
+    },
+
+    /** 转让组长（仅组长） */
+    async transferLeader(groupId, newLeaderId) {
+      await api.transferLeader(groupId, newLeaderId)
+      // 转让后刷新小组列表（角色会变）
+      await this.fetchMyGroups()
+    },
   },
 })
 

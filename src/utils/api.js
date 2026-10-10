@@ -181,6 +181,9 @@ function createGroup(data) { return request({ url: '/v1/group/create', method: '
 function joinGroup(data) { return request({ url: '/v1/group/join', method: 'POST', data }) }
 function validateInviteCode(data) { return request({ url: '/v1/group/validate-invite-code', method: 'POST', data }) }
 function regenerateInviteCode(groupId) { return request({ url: `/v1/group/${groupId}/invite-code`, method: 'POST' }) }
+function updateGroup(groupId, data) { return request({ url: `/v1/group/${groupId}`, method: 'PUT', data }) }
+function leaveGroup(groupId) { return request({ url: `/v1/group/${groupId}/leave`, method: 'POST' }) }
+function transferLeader(groupId, newLeaderId) { return request({ url: `/v1/group/${groupId}/transfer-leader`, method: 'POST', data: { newLeaderId } }) }
 
 // ============ 项目 ============
 function projectList(groupId) { return request({ url: '/v1/project/list', params: { groupId } }) }
@@ -370,6 +373,9 @@ export default {
   joinGroup,
   validateInviteCode,
   regenerateInviteCode,
+  updateGroup,
+  leaveGroup,
+  transferLeader,
   projectList,
   projectDetail,
   projectProgress,
