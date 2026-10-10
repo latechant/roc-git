@@ -1,650 +1,737 @@
+<!--
+  首页（新架构版本）
+  功能：顶部统计 / 当前项目列表 / 临期任务 / 待审核 / 归档 / 底部导航
+  接入：userStore / groupStore / projectStore / messageStore
+-->
 <template>
-<view class="prototype-screen">
-<view v-if="!ui.n0.removed" :class="classes(ui.n0.className)" :style="ui.n0.style" class="original-div">
-<template v-if="ui.n0.textContent !== undefined"><text>{{ ui.n0.textContent }}</text></template><template v-else>
-<view v-if="!ui.n1.removed" :class="classes(ui.n1.className)" :style="ui.n1.style" class="original-header">
-<template v-if="ui.n1.textContent !== undefined"><text>{{ ui.n1.textContent }}</text></template><template v-else>
-<view v-if="!ui.n2.removed" :class="classes(ui.n2.className)" :style="ui.n2.style" class="original-div">
-<template v-if="ui.n2.textContent !== undefined"><text>{{ ui.n2.textContent }}</text></template><template v-else>
-<view v-if="!ui.n3.removed" :class="classes(ui.n3.className)" :style="ui.n3.style" class="original-div">
-<template v-if="ui.n3.textContent !== undefined"><text>{{ ui.n3.textContent }}</text></template><template v-else>
-<view v-if="!ui.n4.removed" :class="classes(ui.n4.className)" :style="ui.n4.style" class="original-p">
-<template v-if="ui.n4.textContent !== undefined"><text>{{ ui.n4.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n5.removed" :class="classes(ui.n5.className)" :style="ui.n5.style" class="original-h1">
-<template v-if="ui.n5.textContent !== undefined"><text>{{ ui.n5.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n6.removed" :class="classes(ui.n6.className)" :style="ui.n6.style" class="original-div">
-<template v-if="ui.n6.textContent !== undefined"><text>{{ ui.n6.textContent }}</text></template><template v-else>
-<view v-if="!ui.n7.removed" :class="classes(ui.n7.className)" :style="ui.n7.style" class="original-a" @tap.stop="tap('n7', $event)">
-<template v-if="ui.n7.textContent !== undefined"><text>{{ ui.n7.textContent }}</text></template><template v-else>
-<image v-if="!ui.n8.removed" :class="classes(ui.n8.className)" :style="ui.n8.style" class="original-icon" :src="iconSrc('n8')" style="width:20px;height:20px" mode="aspectFit" />
-</template>
-</view>
-<button v-if="!ui.n9.removed" :class="classes(ui.n9.className)" :style="ui.n9.style" class="original-button" @tap.stop="tap('n9', $event)">
-<template v-if="ui.n9.textContent !== undefined"><text>{{ ui.n9.textContent }}</text></template><template v-else>
-<image v-if="!ui.n10.removed" :class="classes(ui.n10.className)" :style="ui.n10.style" class="original-icon" :src="iconSrc('n10')" style="width:18px;height:18px" mode="aspectFit" />
-</template>
-</button>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<scroll-view v-if="!ui.n11.removed" :class="classes(ui.n11.className)" :style="ui.n11.style" class="original-scroll" scroll-y :show-scrollbar="false">
-<template v-if="ui.n11.textContent !== undefined"><text>{{ ui.n11.textContent }}</text></template><template v-else>
-<view v-if="!ui.n12.removed" :class="classes(ui.n12.className)" :style="ui.n12.style" class="original-div">
-<template v-if="ui.n12.textContent !== undefined"><text>{{ ui.n12.textContent }}</text></template><template v-else>
-<view v-if="!ui.n13.removed" :class="classes(ui.n13.className)" :style="ui.n13.style" class="original-div">
-<template v-if="ui.n13.textContent !== undefined"><text>{{ ui.n13.textContent }}</text></template><template v-else>
-<view v-if="!ui.n14.removed" :class="classes(ui.n14.className)" :style="ui.n14.style" class="original-p">
-<template v-if="ui.n14.textContent !== undefined"><text>{{ ui.n14.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n15.removed" :class="classes(ui.n15.className)" :style="ui.n15.style" class="original-p">
-<template v-if="ui.n15.textContent !== undefined"><text>{{ ui.n15.textContent }}</text></template><template v-else>
-<text>进行中</text>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n16.removed" :class="classes(ui.n16.className)" :style="ui.n16.style" class="original-div">
-<template v-if="ui.n16.textContent !== undefined"><text>{{ ui.n16.textContent }}</text></template><template v-else>
-<view v-if="!ui.n17.removed" :class="classes(ui.n17.className)" :style="ui.n17.style" class="original-p">
-<template v-if="ui.n17.textContent !== undefined"><text>{{ ui.n17.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n18.removed" :class="classes(ui.n18.className)" :style="ui.n18.style" class="original-p">
-<template v-if="ui.n18.textContent !== undefined"><text>{{ ui.n18.textContent }}</text></template><template v-else>
-<text>待审核</text>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n19.removed" :class="classes(ui.n19.className)" :style="ui.n19.style" class="original-div">
-<template v-if="ui.n19.textContent !== undefined"><text>{{ ui.n19.textContent }}</text></template><template v-else>
-<view v-if="!ui.n20.removed" :class="classes(ui.n20.className)" :style="ui.n20.style" class="original-p">
-<template v-if="ui.n20.textContent !== undefined"><text>{{ ui.n20.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n21.removed" :class="classes(ui.n21.className)" :style="ui.n21.style" class="original-p">
-<template v-if="ui.n21.textContent !== undefined"><text>{{ ui.n21.textContent }}</text></template><template v-else>
-<text>临期</text>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n30.removed" :class="classes(ui.n30.className)" :style="ui.n30.style" class="original-div">
-<template v-if="ui.n30.textContent !== undefined"><text>{{ ui.n30.textContent }}</text></template><template v-else>
-<view v-if="!ui.n31.removed" :class="classes(ui.n31.className)" :style="ui.n31.style" class="original-div">
-<template v-if="ui.n31.textContent !== undefined"><text>{{ ui.n31.textContent }}</text></template><template v-else>
-<view v-if="!ui.n32.removed" :class="classes(ui.n32.className)" :style="ui.n32.style" class="original-h2">
-<template v-if="ui.n32.textContent !== undefined"><text>{{ ui.n32.textContent }}</text></template><template v-else>
-<text>当前项目</text>
-</template>
-</view>
-<view v-if="!ui.n33.removed" :class="classes(ui.n33.className)" :style="ui.n33.style" class="original-a" @tap.stop="tap('n33', $event)">
-<template v-if="ui.n33.textContent !== undefined"><text>{{ ui.n33.textContent }}</text></template><template v-else>
-<text>查看全部</text>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<scroll-view v-if="!ui.n34.removed" :class="classes(ui.n34.className)" :style="ui.n34.style" class="original-horizontal-scroll" scroll-x :show-scrollbar="false">
-<template v-if="ui.n34.textContent !== undefined"><text>{{ ui.n34.textContent }}</text></template><template v-else>
-<view v-if="!ui.n35.removed" :class="classes(ui.n35.className)" :style="ui.n35.style" class="original-div">
-<template v-if="ui.n35.textContent !== undefined"><text>{{ ui.n35.textContent }}</text></template><template v-else>
-<view v-if="!ui.n36.removed" :class="classes(ui.n36.className)" :style="ui.n36.style" class="original-a" @tap.stop="tap('n36', $event)">
-<template v-if="ui.n36.textContent !== undefined"><text>{{ ui.n36.textContent }}</text></template><template v-else>
-<view v-if="!ui.n37.removed" :class="classes(ui.n37.className)" :style="ui.n37.style" class="original-div">
-<template v-if="ui.n37.textContent !== undefined"><text>{{ ui.n37.textContent }}</text></template><template v-else>
+  <view class="home-page">
+    <!-- ========== 顶部 Header ========== -->
+    <view class="home-header">
+      <view class="home-header__left">
+        <text class="home-header__date">{{ dateText }}</text>
+        <text class="home-header__name">{{ userStore.nickname || '同学' }}</text>
+      </view>
+      <view class="home-header__right">
+        <view class="home-header__icon-btn" @tap="onShare">
+          <text class="home-header__icon">📤</text>
+        </view>
+        <view class="home-header__icon-btn home-header__icon-btn--primary" @tap="onCreate">
+          <text class="home-header__icon">+</text>
+        </view>
+      </view>
+    </view>
 
-</template>
-</view>
-<view v-if="!ui.n38.removed" :class="classes(ui.n38.className)" :style="ui.n38.style" class="original-div">
-<template v-if="ui.n38.textContent !== undefined"><text>{{ ui.n38.textContent }}</text></template><template v-else>
-<view v-if="!ui.n39.removed" :class="classes(ui.n39.className)" :style="ui.n39.style" class="original-div">
-<template v-if="ui.n39.textContent !== undefined"><text>{{ ui.n39.textContent }}</text></template><template v-else>
-<view v-if="!ui.n40.removed" :class="classes(ui.n40.className)" :style="ui.n40.style" class="original-div">
-<template v-if="ui.n40.textContent !== undefined"><text>{{ ui.n40.textContent }}</text></template><template v-else>
-<view v-if="!ui.n41.removed" :class="classes(ui.n41.className)" :style="ui.n41.style" class="original-p">
-<template v-if="ui.n41.textContent !== undefined"><text>{{ ui.n41.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n42.removed" :class="classes(ui.n42.className)" :style="ui.n42.style" class="original-h3">
-<template v-if="ui.n42.textContent !== undefined"><text>{{ ui.n42.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n43.removed" :class="classes(ui.n43.className)" :style="ui.n43.style" class="original-p">
-<template v-if="ui.n43.textContent !== undefined"><text>{{ ui.n43.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n44.removed" :class="classes(ui.n44.className)" :style="ui.n44.style" class="original-div">
-<template v-if="ui.n44.textContent !== undefined"><text>{{ ui.n44.textContent }}</text></template><template v-else>
-<view v-if="!ui.n45.removed" :class="classes(ui.n45.className)" :style="ui.n45.style" class="original-div">
-<template v-if="ui.n45.textContent !== undefined"><text>{{ ui.n45.textContent }}</text></template><template v-else>
-<span v-if="!ui.n46.removed" :class="classes(ui.n46.className)" :style="ui.n46.style" class="original-span">
-<template v-if="ui.n46.textContent !== undefined"><text>{{ ui.n46.textContent }}</text></template><template v-else>
-<text>进度</text>
-</template>
-</span>
-<span v-if="!ui.n47.removed" :class="classes(ui.n47.className)" :style="ui.n47.style" class="original-span">
-<template v-if="ui.n47.textContent !== undefined"><text>{{ ui.n47.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</span>
-</template>
-</view>
-<view v-if="!ui.n48.removed" :class="classes(ui.n48.className)" :style="ui.n48.style" class="original-div">
-<template v-if="ui.n48.textContent !== undefined"><text>{{ ui.n48.textContent }}</text></template><template v-else>
-<view v-if="!ui.n49.removed" :class="classes(ui.n49.className)" :style="ui.n49.style" class="original-div">
-<template v-if="ui.n49.textContent !== undefined"><text>{{ ui.n49.textContent }}</text></template><template v-else>
+    <!-- 可滚动内容区 -->
+    <scroll-view class="home-scroll" scroll-y :show-scrollbar="false" @scrolltolower="onLoadMore">
 
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n50.removed" :class="classes(ui.n50.className)" :style="ui.n50.style" class="original-div">
-<template v-if="ui.n50.textContent !== undefined"><text>{{ ui.n50.textContent }}</text></template><template v-else>
-<view v-if="!ui.n51.removed" :class="classes(ui.n51.className)" :style="ui.n51.style" class="original-div">
-<template v-if="ui.n51.textContent !== undefined"><text>{{ ui.n51.textContent }}</text></template><template v-else>
-<view v-if="!ui.n52.removed" :class="classes(ui.n52.className)" :style="ui.n52.style" class="original-span">
-<template v-if="ui.n52.textContent !== undefined"><text>{{ ui.n52.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n53.removed" :class="classes(ui.n53.className)" :style="ui.n53.style" class="original-span">
-<template v-if="ui.n53.textContent !== undefined"><text>{{ ui.n53.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n54.removed" :class="classes(ui.n54.className)" :style="ui.n54.style" class="original-span">
-<template v-if="ui.n54.textContent !== undefined"><text>{{ ui.n54.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n55.removed" :class="classes(ui.n55.className)" :style="ui.n55.style" class="original-span">
-<template v-if="ui.n55.textContent !== undefined"><text>{{ ui.n55.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n56.removed" :class="classes(ui.n56.className)" :style="ui.n56.style" class="original-a" @tap.stop="tap('n56', $event)">
-<template v-if="ui.n56.textContent !== undefined"><text>{{ ui.n56.textContent }}</text></template><template v-else>
-<view v-if="!ui.n57.removed" :class="classes(ui.n57.className)" :style="ui.n57.style" class="original-div">
-<template v-if="ui.n57.textContent !== undefined"><text>{{ ui.n57.textContent }}</text></template><template v-else>
+      <!-- ========== 统计卡片 ========== -->
+      <view class="stats-row">
+        <view class="stats-card stats-card--blue">
+          <text class="stats-card__num">{{ stats.activeCount }}</text>
+          <text class="stats-card__label">进行中</text>
+        </view>
+        <view class="stats-card stats-card--orange">
+          <text class="stats-card__num">{{ stats.pendingCount }}</text>
+          <text class="stats-card__label">待审核</text>
+        </view>
+        <view class="stats-card stats-card--red">
+          <text class="stats-card__num">{{ stats.dueCount }}</text>
+          <text class="stats-card__label">临期</text>
+        </view>
+      </view>
 
-</template>
-</view>
-<view v-if="!ui.n58.removed" :class="classes(ui.n58.className)" :style="ui.n58.style" class="original-div">
-<template v-if="ui.n58.textContent !== undefined"><text>{{ ui.n58.textContent }}</text></template><template v-else>
-<view v-if="!ui.n59.removed" :class="classes(ui.n59.className)" :style="ui.n59.style" class="original-p">
-<template v-if="ui.n59.textContent !== undefined"><text>{{ ui.n59.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n60.removed" :class="classes(ui.n60.className)" :style="ui.n60.style" class="original-h3">
-<template v-if="ui.n60.textContent !== undefined"><text>{{ ui.n60.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n61.removed" :class="classes(ui.n61.className)" :style="ui.n61.style" class="original-p">
-<template v-if="ui.n61.textContent !== undefined"><text>{{ ui.n61.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n62.removed" :class="classes(ui.n62.className)" :style="ui.n62.style" class="original-div">
-<template v-if="ui.n62.textContent !== undefined"><text>{{ ui.n62.textContent }}</text></template><template v-else>
-<view v-if="!ui.n63.removed" :class="classes(ui.n63.className)" :style="ui.n63.style" class="original-div">
-<template v-if="ui.n63.textContent !== undefined"><text>{{ ui.n63.textContent }}</text></template><template v-else>
-<view v-if="!ui.n64.removed" :class="classes(ui.n64.className)" :style="ui.n64.style" class="original-span">
-<template v-if="ui.n64.textContent !== undefined"><text>{{ ui.n64.textContent }}</text></template><template v-else>
-<text>进度</text>
-</template>
-</view>
-<view v-if="!ui.n65.removed" :class="classes(ui.n65.className)" :style="ui.n65.style" class="original-span">
-<template v-if="ui.n65.textContent !== undefined"><text>{{ ui.n65.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n66.removed" :class="classes(ui.n66.className)" :style="ui.n66.style" class="original-div">
-<template v-if="ui.n66.textContent !== undefined"><text>{{ ui.n66.textContent }}</text></template><template v-else>
-<view v-if="!ui.n67.removed" :class="classes(ui.n67.className)" :style="ui.n67.style" class="original-div">
-<template v-if="ui.n67.textContent !== undefined"><text>{{ ui.n67.textContent }}</text></template><template v-else>
+      <!-- ========== 当前项目 ========== -->
+      <view class="section">
+        <view class="section__header">
+          <text class="section__title">当前项目</text>
+          <text v-if="activeProjects.length > 3" class="section__more" @tap="showProjectList = true">查看全部</text>
+        </view>
 
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n68.removed" :class="classes(ui.n68.className)" :style="ui.n68.style" class="original-div">
-<template v-if="ui.n68.textContent !== undefined"><text>{{ ui.n68.textContent }}</text></template><template v-else>
-<view v-if="!ui.n69.removed" :class="classes(ui.n69.className)" :style="ui.n69.style" class="original-div">
-<template v-if="ui.n69.textContent !== undefined"><text>{{ ui.n69.textContent }}</text></template><template v-else>
-<view v-if="!ui.n70.removed" :class="classes(ui.n70.className)" :style="ui.n70.style" class="original-span">
-<template v-if="ui.n70.textContent !== undefined"><text>{{ ui.n70.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n71.removed" :class="classes(ui.n71.className)" :style="ui.n71.style" class="original-span">
-<template v-if="ui.n71.textContent !== undefined"><text>{{ ui.n71.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n72.removed" :class="classes(ui.n72.className)" :style="ui.n72.style" class="original-span">
-<template v-if="ui.n72.textContent !== undefined"><text>{{ ui.n72.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n73.removed" :class="classes(ui.n73.className)" :style="ui.n73.style" class="original-a" @tap.stop="tap('n73', $event)">
-<template v-if="ui.n73.textContent !== undefined"><text>{{ ui.n73.textContent }}</text></template><template v-else>
-<view v-if="!ui.n74.removed" :class="classes(ui.n74.className)" :style="ui.n74.style" class="original-div">
-<template v-if="ui.n74.textContent !== undefined"><text>{{ ui.n74.textContent }}</text></template><template v-else>
+        <!-- 项目卡片横向滚动 -->
+        <scroll-view v-if="activeProjects.length" class="project-scroll" scroll-x :show-scrollbar="false">
+          <view class="project-list">
+            <view
+              v-for="(p, idx) in activeProjects.slice(0, 3)"
+              :key="p.projectId"
+              class="project-card"
+              @tap="onOpenProject(p)"
+            >
+              <view class="project-card__header">
+                <text class="project-card__name">{{ p.name }}</text>
+              </view>
+              <view class="project-card__meta">
+                <text class="project-card__stage">{{ p.currentStageName || '进行中' }}</text>
+              </view>
+              <view class="project-card__progress">
+                <view class="project-card__progress-bar">
+                  <view class="project-card__progress-fill" :style="{ width: (p.progress || 0) + '%' }"></view>
+                </view>
+                <text class="project-card__progress-text">{{ p.progress || 0 }}%</text>
+              </view>
+              <view class="project-card__members">
+                <view class="project-card__avatar-list">
+                  <MemberAvatar
+                    v-for="(m, mi) in getProjectMembers(p, idx)"
+                    :key="mi"
+                    :name="m.nickname"
+                    :size="'xs'"
+                    :class="`member-avatar--offset-${mi}`"
+                  />
+                </view>
+                <text class="project-card__member-count">{{ memberCount }}位成员</text>
+              </view>
+            </view>
+          </view>
+        </scroll-view>
 
-</template>
-</view>
-<view v-if="!ui.n75.removed" :class="classes(ui.n75.className)" :style="ui.n75.style" class="original-div">
-<template v-if="ui.n75.textContent !== undefined"><text>{{ ui.n75.textContent }}</text></template><template v-else>
-<view v-if="!ui.n76.removed" :class="classes(ui.n76.className)" :style="ui.n76.style" class="original-p">
-<template v-if="ui.n76.textContent !== undefined"><text>{{ ui.n76.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n77.removed" :class="classes(ui.n77.className)" :style="ui.n77.style" class="original-h3">
-<template v-if="ui.n77.textContent !== undefined"><text>{{ ui.n77.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n78.removed" :class="classes(ui.n78.className)" :style="ui.n78.style" class="original-p">
-<template v-if="ui.n78.textContent !== undefined"><text>{{ ui.n78.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n79.removed" :class="classes(ui.n79.className)" :style="ui.n79.style" class="original-div">
-<template v-if="ui.n79.textContent !== undefined"><text>{{ ui.n79.textContent }}</text></template><template v-else>
-<view v-if="!ui.n80.removed" :class="classes(ui.n80.className)" :style="ui.n80.style" class="original-div">
-<template v-if="ui.n80.textContent !== undefined"><text>{{ ui.n80.textContent }}</text></template><template v-else>
-<span v-if="!ui.n81.removed" :class="classes(ui.n81.className)" :style="ui.n81.style" class="original-span">
-<template v-if="ui.n81.textContent !== undefined"><text>{{ ui.n81.textContent }}</text></template><template v-else>
-<text>进度</text>
-</template>
-</span>
-<span v-if="!ui.n82.removed" :class="classes(ui.n82.className)" :style="ui.n82.style" class="original-span">
-<template v-if="ui.n82.textContent !== undefined"><text>{{ ui.n82.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</span>
-</template>
-</view>
-<view v-if="!ui.n83.removed" :class="classes(ui.n83.className)" :style="ui.n83.style" class="original-div">
-<template v-if="ui.n83.textContent !== undefined"><text>{{ ui.n83.textContent }}</text></template><template v-else>
-<view v-if="!ui.n84.removed" :class="classes(ui.n84.className)" :style="ui.n84.style" class="original-div">
-<template v-if="ui.n84.textContent !== undefined"><text>{{ ui.n84.textContent }}</text></template><template v-else>
+        <!-- 空状态 -->
+        <view v-else class="empty-state">
+          <text class="empty-state__icon">📁</text>
+          <text class="empty-state__text">暂无项目</text>
+        </view>
+      </view>
 
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n85.removed" :class="classes(ui.n85.className)" :style="ui.n85.style" class="original-div">
-<template v-if="ui.n85.textContent !== undefined"><text>{{ ui.n85.textContent }}</text></template><template v-else>
-<view v-if="!ui.n86.removed" :class="classes(ui.n86.className)" :style="ui.n86.style" class="original-div">
-<template v-if="ui.n86.textContent !== undefined"><text>{{ ui.n86.textContent }}</text></template><template v-else>
-<view v-if="!ui.n87.removed" :class="classes(ui.n87.className)" :style="ui.n87.style" class="original-span">
-<template v-if="ui.n87.textContent !== undefined"><text>{{ ui.n87.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n88.removed" :class="classes(ui.n88.className)" :style="ui.n88.style" class="original-span">
-<template v-if="ui.n88.textContent !== undefined"><text>{{ ui.n88.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n89.removed" :class="classes(ui.n89.className)" :style="ui.n89.style" class="original-div">
-<template v-if="ui.n89.textContent !== undefined"><text>{{ ui.n89.textContent }}</text></template><template v-else>
+      <!-- ========== 临期任务 ========== -->
+      <view class="section">
+        <view class="section__header">
+          <text class="section__title">临期任务</text>
+          <text class="section__count">{{ dueTasks.length }}项</text>
+        </view>
 
-</template>
-</view>
-</template>
-</view>
-</template>
-</scroll-view>
-<view v-if="!ui.n90.removed" :class="classes(ui.n90.className)" :style="ui.n90.style" class="original-div">
-<template v-if="ui.n90.textContent !== undefined"><text>{{ ui.n90.textContent }}</text></template><template v-else>
-<view v-if="!ui.n91.removed" :class="classes(ui.n91.className)" :style="ui.n91.style" class="original-span">
-<template v-if="ui.n91.textContent !== undefined"><text>{{ ui.n91.textContent }}</text></template><template v-else>
+        <view v-if="dueTasks.length" class="task-list">
+          <view
+            v-for="(t, idx) in dueTasks.slice(0, 2)"
+            :key="t.taskId || idx"
+            class="task-item"
+            @tap="onOpenTask(t)"
+          >
+            <view class="task-item__icon">⏰</view>
+            <view class="task-item__content">
+              <text class="task-item__name">{{ t.name }}</text>
+              <text class="task-item__desc">{{ t.projectName || '' }} · 还剩 {{ t.daysLeft || 0 }}天</text>
+            </view>
+            <AppBadge type="danger" size="sm">{{ t.daysLeft }}天</AppBadge>
+          </view>
+        </view>
 
-</template>
-</view>
-<view v-if="!ui.n92.removed" :class="classes(ui.n92.className)" :style="ui.n92.style" class="original-span">
-<template v-if="ui.n92.textContent !== undefined"><text>{{ ui.n92.textContent }}</text></template><template v-else>
+        <view v-else class="empty-state empty-state--sm">
+          <text class="empty-state__text">暂无临期任务</text>
+        </view>
+      </view>
 
-</template>
-</view>
-<view v-if="!ui.n93.removed" :class="classes(ui.n93.className)" :style="ui.n93.style" class="original-span">
-<template v-if="ui.n93.textContent !== undefined"><text>{{ ui.n93.textContent }}</text></template><template v-else>
+      <!-- ========== 待审核 ========== -->
+      <view class="section">
+        <view class="section__header">
+          <text class="section__title">待审核</text>
+          <text v-if="pendingFiles.length" class="section__more" @tap="onGoAudit">全部</text>
+        </view>
 
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n117.removed" :class="classes(ui.n117.className)" :style="ui.n117.style" class="original-div">
-<template v-if="ui.n117.textContent !== undefined"><text>{{ ui.n117.textContent }}</text></template><template v-else>
-<view v-if="!ui.n118.removed" :class="classes(ui.n118.className)" :style="ui.n118.style" class="original-div">
-<template v-if="ui.n118.textContent !== undefined"><text>{{ ui.n118.textContent }}</text></template><template v-else>
-<view v-if="!ui.n119.removed" :class="classes(ui.n119.className)" :style="ui.n119.style" class="original-h2">
-<template v-if="ui.n119.textContent !== undefined"><text>{{ ui.n119.textContent }}</text></template><template v-else>
-<text>临期任务</text>
-</template>
-</view>
-<view v-if="!ui.n120.removed" :class="classes(ui.n120.className)" :style="ui.n120.style" class="original-span">
-<template v-if="ui.n120.textContent !== undefined"><text>{{ ui.n120.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n121.removed" :class="classes(ui.n121.className)" :style="ui.n121.style" class="original-div">
-<template v-if="ui.n121.textContent !== undefined"><text>{{ ui.n121.textContent }}</text></template><template v-else>
-<view v-if="!ui.n122.removed" :class="classes(ui.n122.className)" :style="ui.n122.style" class="original-a" @tap.stop="tap('n122', $event)">
-<template v-if="ui.n122.textContent !== undefined"><text>{{ ui.n122.textContent }}</text></template><template v-else>
-<view v-if="!ui.n123.removed" :class="classes(ui.n123.className)" :style="ui.n123.style" class="original-div">
-<template v-if="ui.n123.textContent !== undefined"><text>{{ ui.n123.textContent }}</text></template><template v-else>
-<image v-if="!ui.n124.removed" :class="classes(ui.n124.className)" :style="ui.n124.style" class="original-icon" :src="iconSrc('n124')" style="width:16px;height:16px" mode="aspectFit" />
-</template>
-</view>
-<view v-if="!ui.n125.removed" :class="classes(ui.n125.className)" :style="ui.n125.style" class="original-div">
-<template v-if="ui.n125.textContent !== undefined"><text>{{ ui.n125.textContent }}</text></template><template v-else>
-<view v-if="!ui.n126.removed" :class="classes(ui.n126.className)" :style="ui.n126.style" class="original-p">
-<template v-if="ui.n126.textContent !== undefined"><text>{{ ui.n126.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n127.removed" :class="classes(ui.n127.className)" :style="ui.n127.style" class="original-p">
-<template v-if="ui.n127.textContent !== undefined"><text>{{ ui.n127.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-<span v-if="!ui.n128.removed" :class="classes(ui.n128.className)" :style="ui.n128.style" class="original-span">
-<template v-if="ui.n128.textContent !== undefined"><text>{{ ui.n128.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</span>
-</template>
-</view>
-<view v-if="!ui.n129.removed" :class="classes(ui.n129.className)" :style="ui.n129.style" class="original-a" @tap.stop="tap('n129', $event)">
-<template v-if="ui.n129.textContent !== undefined"><text>{{ ui.n129.textContent }}</text></template><template v-else>
-<view v-if="!ui.n130.removed" :class="classes(ui.n130.className)" :style="ui.n130.style" class="original-div">
-<template v-if="ui.n130.textContent !== undefined"><text>{{ ui.n130.textContent }}</text></template><template v-else>
-<image v-if="!ui.n131.removed" :class="classes(ui.n131.className)" :style="ui.n131.style" class="original-icon" :src="iconSrc('n131')" style="width:16px;height:16px" mode="aspectFit" />
-</template>
-</view>
-<view v-if="!ui.n132.removed" :class="classes(ui.n132.className)" :style="ui.n132.style" class="original-div">
-<template v-if="ui.n132.textContent !== undefined"><text>{{ ui.n132.textContent }}</text></template><template v-else>
-<view v-if="!ui.n133.removed" :class="classes(ui.n133.className)" :style="ui.n133.style" class="original-p">
-<template v-if="ui.n133.textContent !== undefined"><text>{{ ui.n133.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n134.removed" :class="classes(ui.n134.className)" :style="ui.n134.style" class="original-p">
-<template v-if="ui.n134.textContent !== undefined"><text>{{ ui.n134.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-<span v-if="!ui.n135.removed" :class="classes(ui.n135.className)" :style="ui.n135.style" class="original-span">
-<template v-if="ui.n135.textContent !== undefined"><text>{{ ui.n135.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</span>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n136.removed" :class="classes(ui.n136.className)" :style="ui.n136.style" class="original-div">
-<template v-if="ui.n136.textContent !== undefined"><text>{{ ui.n136.textContent }}</text></template><template v-else>
-<view v-if="!ui.n137.removed" :class="classes(ui.n137.className)" :style="ui.n137.style" class="original-div">
-<template v-if="ui.n137.textContent !== undefined"><text>{{ ui.n137.textContent }}</text></template><template v-else>
-<view v-if="!ui.n138.removed" :class="classes(ui.n138.className)" :style="ui.n138.style" class="original-h2">
-<template v-if="ui.n138.textContent !== undefined"><text>{{ ui.n138.textContent }}</text></template><template v-else>
-<text>待审核</text>
-</template>
-</view>
-<view v-if="!ui.n139.removed" :class="classes(ui.n139.className)" :style="ui.n139.style" class="original-a" @tap.stop="tap('n139', $event)">
-<template v-if="ui.n139.textContent !== undefined"><text>{{ ui.n139.textContent }}</text></template><template v-else>
-<text>全部</text>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n140.removed" :class="classes(ui.n140.className)" :style="ui.n140.style" class="original-div">
-<template v-if="ui.n140.textContent !== undefined"><text>{{ ui.n140.textContent }}</text></template><template v-else>
-<view v-if="!ui.n141.removed" :class="classes(ui.n141.className)" :style="ui.n141.style" class="original-a" @tap.stop="tap('n141', $event)">
-<template v-if="ui.n141.textContent !== undefined"><text>{{ ui.n141.textContent }}</text></template><template v-else>
-<view v-if="!ui.n142.removed" :class="classes(ui.n142.className)" :style="ui.n142.style" class="original-div">
-<template v-if="ui.n142.textContent !== undefined"><text>{{ ui.n142.textContent }}</text></template><template v-else>
-<image v-if="!ui.n143.removed" :class="classes(ui.n143.className)" :style="ui.n143.style" class="original-icon" :src="iconSrc('n143')" style="width:16px;height:16px" mode="aspectFit" />
-</template>
-</view>
-<view v-if="!ui.n144.removed" :class="classes(ui.n144.className)" :style="ui.n144.style" class="original-div">
-<template v-if="ui.n144.textContent !== undefined"><text>{{ ui.n144.textContent }}</text></template><template v-else>
-<view v-if="!ui.n145.removed" :class="classes(ui.n145.className)" :style="ui.n145.style" class="original-p">
-<template v-if="ui.n145.textContent !== undefined"><text>{{ ui.n145.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n146.removed" :class="classes(ui.n146.className)" :style="ui.n146.style" class="original-p">
-<template v-if="ui.n146.textContent !== undefined"><text>{{ ui.n146.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-<button v-if="!ui.n147.removed" :class="classes(ui.n147.className)" :style="ui.n147.style" class="original-button" @tap.stop="tap('n147', $event)">
-<template v-if="ui.n147.textContent !== undefined"><text>{{ ui.n147.textContent }}</text></template><template v-else>
-<text>通过</text>
-</template>
-</button>
-</template>
-</view>
-<view v-if="!ui.n148.removed" :class="classes(ui.n148.className)" :style="ui.n148.style" class="original-a" @tap.stop="tap('n148', $event)">
-<template v-if="ui.n148.textContent !== undefined"><text>{{ ui.n148.textContent }}</text></template><template v-else>
-<view v-if="!ui.n149.removed" :class="classes(ui.n149.className)" :style="ui.n149.style" class="original-div">
-<template v-if="ui.n149.textContent !== undefined"><text>{{ ui.n149.textContent }}</text></template><template v-else>
-<image v-if="!ui.n150.removed" :class="classes(ui.n150.className)" :style="ui.n150.style" class="original-icon" :src="iconSrc('n150')" style="width:16px;height:16px" mode="aspectFit" />
-</template>
-</view>
-<view v-if="!ui.n151.removed" :class="classes(ui.n151.className)" :style="ui.n151.style" class="original-div">
-<template v-if="ui.n151.textContent !== undefined"><text>{{ ui.n151.textContent }}</text></template><template v-else>
-<view v-if="!ui.n152.removed" :class="classes(ui.n152.className)" :style="ui.n152.style" class="original-p">
-<template v-if="ui.n152.textContent !== undefined"><text>{{ ui.n152.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n153.removed" :class="classes(ui.n153.className)" :style="ui.n153.style" class="original-p">
-<template v-if="ui.n153.textContent !== undefined"><text>{{ ui.n153.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-<button v-if="!ui.n154.removed" :class="classes(ui.n154.className)" :style="ui.n154.style" class="original-button" @tap.stop="tap('n154', $event)">
-<template v-if="ui.n154.textContent !== undefined"><text>{{ ui.n154.textContent }}</text></template><template v-else>
-<text>通过</text>
-</template>
-</button>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n155.removed" :class="classes(ui.n155.className)" :style="ui.n155.style" class="original-div">
-<template v-if="ui.n155.textContent !== undefined"><text>{{ ui.n155.textContent }}</text></template><template v-else>
-<view v-if="!ui.n156.removed" :class="classes(ui.n156.className)" :style="ui.n156.style" class="original-div">
-<template v-if="ui.n156.textContent !== undefined"><text>{{ ui.n156.textContent }}</text></template><template v-else>
-<view v-if="!ui.n157.removed" :class="classes(ui.n157.className)" :style="ui.n157.style" class="original-h2">
-<template v-if="ui.n157.textContent !== undefined"><text>{{ ui.n157.textContent }}</text></template><template v-else>
-<text>归档</text>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n158.removed" :class="classes(ui.n158.className)" :style="ui.n158.style" class="original-a" @tap.stop="tap('n158', $event)">
-<template v-if="ui.n158.textContent !== undefined"><text>{{ ui.n158.textContent }}</text></template><template v-else>
-<view v-if="!ui.n159.removed" :class="classes(ui.n159.className)" :style="ui.n159.style" class="original-div">
-<template v-if="ui.n159.textContent !== undefined"><text>{{ ui.n159.textContent }}</text></template><template v-else>
-<image v-if="!ui.n160.removed" :class="classes(ui.n160.className)" :style="ui.n160.style" class="original-icon" :src="iconSrc('n160')" style="width:16px;height:16px" mode="aspectFit" />
-</template>
-</view>
-<view v-if="!ui.n161.removed" :class="classes(ui.n161.className)" :style="ui.n161.style" class="original-div">
-<template v-if="ui.n161.textContent !== undefined"><text>{{ ui.n161.textContent }}</text></template><template v-else>
-<view v-if="!ui.n162.removed" :class="classes(ui.n162.className)" :style="ui.n162.style" class="original-p">
-<template v-if="ui.n162.textContent !== undefined"><text>{{ ui.n162.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-<view v-if="!ui.n163.removed" :class="classes(ui.n163.className)" :style="ui.n163.style" class="original-p">
-<template v-if="ui.n163.textContent !== undefined"><text>{{ ui.n163.textContent }}</text></template><template v-else>
-<text></text>
-</template>
-</view>
-</template>
-</view>
-<image v-if="!ui.n164.removed" :class="classes(ui.n164.className)" :style="ui.n164.style" class="original-icon" :src="iconSrc('n164')" style="width:16px;height:16px" mode="aspectFit" />
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n165.removed" :class="classes(ui.n165.className)" :style="ui.n165.style" class="original-div">
-<template v-if="ui.n165.textContent !== undefined"><text>{{ ui.n165.textContent }}</text></template><template v-else>
+        <view v-if="pendingFiles.length" class="audit-list">
+          <view
+            v-for="(f, idx) in pendingFiles.slice(0, 2)"
+            :key="f.fileId || idx"
+            class="audit-item"
+          >
+            <view class="audit-item__icon">📄</view>
+            <view class="audit-item__content">
+              <text class="audit-item__name">{{ f.uploaderName || '' }} · {{ f.name || '' }}</text>
+              <text class="audit-item__time">{{ formatTime(f.createdAt) }}</text>
+            </view>
+            <view class="audit-item__action" @tap.stop="onApprove(f)">
+              <text class="audit-item__action-text">通过</text>
+            </view>
+          </view>
+        </view>
 
-</template>
-</view>
-</template>
-</scroll-view>
-<view v-if="!ui.n166.removed" :class="classes(ui.n166.className)" :style="ui.n166.style" class="original-nav">
-<template v-if="ui.n166.textContent !== undefined"><text>{{ ui.n166.textContent }}</text></template><template v-else>
-<view v-if="!ui.n167.removed" :class="classes(ui.n167.className)" :style="ui.n167.style" class="original-a" @tap.stop="tap('n167', $event)">
-<template v-if="ui.n167.textContent !== undefined"><text>{{ ui.n167.textContent }}</text></template><template v-else>
-<image v-if="!ui.n168.removed" :class="classes(ui.n168.className)" :style="ui.n168.style" class="original-icon" :src="iconSrc('n168')" style="width:22px;height:22px" mode="aspectFit" />
-<span v-if="!ui.n169.removed" :class="classes(ui.n169.className)" :style="ui.n169.style" class="original-span">
-<template v-if="ui.n169.textContent !== undefined"><text>{{ ui.n169.textContent }}</text></template><template v-else>
-<text>首页</text>
-</template>
-</span>
-</template>
-</view>
-<view v-if="!ui.n170.removed" :class="classes(ui.n170.className)" :style="ui.n170.style" class="original-a" @tap.stop="tap('n170', $event)">
-<template v-if="ui.n170.textContent !== undefined"><text>{{ ui.n170.textContent }}</text></template><template v-else>
-<image v-if="!ui.n171.removed" :class="classes(ui.n171.className)" :style="ui.n171.style" class="original-icon" :src="iconSrc('n171')" style="width:22px;height:22px" mode="aspectFit" />
-<span v-if="!ui.n172.removed" :class="classes(ui.n172.className)" :style="ui.n172.style" class="original-span">
-<template v-if="ui.n172.textContent !== undefined"><text>{{ ui.n172.textContent }}</text></template><template v-else>
-<text>消息</text>
-</template>
-</span>
-<span v-if="!ui.n173.removed" :class="classes(ui.n173.className)" :style="ui.n173.style" class="original-span">
-<template v-if="ui.n173.textContent !== undefined"><text>{{ ui.n173.textContent }}</text></template><template v-else>
+        <view v-else class="empty-state empty-state--sm">
+          <text class="empty-state__text">暂无待审核文件</text>
+        </view>
+      </view>
 
-</template>
-</span>
-</template>
-</view>
-<view v-if="!ui.n174.removed" :class="classes(ui.n174.className)" :style="ui.n174.style" class="original-a" @tap.stop="tap('n174', $event)">
-<template v-if="ui.n174.textContent !== undefined"><text>{{ ui.n174.textContent }}</text></template><template v-else>
-<image v-if="!ui.n175.removed" :class="classes(ui.n175.className)" :style="ui.n175.style" class="original-icon" :src="iconSrc('n175')" style="width:22px;height:22px" mode="aspectFit" />
-<span v-if="!ui.n176.removed" :class="classes(ui.n176.className)" :style="ui.n176.style" class="original-span">
-<template v-if="ui.n176.textContent !== undefined"><text>{{ ui.n176.textContent }}</text></template><template v-else>
-<text>我的</text>
-</template>
-</span>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n177.removed" :class="classes(ui.n177.className)" :style="ui.n177.style" class="original-div">
-<template v-if="ui.n177.textContent !== undefined"><text>{{ ui.n177.textContent }}</text></template><template v-else>
+      <!-- ========== 归档 ========== -->
+      <view class="section">
+        <view class="section__header">
+          <text class="section__title">归档</text>
+        </view>
 
-</template>
-</view>
-</view>
-<GroupPopup :show="controller.showGroupPopup === true" @close="controller.showGroupPopup = false" @joined="controller.onJoined" />
-<ProjectListPopup :show="controller.showProjectList === true" :projects="controller.rocProjects || []" @close="controller.showProjectList = false" @select="controller.onSelectProject" />
+        <view v-if="archivedProjects.length" class="archive-item" @tap="onOpenProject(archivedProjects[0])">
+          <view class="archive-item__icon">🏆</view>
+          <view class="archive-item__content">
+            <text class="archive-item__name">{{ archivedProjects[0].name }}</text>
+            <text class="archive-item__desc">
+              {{ archivedProjects[0].fileCount || 0 }} 份成果 · {{ archivedProjects[0].versionCount || 0 }} 版本
+            </text>
+          </view>
+          <text class="archive-item__arrow">›</text>
+        </view>
+
+        <view v-else class="empty-state empty-state--sm">
+          <text class="empty-state__text">暂无归档项目</text>
+        </view>
+      </view>
+
+      <view class="bottom-spacing"></view>
+    </scroll-view>
+
+    <!-- ========== 底部 TabBar ========== -->
+    <TabBar current="home" :unread-count="unreadCount" @change="onTabChange" />
+
+    <!-- ========== 弹窗 ========== -->
+    <GroupPopup :show="showGroupPopup" @close="showGroupPopup = false" @joined="onGroupJoined" />
+    <ProjectListPopup
+      :show="showProjectList"
+      :projects="activeProjects"
+      @close="showProjectList = false"
+      @select="onSelectProject"
+    />
+  </view>
 </template>
 
 <script setup>
-import { provide } from 'vue'
-import { onUnload } from '@dcloudio/uni-app'
-import NativeFragment from '../../components/NativeFragment.vue'
-// #ifdef H5
-import NativeDate from '../../components/NativeDate.vue'
-// #endif
-import createController from '../../controllers/home.js'
+import { ref, computed, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { useUserStore } from '../../stores/index.js'
+import { useGroupStore } from '../../stores/index.js'
+import { useMessageStore } from '../../stores/index.js'
+import api from '../../utils/api.js'
+import AppBadge from '../../components/AppBadge.vue'
+import MemberAvatar from '../../components/MemberAvatar.vue'
+import TabBar from '../../components/TabBar.vue'
 import GroupPopup from '../../components/GroupPopup.vue'
 import ProjectListPopup from '../../components/ProjectListPopup.vue'
-const controller = createController()
-const { ui, classes, tap, iconSrc } = controller
-provide('pageController', controller)
-function onJoined() {
-  if (controller.onJoined) controller.onJoined()
-  controller.showGroupPopup = false
+import { formatDate } from '../../utils-new/format.js'
+
+const userStore = useUserStore()
+const groupStore = useGroupStore()
+const messageStore = useMessageStore()
+
+// ---------- 数据 ----------
+const activeProjects = ref([])    // 进行中项目
+const archivedProjects = ref([])  // 归档项目
+const dueTasks = ref([])          // 临期任务
+const pendingFiles = ref([])      // 待审核文件
+const memberList = ref([])        // 小组成员
+const loading = ref(false)
+
+// 弹窗
+const showGroupPopup = ref(false)
+const showProjectList = ref(false)
+
+// ---------- 计算属性 ----------
+const dateText = computed(() => {
+  const now = new Date()
+  const wd = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][now.getDay()]
+  return `${wd}，${now.getMonth() + 1}月${now.getDate()}日`
+})
+
+const stats = computed(() => ({
+  activeCount: activeProjects.value.length,
+  pendingCount: pendingFiles.value.length,
+  dueCount: dueTasks.value.length,
+}))
+
+const memberCount = computed(() => memberList.value.length)
+
+const unreadCount = computed(() => messageStore.unreadCount.total)
+
+// ---------- 方法 ----------
+
+/** 获取项目展示用的成员（取前3个） */
+function getProjectMembers(project, idx) {
+  // 首页所有项目共用小组成员列表，取前3个
+  return memberList.value.slice(0, 3)
 }
-onUnload(controller.dispose)
+
+/** 格式化时间（HH:mm） */
+function formatTime(dateStr) {
+  if (!dateStr) return ''
+  return String(dateStr).slice(11, 16)
+}
+
+/** 加载首页全部数据 */
+async function loadData() {
+  loading.value = true
+  try {
+    // 1. 小组列表
+    const groups = await api.myGroups().catch(() => null)
+    const groupList = Array.isArray(groups) ? groups : []
+    const gid = groupList.length ? groupList[0].groupId : null
+
+    // 2. 项目列表
+    let projects = []
+    if (gid) {
+      const res = await api.projectList(gid).catch(() => null)
+      projects = Array.isArray(res) ? res : []
+    }
+    activeProjects.value = projects.filter(p => p.status === 'active')
+    archivedProjects.value = projects.filter(p => p.status === 'completed' || p.status === 'archived')
+
+    // 3. 小组成员
+    if (gid) {
+      const members = await api.groupMembers(gid).catch(() => null)
+      memberList.value = (members && members.members) || []
+    }
+
+    // 4. 临期任务（7天内）
+    const dueRes = await api.dueSoonTasks(7).catch(() => null)
+    dueTasks.value = Array.isArray(dueRes) ? dueRes : (dueRes && dueRes.tasks) || []
+
+    // 5. 待审核文件
+    const pendingRes = await api.pendingAudit(1, 10).catch(() => null)
+    pendingFiles.value = (pendingRes && pendingRes.list) || []
+
+    // 6. 未读消息数
+    messageStore.fetchUnreadCount().catch(() => {})
+  } catch (e) {
+    console.warn('[home] 加载失败:', e)
+  } finally {
+    loading.value = false
+  }
+}
+
+// ---------- 交互 ----------
+
+/** 点击分享 */
+function onShare() {
+  uni.showToast({ title: '分享', icon: 'none' })
+}
+
+/** 点击加号（创建项目） */
+async function onCreate() {
+  const groups = await api.myGroups().catch(() => null)
+  if (groups && groups.length) {
+    uni.navigateTo({ url: '/pages/create/create' })
+  } else {
+    uni.showToast({ title: '请先加入/创建小组', icon: 'none' })
+    showGroupPopup.value = true
+  }
+}
+
+/** 打开项目详情 */
+function onOpenProject(p) {
+  if (!p || !p.projectId) {
+    uni.showToast({ title: '暂无项目', icon: 'none' })
+    return
+  }
+  uni.setStorageSync('rocgit_current_project_id', p.projectId)
+  uni.navigateTo({ url: '/pages/project/project' })
+}
+
+/** 选中项目列表弹窗中的项目 */
+function onSelectProject(p) {
+  showProjectList.value = false
+  if (!p) return
+  uni.setStorageSync('rocgit_current_project_id', p.projectId)
+  uni.navigateTo({ url: '/pages/project/project' })
+}
+
+/** 小组创建/加入成功 */
+function onGroupJoined() {
+  showGroupPopup.value = false
+  loadData()
+}
+
+/** 审核通过 */
+function onApprove(file) {
+  uni.showToast({ title: '已通过', icon: 'none' })
+  // TODO: 接入真实审核接口
+}
+
+/** 跳审核页（暂跳项目详情） */
+function onGoAudit() {
+  if (activeProjects.value.length) {
+    onOpenProject(activeProjects.value[0])
+  }
+}
+
+/** 打开任务 */
+function onOpenTask(t) {
+  // 跳对应项目详情
+  if (t.projectId) {
+    uni.setStorageSync('rocgit_current_project_id', t.projectId)
+    uni.navigateTo({ url: '/pages/project/project' })
+  }
+}
+
+/** TabBar 切换 */
+function onTabChange(key) {
+  if (key === 'home') return
+  if (key === 'messages') {
+    uni.redirectTo({ url: '/pages/messages/messages' })
+  } else if (key === 'profile') {
+    uni.redirectTo({ url: '/pages/profile/profile' })
+  }
+}
+
+/** 滚动到底部（预留上拉加载） */
+function onLoadMore() {
+  // 首页暂无分页需求
+}
+
+// ---------- 生命周期 ----------
+onMounted(() => {
+  loadData()
+})
+
+onShow(() => {
+  // 每次页面显示时刷新数据
+  loadData()
+})
 </script>
+
+<style scoped>
+.home-page {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+}
+
+/* ---------- 顶部 Header ---------- */
+.home-header {
+  padding: 48px 20px 16px;
+  background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.home-header__left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.home-header__date {
+  font-size: 13px;
+  color: #64748b;
+}
+.home-header__name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e293b;
+}
+.home-header__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.home-header__icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.home-header__icon-btn--primary {
+  background: #2563eb;
+}
+.home-header__icon-btn--primary .home-header__icon {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+}
+.home-header__icon {
+  font-size: 18px;
+}
+
+/* ---------- 滚动区 ---------- */
+.home-scroll {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ---------- 统计卡片 ---------- */
+.stats-row {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px 16px;
+}
+.stats-card {
+  flex: 1;
+  border-radius: 14px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.stats-card--blue { background: #dbeafe; }
+.stats-card--orange { background: #fef3c7; }
+.stats-card--red { background: #fee2e2; }
+.stats-card__num {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+}
+.stats-card__label {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* ---------- 通用 Section ---------- */
+.section {
+  padding: 0 20px 20px;
+}
+.section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+.section__more {
+  font-size: 13px;
+  color: #2563eb;
+}
+.section__count {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* ---------- 项目卡片 ---------- */
+.project-scroll {
+  margin: 0 -20px;
+  padding: 0 20px;
+  white-space: nowrap;
+}
+.project-list {
+  display: inline-flex;
+  gap: 12px;
+  padding-right: 20px;
+}
+.project-card {
+  width: 220px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  border: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.project-card__name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.project-card__stage {
+  font-size: 12px;
+  color: #2563eb;
+  background: #dbeafe;
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+.project-card__progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.project-card__progress-bar {
+  flex: 1;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.project-card__progress-fill {
+  height: 100%;
+  background: #2563eb;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+.project-card__progress-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  min-width: 36px;
+  text-align: right;
+}
+.project-card__members {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.project-card__avatar-list {
+  display: flex;
+  position: relative;
+}
+.member-avatar--offset-0 { z-index: 3; }
+.member-avatar--offset-1 { margin-left: -8px; z-index: 2; }
+.member-avatar--offset-2 { margin-left: -8px; z-index: 1; }
+.project-card__member-count {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* ---------- 空状态 ---------- */
+.empty-state {
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px dashed #e2e8f0;
+}
+.empty-state--sm {
+  padding: 16px 0;
+}
+.empty-state__icon {
+  font-size: 32px;
+  opacity: 0.5;
+}
+.empty-state--sm .empty-state__icon {
+  font-size: 24px;
+}
+.empty-state__text {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* ---------- 临期任务 ---------- */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.task-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #f1f5f9;
+}
+.task-item__icon {
+  font-size: 18px;
+}
+.task-item__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.task-item__name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.task-item__desc {
+  font-size: 12px;
+  color: #94a3b8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- 待审核 ---------- */
+.audit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.audit-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #f1f5f9;
+}
+.audit-item__icon {
+  font-size: 18px;
+}
+.audit-item__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.audit-item__name {
+  font-size: 13px;
+  color: #334155;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.audit-item__time {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.audit-item__action {
+  padding: 6px 14px;
+  background: #d1fae5;
+  border-radius: 8px;
+}
+.audit-item__action-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #059669;
+}
+
+/* ---------- 归档 ---------- */
+.archive-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #f1f5f9;
+}
+.archive-item__icon {
+  font-size: 28px;
+}
+.archive-item__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.archive-item__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.archive-item__desc {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.archive-item__arrow {
+  font-size: 20px;
+  color: #cbd5e1;
+}
+
+/* ---------- 底部间距（避开 TabBar） ---------- */
+.bottom-spacing {
+  height: 80px;
+}
+</style>

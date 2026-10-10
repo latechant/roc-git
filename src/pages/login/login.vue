@@ -1,6 +1,12 @@
+<!--
+  登录页
+  功能：昵称输入 + 登录 + JWT 存储 + 跳转首页
+  接入：userStore + AppButton 组件
+-->
 <template>
   <view class="login-screen">
     <view class="login-card">
+      <view class="login-logo">📚</view>
       <view class="login-title">ROC-git</view>
       <view class="login-subtitle">课程项目协作平台</view>
 
@@ -11,13 +17,30 @@
           placeholder="请输入昵称"
           maxlength="20"
           confirm-type="done"
-          @confirm="onLogin"
+          :disabled="userStore.loading"
+          @confirm="handleLogin"
         />
       </view>
 
-      <button class="login-btn" :disabled="loading" @tap="onLogin">
-        {{ loading ? '进入中...' : '进入平台' }}
-      </button>
+      <AppButton
+        type="primary"
+        size="lg"
+        block
+        :loading="userStore.loading"
+        :disabled="userStore.loading"
+        @tap="handleLogin"
+      >
+        {{ userStore.loading ? '进入中...' : '进入平台' }}
+      </AppButton>
+
+      <view class="login-tip">
+        <text class="login-tip__text">
+          登录即表示同意
+          <text class="login-tip__link">《用户协议》</text>
+          和
+          <text class="login-tip__link">《隐私政策》</text>
+        </text>
+      </view>
     </view>
   </view>
 </template>
@@ -25,41 +48,26 @@
 <script setup>
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import api from '../../utils/api.js'
+import { useUserStore } from '../../stores/index.js'
+import AppButton from '../../components/AppButton.vue'
 
+const userStore = useUserStore()
 const nickname = ref('')
-const loading = ref(false)
-
-// 获取或生成设备唯一 ID
-function getDeviceId() {
-  let id = ''
-  try {
-    id = uni.getStorageSync('rocgit_device_id') || ''
-  } catch (e) { /* ignore */ }
-  if (!id) {
-    id = 'dev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)
-    try { uni.setStorageSync('rocgit_device_id', id) } catch (e) { /* ignore */ }
-  }
-  return id
-}
 
 onLoad(() => {
-  // 不再自动进入首页：始终停在登录页，由用户点击「进入平台」确认进入。
-  // 若 token 残留/失效（只有 token 没有用户信息，如会话过期、旧版本残留），
-  // 清理登录态；完整登录态则预填上次昵称，方便确认进入。
-  const token = api.getToken()
-  const user = api.getCachedUser()
-  if (token && user) {
-    nickname.value = user.nickname || ''
-  } else if (token) {
-    api.logout()
+  // 已有完整登录态 → 预填昵称
+  // 只有 token 没有用户信息 → 清理残留
+  if (userStore.isLoggedIn && userStore.userInfo) {
+    nickname.value = userStore.userInfo.nickname || ''
+  } else if (userStore.token && !userStore.userInfo) {
+    userStore.logout()
   }
 })
 
 /**
- * 获取登录凭证 code：
- *  - 微信小程序：uni.login 向微信换取临时 code（后端再调 code2session 换 openid）
- *  - H5：沿用设备 ID 生成的演示 code
+ * 获取登录凭证 code
+ *  - 微信小程序：uni.login 换 code
+ *  - H5：用设备 ID 生成演示 code
  */
 function fetchLoginCode() {
   return new Promise((resolve, reject) => {
@@ -76,28 +84,35 @@ function fetchLoginCode() {
       fail: () => reject(new Error('微信登录失败，请检查网络或 AppID 配置'))
     })
     // #endif
+
     // #ifdef H5
-    resolve('wx_user_' + getDeviceId())
+    let deviceId = ''
+    try { deviceId = uni.getStorageSync('rocgit_device_id') || '' } catch (e) { /* ignore */ }
+    if (!deviceId) {
+      deviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)
+      try { uni.setStorageSync('rocgit_device_id', deviceId) } catch (e) { /* ignore */ }
+    }
+    resolve('wx_user_' + deviceId)
     // #endif
   })
 }
 
-async function onLogin() {
+async function handleLogin() {
   const name = (nickname.value || '').trim()
   if (!name) {
     uni.showToast({ title: '请输入昵称', icon: 'none' })
     return
   }
-  loading.value = true
+
   try {
     const code = await fetchLoginCode()
-    await api.login({ nickname: name, code })
+    await userStore.login({ nickname: name, code })
     uni.reLaunch({ url: '/pages/home/home' })
   } catch (e) {
-    // api.login 内部 silent=true 不弹 toast，这里手动提示
-    uni.showToast({ title: (e && e.message) || '登录失败，请重试', icon: 'none' })
-  } finally {
-    loading.value = false
+    uni.showToast({
+      title: (e && e.message) || '登录失败，请重试',
+      icon: 'none'
+    })
   }
 }
 </script>
@@ -110,8 +125,9 @@ async function onLogin() {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #F8FAFC;
+  background: #f8fafc;
 }
+
 .login-card {
   width: 80%;
   max-width: 320px;
@@ -119,48 +135,54 @@ async function onLogin() {
   flex-direction: column;
   align-items: center;
 }
+
+.login-logo {
+  font-size: 56px;
+  margin-bottom: 16px;
+}
+
 .login-title {
   font-size: 32px;
   font-weight: 700;
   color: #1e293b;
   margin-bottom: 8px;
 }
+
 .login-subtitle {
   font-size: 14px;
   color: #64748b;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
 }
+
 .input-wrap {
   width: 100%;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
+
 .nickname-input {
   width: 100%;
   height: 48px;
   padding: 0 16px;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #ffffff;
   font-size: 16px;
   color: #1e293b;
   outline: none;
+  box-sizing: border-box;
 }
-.login-btn {
-  width: 100%;
-  height: 48px;
-  line-height: 48px;
-  border: none;
-  border-radius: 8px;
-  background: #2563eb;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 600;
-  text-align: center;
+.nickname-input:focus {
+  border-color: #2563eb;
 }
-.login-btn::after {
-  border: none;
+
+.login-tip {
+  margin-top: 20px;
 }
-.login-btn[disabled] {
-  opacity: 0.6;
+.login-tip__text {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.login-tip__link {
+  color: #2563eb;
 }
 </style>

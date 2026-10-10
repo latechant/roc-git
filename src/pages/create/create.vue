@@ -1,479 +1,1093 @@
+<!--
+  创建项目页（四步向导）
+  Step 1: 基础信息（项目名+描述+小组）
+  Step 2: 阶段（动态行 + 模板）
+  Step 3: 分工（成员选择 + 任务列表 + 任务模板）
+  Step 4: 规则（审核 + 截止提醒）
+-->
 <template>
-<view class="prototype-screen">
-<view v-if="!ui.n0.removed" :class="classes(ui.n0.className)" :style="ui.n0.style" class="original-div">
-<template v-if="ui.n0.textContent !== undefined"><text>{{ ui.n0.textContent }}</text></template><template v-else>
-<view v-if="!ui.n1.removed" :class="classes(ui.n1.className)" :style="ui.n1.style" class="original-header">
-<template v-if="ui.n1.textContent !== undefined"><text>{{ ui.n1.textContent }}</text></template><template v-else>
-<view v-if="!ui.n2.removed" :class="classes(ui.n2.className)" :style="ui.n2.style" class="original-div">
-<template v-if="ui.n2.textContent !== undefined"><text>{{ ui.n2.textContent }}</text></template><template v-else>
-<view v-if="!ui.n3.removed" :class="classes(ui.n3.className)" :style="ui.n3.style" class="original-a" @tap.stop="tap('n3', $event)">
-<template v-if="ui.n3.textContent !== undefined"><text>{{ ui.n3.textContent }}</text></template><template v-else>
-<image v-if="!ui.n4.removed" :class="classes(ui.n4.className)" :style="ui.n4.style" class="original-icon" :src="iconSrc('n4')" style="width:20px;height:20px" mode="aspectFit" />
-</template>
-</view>
-<view v-if="!ui.n5.removed" :class="classes(ui.n5.className)" :style="ui.n5.style" class="original-div">
-<template v-if="ui.n5.textContent !== undefined"><text>{{ ui.n5.textContent }}</text></template><template v-else>
-<view v-if="!ui.n6.removed" :class="classes(ui.n6.className)" :style="ui.n6.style" class="original-p">
-<template v-if="ui.n6.textContent !== undefined"><text>{{ ui.n6.textContent }}</text></template><template v-else>
-<text>新建协作空间</text>
-</template>
-</view>
-<view v-if="!ui.n7.removed" :class="classes(ui.n7.className)" :style="ui.n7.style" class="original-h1">
-<template v-if="ui.n7.textContent !== undefined"><text>{{ ui.n7.textContent }}</text></template><template v-else>
-<text>创建项目</text>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n8.removed" :class="classes(ui.n8.className)" :style="ui.n8.style" class="original-div">
-<template v-if="ui.n8.textContent !== undefined"><text>{{ ui.n8.textContent }}</text></template><template v-else>
-<span v-if="!ui.n9.removed" :class="classes(ui.n9.className)" :style="ui.n9.style" class="original-span">
-<template v-if="ui.n9.textContent !== undefined"><text>{{ ui.n9.textContent }}</text></template><template v-else>
-<view v-if="!ui.n10.removed" :class="classes(ui.n10.className)" :style="ui.n10.style" class="original-span" @tap.stop="goStep(1)">
-<template v-if="ui.n10.textContent !== undefined"><text>{{ ui.n10.textContent }}</text></template><template v-else>
-<text>1</text>
-</template>
-</view>
-<text>基础</text>
-</template>
-</span>
-<view v-if="!ui.n11.removed" :class="classes(ui.n11.className)" :style="ui.n11.style" class="original-div">
-<template v-if="ui.n11.textContent !== undefined"><text>{{ ui.n11.textContent }}</text></template><template v-else>
+  <view class="create-page">
+    <!-- 顶部导航 -->
+    <view class="nav-bar">
+      <view class="nav-bar__back" @tap="onBack">
+        <text>‹</text>
+      </view>
+      <text class="nav-bar__title">创建项目</text>
+      <view class="nav-bar__placeholder"></view>
+    </view>
 
-</template>
-</view>
-<span v-if="!ui.n12.removed" :class="classes(ui.n12.className)" :style="ui.n12.style" class="original-span">
-<template v-if="ui.n12.textContent !== undefined"><text>{{ ui.n12.textContent }}</text></template><template v-else>
-<span v-if="!ui.n13.removed" :class="classes(ui.n13.className)" :style="ui.n13.style" class="original-span" @tap.stop="goStep(2)">
-<template v-if="ui.n13.textContent !== undefined"><text>{{ ui.n13.textContent }}</text></template><template v-else>
-<text>2</text>
-</template>
-</span>
-<text>阶段</text>
-</template>
-</span>
-<view v-if="!ui.n14.removed" :class="classes(ui.n14.className)" :style="ui.n14.style" class="original-div">
-<template v-if="ui.n14.textContent !== undefined"><text>{{ ui.n14.textContent }}</text></template><template v-else>
+    <!-- 步骤条 -->
+    <view class="step-bar">
+      <view
+        v-for="(s, idx) in steps"
+        :key="idx"
+        class="step-bar__item"
+        :class="{ 'step-bar__item--active': step === idx + 1, 'step-bar__item--done': step > idx + 1 }"
+      >
+        <view class="step-bar__dot">
+          <text v-if="step > idx + 1">✓</text>
+          <text v-else>{{ idx + 1 }}</text>
+        </view>
+        <text class="step-bar__label">{{ s.label }}</text>
+      </view>
+      <view class="step-bar__line" :style="{ width: lineWidth + '%', left: '12.5%' }"></view>
+    </view>
 
-</template>
-</view>
-<view v-if="!ui.n15.removed" :class="classes(ui.n15.className)" :style="ui.n15.style" class="original-span">
-<template v-if="ui.n15.textContent !== undefined"><text>{{ ui.n15.textContent }}</text></template><template v-else>
-<view v-if="!ui.n16.removed" :class="classes(ui.n16.className)" :style="ui.n16.style" class="original-span" @tap.stop="goStep(3)">
-<template v-if="ui.n16.textContent !== undefined"><text>{{ ui.n16.textContent }}</text></template><template v-else>
-<text>3</text>
-</template>
-</view>
-<text>分工</text>
-</template>
-</view>
-<view v-if="!ui.n17.removed" :class="classes(ui.n17.className)" :style="ui.n17.style" class="original-div">
-<template v-if="ui.n17.textContent !== undefined"><text>{{ ui.n17.textContent }}</text></template><template v-else>
+    <scroll-view class="content" scroll-y :show-scrollbar="false">
+      <!-- ========== Step 1: 基础信息 ========== -->
+      <view v-if="step === 1" class="step-content">
+        <view class="section">
+          <text class="section__title">项目名称 <text class="required">*</text></text>
+          <input
+            class="form-input"
+            v-model="form.name"
+            placeholder="请输入项目名称"
+            placeholder-class="form-input__ph"
+            maxlength="30"
+          />
+        </view>
 
-</template>
-</view>
-<view v-if="!ui.n18.removed" :class="classes(ui.n18.className)" :style="ui.n18.style" class="original-span">
-<template v-if="ui.n18.textContent !== undefined"><text>{{ ui.n18.textContent }}</text></template><template v-else>
-<view v-if="!ui.n19.removed" :class="classes(ui.n19.className)" :style="ui.n19.style" class="original-span" @tap.stop="goStep(4)">
-<template v-if="ui.n19.textContent !== undefined"><text>{{ ui.n19.textContent }}</text></template><template v-else>
-<text>4</text>
-</template>
-</view>
-<text>规则</text>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<scroll-view v-if="!ui.n20.removed" :class="classes(ui.n20.className)" :style="ui.n20.style" class="original-scroll" scroll-y :show-scrollbar="false">
-<template v-if="ui.n20.textContent !== undefined"><text>{{ ui.n20.textContent }}</text></template><template v-else>
-<view v-if="!ui.n21.removed" :class="classes(ui.n21.className)" :style="ui.n21.style" class="original-p">
-<template v-if="ui.n21.textContent !== undefined"><text>{{ ui.n21.textContent }}</text></template><template v-else>
-<text>项目建立后可邀请成员、设置阶段、分配任务，全流程自动留痕。</text>
-</template>
-</view>
-<template v-if="controller.step === 1">
-<view v-if="!ui.n22.removed" :class="classes(ui.n22.className)" :style="ui.n22.style" class="original-div">
-<template v-if="ui.n22.textContent !== undefined"><text>{{ ui.n22.textContent }}</text></template><template v-else>
-<view v-if="!ui.n23.removed" :class="classes(ui.n23.className)" :style="ui.n23.style" class="original-h2">
-<template v-if="ui.n23.textContent !== undefined"><text>{{ ui.n23.textContent }}</text></template><template v-else>
-<text>基础信息</text>
-</template>
-</view>
-<view v-if="!ui.n24.removed" :class="classes(ui.n24.className)" :style="ui.n24.style" class="original-div">
-<template v-if="ui.n24.textContent !== undefined"><text>{{ ui.n24.textContent }}</text></template><template v-else>
-<view v-if="!ui.n25.removed" :class="classes(ui.n25.className)" :style="ui.n25.style" class="original-div">
-<template v-if="ui.n25.textContent !== undefined"><text>{{ ui.n25.textContent }}</text></template><template v-else>
-<view v-if="!ui.n26.removed" :class="classes(ui.n26.className)" :style="ui.n26.style" class="original-label">
-<template v-if="ui.n26.textContent !== undefined"><text>{{ ui.n26.textContent }}</text></template><template v-else>
-<text>项目名称</text>
-</template>
-</view>
-<input v-if="!ui.n27.removed" :class="classes(ui.n27.className)" :style="ui.n27.style" class="original-input" :value="ui.n27.value" @input="ui.n27.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
-</template>
-</view>
-<view v-if="!ui.n28.removed" :class="classes(ui.n28.className)" :style="ui.n28.style" class="original-div">
-<template v-if="ui.n28.textContent !== undefined"><text>{{ ui.n28.textContent }}</text></template><template v-else>
-<view v-if="!ui.n29.removed" :class="classes(ui.n29.className)" :style="ui.n29.style" class="original-label">
-<template v-if="ui.n29.textContent !== undefined"><text>{{ ui.n29.textContent }}</text></template><template v-else>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n34.removed" :class="classes(ui.n34.className)" :style="ui.n34.style" class="original-div">
-<template v-if="ui.n34.textContent !== undefined"><text>{{ ui.n34.textContent }}</text></template><template v-else>
-<view v-if="!ui.n35.removed" :class="classes(ui.n35.className)" :style="ui.n35.style" class="original-label">
-<template v-if="ui.n35.textContent !== undefined"><text>{{ ui.n35.textContent }}</text></template><template v-else>
-<text>项目说明</text>
-</template>
-</view>
-<textarea v-if="!ui.n36.removed" :class="classes(ui.n36.className)" :style="ui.n36.style" class="original-textarea" :value="ui.n36.value" @input="ui.n36.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" :auto-height="false" :fixed="true" :show-confirm-bar="false"></textarea>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-</template>
-<template v-if="controller.step === 2">
-<view v-if="!ui.n52.removed" :class="classes(ui.n52.className)" :style="ui.n52.style" class="original-div">
-<template v-if="ui.n52.textContent !== undefined"><text>{{ ui.n52.textContent }}</text></template><template v-else>
-<view v-if="!ui.n53.removed" :class="classes(ui.n53.className)" :style="ui.n53.style" class="original-div">
-<template v-if="ui.n53.textContent !== undefined"><text>{{ ui.n53.textContent }}</text></template><template v-else>
-<view v-if="!ui.n54.removed" :class="classes(ui.n54.className)" :style="ui.n54.style" class="original-h2">
-<template v-if="ui.n54.textContent !== undefined"><text>{{ ui.n54.textContent }}</text></template><template v-else>
-<text>作业阶段</text>
-</template>
-</view>
-<button v-if="!ui.n55.removed" :class="classes(ui.n55.className)" :style="ui.n55.style" class="original-button tap-target-lg" @tap.stop="tap('n55', $event)">
-<template v-if="ui.n55.textContent !== undefined"><text>{{ ui.n55.textContent }}</text></template><template v-else>
-<text>+ 添加</text>
-</template>
-</button>
-<text class="stage-tpl-btn" @tap="controller.applyStageTemplate('course')">课程项目</text>
-<text class="stage-tpl-btn" @tap="controller.applyStageTemplate('research')">调研报告</text>
-<text class="stage-tpl-btn" @tap="controller.applyStageTemplate('agile')">敏捷迭代</text>
-</template>
-</view>
-<view v-if="!ui.n56.removed" :class="classes(ui.n56.className)" :style="ui.n56.style" class="original-div">
-<template v-if="ui.n56.textContent !== undefined"><text>{{ ui.n56.textContent }}</text></template><template v-else>
-<view v-if="!ui.n57.removed" :class="classes(ui.n57.className)" :style="ui.n57.style" class="original-div">
-<template v-if="ui.n57.textContent !== undefined"><text>{{ ui.n57.textContent }}</text></template><template v-else>
-<view v-if="!ui.n58.removed" :class="classes(ui.n58.className)" :style="ui.n58.style" class="original-span">
-<template v-if="ui.n58.textContent !== undefined"><text>{{ ui.n58.textContent }}</text></template><template v-else>
-<text>01</text>
-</template>
-</view>
-<input v-if="!ui.n59.removed" :class="classes(ui.n59.className)" :style="ui.n59.style" class="original-input" :value="ui.n59.value" @input="ui.n59.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
-<!-- #ifdef H5 -->
-<NativeDate v-if="!ui.n60.removed" :class="classes(ui.n60.className)" :style="ui.n60.style" v-model:value="ui.n60.value" />
-<!-- #endif -->
-<!-- #ifndef H5 -->
-<picker v-if="!ui.n60.removed" :class="classes(ui.n60.className)" :style="ui.n60.style" class="original-date" mode="date" :value="ui.n60.value" @change="ui.n60.value = $event.detail.value"><view>{{ ui.n60.value ? ui.n60.value.replaceAll('-', '/') : '年/月/日' }}</view></picker>
-<!-- #endif -->
-<text class="stage-del" @tap="controller.removeRow('n56', 'n57')">×</text>
-</template>
-</view>
-<view v-if="!ui.n61.removed" :class="classes(ui.n61.className)" :style="ui.n61.style" class="original-div">
-<template v-if="ui.n61.textContent !== undefined"><text>{{ ui.n61.textContent }}</text></template><template v-else>
-<view v-if="!ui.n62.removed" :class="classes(ui.n62.className)" :style="ui.n62.style" class="original-span">
-<template v-if="ui.n62.textContent !== undefined"><text>{{ ui.n62.textContent }}</text></template><template v-else>
-<text>02</text>
-</template>
-</view>
-<input v-if="!ui.n63.removed" :class="classes(ui.n63.className)" :style="ui.n63.style" class="original-input" :value="ui.n63.value" @input="ui.n63.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
-<!-- #ifdef H5 -->
-<NativeDate v-if="!ui.n64.removed" :class="classes(ui.n64.className)" :style="ui.n64.style" v-model:value="ui.n64.value" />
-<!-- #endif -->
-<!-- #ifndef H5 -->
-<picker v-if="!ui.n64.removed" :class="classes(ui.n64.className)" :style="ui.n64.style" class="original-date" mode="date" :value="ui.n64.value" @change="ui.n64.value = $event.detail.value"><view>{{ ui.n64.value ? ui.n64.value.replaceAll('-', '/') : '年/月/日' }}</view></picker>
-<!-- #endif -->
-<text class="stage-del" @tap="controller.removeRow('n56', 'n61')">×</text>
-</template>
-</view>
-<view v-if="!ui.n65.removed" :class="classes(ui.n65.className)" :style="ui.n65.style" class="original-div">
-<template v-if="ui.n65.textContent !== undefined"><text>{{ ui.n65.textContent }}</text></template><template v-else>
-<view v-if="!ui.n66.removed" :class="classes(ui.n66.className)" :style="ui.n66.style" class="original-span">
-<template v-if="ui.n66.textContent !== undefined"><text>{{ ui.n66.textContent }}</text></template><template v-else>
-<text>03</text>
-</template>
-</view>
-<input v-if="!ui.n67.removed" :class="classes(ui.n67.className)" :style="ui.n67.style" class="original-input" :value="ui.n67.value" @input="ui.n67.value = $event.detail.value" placeholder="" :disabled="false" :maxlength="-1" />
-<!-- #ifdef H5 -->
-<NativeDate v-if="!ui.n68.removed" :class="classes(ui.n68.className)" :style="ui.n68.style" v-model:value="ui.n68.value" />
-<!-- #endif -->
-<!-- #ifndef H5 -->
-<picker v-if="!ui.n68.removed" :class="classes(ui.n68.className)" :style="ui.n68.style" class="original-date" mode="date" :value="ui.n68.value" @change="ui.n68.value = $event.detail.value"><view>{{ ui.n68.value ? ui.n68.value.replaceAll('-', '/') : '年/月/日' }}</view></picker>
-<!-- #endif -->
-<text class="stage-del" @tap="controller.removeRow('n56', 'n65')">×</text>
-</template>
-</view>
-</template>
-<NativeFragment v-for="childId in ui.n56.appended" :key="childId" :node-id="childId" removable />
-</view>
-</template>
-</view>
-</template>
-<template v-if="controller.step === 3">
-<view v-if="!ui.n37.removed" :class="classes(ui.n37.className)" :style="ui.n37.style" class="original-div">
-<template v-if="ui.n37.textContent !== undefined"><text>{{ ui.n37.textContent }}</text></template><template v-else>
-<view v-if="!ui.n38.removed" :class="classes(ui.n38.className)" :style="ui.n38.style" class="original-div">
-<template v-if="ui.n38.textContent !== undefined"><text>{{ ui.n38.textContent }}</text></template><template v-else>
-<view v-if="!ui.n39.removed" :class="classes(ui.n39.className)" :style="ui.n39.style" class="original-h2">
-<template v-if="ui.n39.textContent !== undefined"><text>{{ ui.n39.textContent }}</text></template><template v-else>
-<text>小组成员</text>
-</template>
-</view>
-<text class="stage-tpl-btn" @tap="showGroupPopup = true">邀请成员</text>
-</template>
-</view>
-<view v-if="!ui.n41.removed" :class="classes(ui.n41.className)" :style="ui.n41.style" class="original-div">
-<template v-if="ui.n41.textContent !== undefined"><text>{{ ui.n41.textContent }}</text></template><template v-else>
-<view v-if="!ui.n42.removed" :class="classes(ui.n42.className)" :style="ui.n42.style" class="original-div">
-<template v-if="ui.n42.textContent !== undefined"><text>{{ ui.n42.textContent }}</text></template><template v-else>
-<view v-if="!ui.n43.removed" :class="classes(ui.n43.className)" :style="ui.n43.style" class="original-span">
-<template v-if="ui.n43.textContent !== undefined"><text>{{ ui.n43.textContent }}</text></template><template v-else>
-<text>林</text>
-</template>
-</view>
-<span v-if="!ui.n44.removed" :class="classes(ui.n44.className)" :style="ui.n44.style" class="original-span">
-<template v-if="ui.n44.textContent !== undefined"><text>{{ ui.n44.textContent }}</text></template><template v-else>
-<text>林知行</text>
-</template>
-</span>
-<span v-if="!ui.n45.removed" :class="classes(ui.n45.className)" :style="ui.n45.style" class="original-span">
-<template v-if="ui.n45.textContent !== undefined"><text>{{ ui.n45.textContent }}</text></template><template v-else>
-<text>组长</text>
-</template>
-</span>
-</template>
-</view>
-<view v-if="!ui.n46.removed" :class="classes(ui.n46.className)" :style="ui.n46.style" class="original-div">
-<template v-if="ui.n46.textContent !== undefined"><text>{{ ui.n46.textContent }}</text></template><template v-else>
-<span v-if="!ui.n47.removed" :class="classes(ui.n47.className)" :style="ui.n47.style" class="original-span">
-<template v-if="ui.n47.textContent !== undefined"><text>{{ ui.n47.textContent }}</text></template><template v-else>
-<text>许</text>
-</template>
-</span>
-<view v-if="!ui.n48.removed" :class="classes(ui.n48.className)" :style="ui.n48.style" class="original-span">
-<template v-if="ui.n48.textContent !== undefined"><text>{{ ui.n48.textContent }}</text></template><template v-else>
-<text>许萌</text>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n49.removed" :class="classes(ui.n49.className)" :style="ui.n49.style" class="original-div">
-<template v-if="ui.n49.textContent !== undefined"><text>{{ ui.n49.textContent }}</text></template><template v-else>
-<span v-if="!ui.n50.removed" :class="classes(ui.n50.className)" :style="ui.n50.style" class="original-span">
-<template v-if="ui.n50.textContent !== undefined"><text>{{ ui.n50.textContent }}</text></template><template v-else>
-<text>王</text>
-</template>
-</span>
-<span v-if="!ui.n51.removed" :class="classes(ui.n51.className)" :style="ui.n51.style" class="original-span">
-<template v-if="ui.n51.textContent !== undefined"><text>{{ ui.n51.textContent }}</text></template><template v-else>
-<text>王宁</text>
-</template>
-</span>
-</template>
-</view>
-</template>
-<view v-for="m in controller.rocMemberPool" :key="m.userId" class="member-chip" :class="m.selected ? 'member-chip-on' : ''" @tap="controller.toggleMember(m)">
-<text class="member-chip-avatar">{{ m.nickname ? m.nickname.slice(0, 1) : '?' }}</text>
-<text class="member-chip-name">{{ m.nickname }}</text>
-<text class="member-chip-role">{{ m.role === 'leader' ? '组长' : (m.role === 'teacher' ? '教师' : '组员') }}</text>
-</view>
-<view v-if="(controller.rocMemberPool || []).length <= 1" class="member-tip">
-<text class="member-tip-text">成员来自小组，邀请同学加入后自动显示在此</text>
-</view>
-</view>
-</template>
-</view>
-<view v-if="!ui.n69.removed" :class="classes(ui.n69.className)" :style="ui.n69.style" class="original-div">
-<template v-if="ui.n69.textContent !== undefined"><text>{{ ui.n69.textContent }}</text></template><template v-else>
-<view v-if="!ui.n70.removed" :class="classes(ui.n70.className)" :style="ui.n70.style" class="original-div">
-<template v-if="ui.n70.textContent !== undefined"><text>{{ ui.n70.textContent }}</text></template><template v-else>
-<view v-if="!ui.n71.removed" :class="classes(ui.n71.className)" :style="ui.n71.style" class="original-h2">
-<template v-if="ui.n71.textContent !== undefined"><text>{{ ui.n71.textContent }}</text></template><template v-else>
-<text>任务分工</text>
-</template>
-</view>
-<button v-if="!ui.n72.removed" :class="classes(ui.n72.className)" :style="ui.n72.style" class="original-button tap-target-lg" @tap.stop="tap('n72', $event)">
-<template v-if="ui.n72.textContent !== undefined"><text>{{ ui.n72.textContent }}</text></template><template v-else>
-<text>+ 添加</text>
-</template>
-</button>
-<text class="stage-tpl-btn" @tap="controller.applyTaskTemplate('dev')">通用开发</text>
-<text class="stage-tpl-btn" @tap="controller.applyTaskTemplate('report')">报告答辩</text>
-</template>
-</view>
-<view v-if="!ui.n73.removed" :class="classes(ui.n73.className)" :style="ui.n73.style" class="original-div">
-<template v-if="ui.n73.textContent !== undefined"><text>{{ ui.n73.textContent }}</text></template><template v-else>
-</template>
-<NativeFragment v-for="childId in ui.n73.appended" :key="childId" :node-id="childId" removable />
-</view>
-</template>
-</view>
-</template>
-<template v-if="controller.step === 4">
-<view v-if="!ui.n82.removed" :class="classes(ui.n82.className)" :style="ui.n82.style" class="original-div">
-<template v-if="ui.n82.textContent !== undefined"><text>{{ ui.n82.textContent }}</text></template><template v-else>
-<view v-if="!ui.n83.removed" :class="classes(ui.n83.className)" :style="ui.n83.style" class="original-h2">
-<template v-if="ui.n83.textContent !== undefined"><text>{{ ui.n83.textContent }}</text></template><template v-else>
-<text>项目规则</text>
-</template>
-</view>
-<view v-if="!ui.n84.removed" :class="classes(ui.n84.className)" :style="ui.n84.style" class="original-div">
-<template v-if="ui.n84.textContent !== undefined"><text>{{ ui.n84.textContent }}</text></template><template v-else>
-<view v-if="!ui.n85.removed" :class="classes(ui.n85.className)" :style="ui.n85.style" class="original-label" @tap.stop="ui.n86.checked = !ui.n86.checked">
-<template v-if="ui.n85.textContent !== undefined"><text>{{ ui.n85.textContent }}</text></template><template v-else>
-<view v-if="!ui.n86.removed" :class="classes(ui.n86.className)" :style="ui.n86.style" class="original-checkbox" @tap.stop="ui.n86.checked = !ui.n86.checked"><image v-if="ui.n86.checked" src="/static/icons/check--white.png" style="width:100%;height:100%;background:#2563eb;border-radius:3px" /><view v-else class="checkbox-empty" /></view>
-<view v-if="!ui.n87.removed" :class="classes(ui.n87.className)" :style="ui.n87.style" class="original-div">
-<template v-if="ui.n87.textContent !== undefined"><text>{{ ui.n87.textContent }}</text></template><template v-else>
-<view v-if="!ui.n88.removed" :class="classes(ui.n88.className)" :style="ui.n88.style" class="original-p">
-<template v-if="ui.n88.textContent !== undefined"><text>{{ ui.n88.textContent }}</text></template><template v-else>
-<text>挂单审核</text>
-</template>
-</view>
-<view v-if="!ui.n89.removed" :class="classes(ui.n89.className)" :style="ui.n89.style" class="original-p">
-<template v-if="ui.n89.textContent !== undefined"><text>{{ ui.n89.textContent }}</text></template><template v-else>
-<text>所有上传需审核通过方入库</text>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n90.removed" :class="classes(ui.n90.className)" :style="ui.n90.style" class="original-label" @tap.stop="ui.n91.checked = !ui.n91.checked">
-<template v-if="ui.n90.textContent !== undefined"><text>{{ ui.n90.textContent }}</text></template><template v-else>
-<view v-if="!ui.n91.removed" :class="classes(ui.n91.className)" :style="ui.n91.style" class="original-checkbox" @tap.stop="ui.n91.checked = !ui.n91.checked"><image v-if="ui.n91.checked" src="/static/icons/check--white.png" style="width:100%;height:100%;background:#2563eb;border-radius:3px" /><view v-else class="checkbox-empty" /></view>
-<view v-if="!ui.n92.removed" :class="classes(ui.n92.className)" :style="ui.n92.style" class="original-div">
-<template v-if="ui.n92.textContent !== undefined"><text>{{ ui.n92.textContent }}</text></template><template v-else>
-<view v-if="!ui.n93.removed" :class="classes(ui.n93.className)" :style="ui.n93.style" class="original-p">
-<template v-if="ui.n93.textContent !== undefined"><text>{{ ui.n93.textContent }}</text></template><template v-else>
-<text>截止提醒</text>
-</template>
-</view>
-<view v-if="!ui.n94.removed" :class="classes(ui.n94.className)" :style="ui.n94.style" class="original-p">
-<template v-if="ui.n94.textContent !== undefined"><text>{{ ui.n94.textContent }}</text></template><template v-else>
-<text>截止前 3 天、1 天提醒全员</text>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n95.removed" :class="classes(ui.n95.className)" :style="ui.n95.style" class="original-label" @tap.stop="ui.n96.checked = !ui.n96.checked">
-<template v-if="ui.n95.textContent !== undefined"><text>{{ ui.n95.textContent }}</text></template><template v-else>
-<view v-if="!ui.n96.removed" :class="classes(ui.n96.className)" :style="ui.n96.style" class="original-checkbox" @tap.stop="ui.n96.checked = !ui.n96.checked"><image v-if="ui.n96.checked" src="/static/icons/check--white.png" style="width:100%;height:100%;background:#2563eb;border-radius:3px" /><view v-else class="checkbox-empty" /></view>
-<view v-if="!ui.n97.removed" :class="classes(ui.n97.className)" :style="ui.n97.style" class="original-div">
-<template v-if="ui.n97.textContent !== undefined"><text>{{ ui.n97.textContent }}</text></template><template v-else>
-<view v-if="!ui.n98.removed" :class="classes(ui.n98.className)" :style="ui.n98.style" class="original-p">
-<template v-if="ui.n98.textContent !== undefined"><text>{{ ui.n98.textContent }}</text></template><template v-else>
-<text>自动存档</text>
-</template>
-</view>
-<view v-if="!ui.n99.removed" :class="classes(ui.n99.className)" :style="ui.n99.style" class="original-p">
-<template v-if="ui.n99.textContent !== undefined"><text>{{ ui.n99.textContent }}</text></template><template v-else>
-<text>支持还原上次上传</text>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-<view v-if="!ui.n100.removed" :class="classes(ui.n100.className)" :style="ui.n100.style" class="original-label" @tap.stop="ui.n101.checked = !ui.n101.checked">
-<template v-if="ui.n100.textContent !== undefined"><text>{{ ui.n100.textContent }}</text></template><template v-else>
-<view v-if="!ui.n101.removed" :class="classes(ui.n101.className)" :style="ui.n101.style" class="original-checkbox" @tap.stop="ui.n101.checked = !ui.n101.checked"><image v-if="ui.n101.checked" src="/static/icons/check--white.png" style="width:100%;height:100%;background:#2563eb;border-radius:3px" /><view v-else class="checkbox-empty" /></view>
-<view v-if="!ui.n102.removed" :class="classes(ui.n102.className)" :style="ui.n102.style" class="original-div">
-<template v-if="ui.n102.textContent !== undefined"><text>{{ ui.n102.textContent }}</text></template><template v-else>
-<view v-if="!ui.n103.removed" :class="classes(ui.n103.className)" :style="ui.n103.style" class="original-p">
-<template v-if="ui.n103.textContent !== undefined"><text>{{ ui.n103.textContent }}</text></template><template v-else>
-<text>允许教师查阅</text>
-</template>
-</view>
-<view v-if="!ui.n104.removed" :class="classes(ui.n104.className)" :style="ui.n104.style" class="original-p">
-<template v-if="ui.n104.textContent !== undefined"><text>{{ ui.n104.textContent }}</text></template><template v-else>
-<text>教师可查阅全部过程材料</text>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-</template>
-</view>
-</template>
-<view v-if="controller.step > 1" class="mt-4 flex items-center gap-3">
-<button class="flex-1 bg-slate-100 text-slate-700 rounded-2xl py-3 text-[14px] font-medium" @tap="prevStep()"><text>上一步</text></button>
-</view>
-<view v-if="controller.step < 4" class="mt-3">
-<button class="w-full bg-blue-600 text-white rounded-2xl py-3 text-[14px] font-semibold" @tap="nextStep()"><text>下一步</text></button>
-</view>
-<template v-if="controller.step === 4">
-<button v-if="!ui.n105.removed" :class="classes(ui.n105.className)" :style="ui.n105.style" class="original-button" @tap.stop="tap('n105', $event)">
-<template v-if="ui.n105.textContent !== undefined"><text>{{ ui.n105.textContent }}</text></template><template v-else>
-<text>创建并进入项目</text>
-</template>
-</button>
-</template>
-</template>
-</scroll-view>
-<view v-if="!ui.n106.removed" :class="classes(ui.n106.className)" :style="ui.n106.style" class="original-div">
-<template v-if="ui.n106.textContent !== undefined"><text>{{ ui.n106.textContent }}</text></template><template v-else>
+        <view class="section">
+          <text class="section__title">所属小组</text>
+          <picker mode="selector" :range="groupOptions" range-key="name" @change="onGroupPick">
+            <view class="form-picker">
+              <text>{{ selectedGroup ? selectedGroup.name : '请选择小组' }}</text>
+              <text class="form-picker__arrow">›</text>
+            </view>
+          </picker>
+          <text v-if="!groups.length" class="form-tip">
+            暂无小组，<text class="form-tip__link" @tap="onGoGroups">去创建/加入</text>
+          </text>
+        </view>
 
-</template>
-</view>
-</template>
-</view>
-</view>
-<GroupPopup :show="showGroupPopup" @close="showGroupPopup = false" @joined="onGroupPopupJoined" />
+        <view class="section">
+          <text class="section__title">项目描述</text>
+          <textarea
+            class="form-textarea"
+            v-model="form.description"
+            placeholder="简单介绍一下这个项目（可选）"
+            placeholder-class="form-input__ph"
+            maxlength="200"
+          />
+        </view>
+      </view>
+
+      <!-- ========== Step 2: 阶段 ========== -->
+      <view v-if="step === 2" class="step-content">
+        <view class="section">
+          <view class="section__header">
+            <text class="section__title">项目阶段</text>
+            <text class="section__count">{{ form.stages.length }} 个</text>
+          </view>
+
+          <!-- 阶段模板 -->
+          <view class="template-row">
+            <text class="template-row__label">快速模板：</text>
+            <view
+              v-for="tpl in stageTemplates"
+              :key="tpl.key"
+              class="template-chip"
+              @tap="applyStageTemplate(tpl.key)"
+            >
+              <text>{{ tpl.label }}</text>
+            </view>
+          </view>
+
+          <!-- 阶段行列表 -->
+          <view class="stage-list">
+            <view v-for="(s, idx) in form.stages" :key="idx" class="stage-row">
+              <text class="stage-row__no">{{ formatNo(idx + 1) }}</text>
+              <input
+                class="stage-row__input"
+                v-model="s.name"
+                placeholder="阶段名称"
+                placeholder-class="form-input__ph"
+              />
+              <picker mode="date" :value="s.endDate" @change="e => s.endDate = e.detail.value">
+                <view class="stage-row__date">
+                  {{ s.endDate || '截止日期' }}
+                </view>
+              </picker>
+              <view v-if="form.stages.length > 1" class="stage-row__del" @tap="removeStage(idx)">
+                <text>×</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="add-row-btn" @tap="addStage">
+            <text class="add-row-btn__icon">+</text>
+            <text>添加阶段</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- ========== Step 3: 分工 ========== -->
+      <view v-if="step === 3" class="step-content">
+        <!-- 成员选择 -->
+        <view class="section">
+          <text class="section__title">项目成员</text>
+          <view class="member-pool">
+            <view
+              v-for="m in memberPool"
+              :key="m.userId"
+              class="member-chip"
+              :class="{ 'member-chip--on': m.selected }"
+              @tap="toggleMember(m)"
+            >
+              <view class="member-chip__avatar" :style="{ background: avatarColor(m.nickname) }">
+                <text>{{ avatarText(m.nickname) }}</text>
+              </view>
+              <text class="member-chip__name">{{ m.nickname }}</text>
+              <text v-if="m.selected" class="member-chip__check">✓</text>
+            </view>
+          </view>
+          <text v-if="!memberPool.length" class="form-tip">暂无成员，先加入小组后再创建</text>
+        </view>
+
+        <!-- 任务列表 -->
+        <view class="section">
+          <view class="section__header">
+            <text class="section__title">任务分工</text>
+            <text class="section__count">{{ form.tasks.length }} 项</text>
+          </view>
+
+          <!-- 任务模板 -->
+          <view class="template-row">
+            <text class="template-row__label">快速添加：</text>
+            <view
+              v-for="tpl in taskTemplates"
+              :key="tpl.key"
+              class="template-chip"
+              @tap="applyTaskTemplate(tpl.key)"
+            >
+              <text>{{ tpl.label }}</text>
+            </view>
+          </view>
+
+          <view class="task-list">
+            <view v-for="(t, idx) in form.tasks" :key="idx" class="task-row">
+              <!-- 所属阶段 -->
+              <picker
+                mode="selector"
+                :range="stageNames"
+                :value="t.stageIdx"
+                @change="e => t.stageIdx = Number(e.detail.value)"
+              >
+                <view class="task-row__stage">
+                  {{ stageNames[t.stageIdx] || '阶段' }}
+                </view>
+              </picker>
+
+              <input
+                class="task-row__input"
+                v-model="t.name"
+                placeholder="任务描述"
+                placeholder-class="form-input__ph"
+              />
+
+              <picker mode="date" :value="t.deadline" @change="e => t.deadline = e.detail.value">
+                <view class="task-row__date">
+                  {{ t.deadline || '截止' }}
+                </view>
+              </picker>
+
+              <view v-if="form.tasks.length > 1" class="task-row__del" @tap="removeTask(idx)">
+                <text>×</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="add-row-btn" @tap="addTask">
+            <text class="add-row-btn__icon">+</text>
+            <text>添加任务</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- ========== Step 4: 规则 ========== -->
+      <view v-if="step === 4" class="step-content">
+        <view class="section">
+          <text class="section__title">项目规则</text>
+
+          <view class="rule-item">
+            <view class="rule-item__info">
+              <text class="rule-item__title">挂单审核</text>
+              <text class="rule-item__desc">上传的文件需要组长审核通过才能归档</text>
+            </view>
+            <switch
+              :checked="form.auditRule.requireAudit"
+              color="#2563eb"
+              @change="form.auditRule.requireAudit = $event.detail.value"
+            />
+          </view>
+
+          <view class="rule-item">
+            <view class="rule-item__info">
+              <text class="rule-item__title">截止提醒</text>
+              <text class="rule-item__desc">任务截止前自动提醒负责人</text>
+            </view>
+            <switch
+              :checked="reminderOn"
+              color="#2563eb"
+              @change="onReminderChange"
+            />
+          </view>
+        </view>
+
+        <!-- 项目概览 -->
+        <view class="section">
+          <text class="section__title">项目概览</text>
+          <view class="overview-card">
+            <view class="overview-row">
+              <text class="overview-row__label">项目名称</text>
+              <text class="overview-row__value">{{ form.name || '未命名' }}</text>
+            </view>
+            <view class="overview-row">
+              <text class="overview-row__label">所属小组</text>
+              <text class="overview-row__value">{{ selectedGroup ? selectedGroup.name : '未选择' }}</text>
+            </view>
+            <view class="overview-row">
+              <text class="overview-row__label">阶段数量</text>
+              <text class="overview-row__value">{{ form.stages.length }} 个</text>
+            </view>
+            <view class="overview-row">
+              <text class="overview-row__label">成员数量</text>
+              <text class="overview-row__value">{{ selectedMembers.length }} 人</text>
+            </view>
+            <view class="overview-row">
+              <text class="overview-row__label">任务数量</text>
+              <text class="overview-row__value">{{ form.tasks.length }} 项</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="bottom-spacing"></view>
+    </scroll-view>
+
+    <!-- 底部按钮栏 -->
+    <view class="bottom-bar">
+      <view v-if="step > 1" class="bottom-bar__btn bottom-bar__btn--ghost" @tap="prevStep">
+        <text>上一步</text>
+      </view>
+      <view v-if="step < 4" class="bottom-bar__btn bottom-bar__btn--primary" @tap="nextStep">
+        <text>下一步</text>
+      </view>
+      <view
+        v-else
+        class="bottom-bar__btn bottom-bar__btn--primary"
+        :class="{ 'bottom-bar__btn--disabled': submitting }"
+        @tap="submitCreate"
+      >
+        <text>{{ submitting ? '创建中...' : '创建项目' }}</text>
+      </view>
+    </view>
+  </view>
 </template>
 
 <script setup>
-import { computed, provide, ref } from 'vue'
-import { onUnload } from '@dcloudio/uni-app'
-import NativeFragment from '../../components/NativeFragment.vue'
-import GroupPopup from '../../components/GroupPopup.vue'
-// #ifdef H5
-import NativeDate from '../../components/NativeDate.vue'
-// #endif
-import createController from '../../controllers/create.js'
-import { loadCreateMembers } from '../../utils/bind-api.js'
-const controller = createController()
-const { ui, classes, tap, iconSrc, onGroupChange, goStep, prevStep, nextStep } = controller
-provide('pageController', controller)
-// 邀请成员弹窗（小组邀请码管理）
-const showGroupPopup = ref(false)
-function onGroupPopupJoined() {
-  // 新成员加入后刷新成员池：成员 chip 与任务负责人选择器同步更新
-  const g = (controller.rocGroups || [])[0]
-  if (g) loadCreateMembers(controller, g.groupId)
+import { ref, reactive, computed, onMounted } from 'vue'
+import api from '../../utils/api.js'
+
+const steps = [
+  { label: '基础信息' },
+  { label: '阶段' },
+  { label: '分工' },
+  { label: '规则' },
+]
+
+const step = ref(1)
+const submitting = ref(false)
+
+// 表单数据
+const form = reactive({
+  name: '',
+  description: '',
+  stages: [
+    { name: '需求分析', endDate: '' },
+    { name: '方案设计', endDate: '' },
+    { name: '编码实现', endDate: '' },
+    { name: '测试验收', endDate: '' },
+  ],
+  tasks: [],
+  auditRule: { requireAudit: true, auditorRole: 'leader' },
+  reminderRule: { taskReminderDays: [3, 1] },
+})
+
+const reminderOn = computed(() => form.reminderRule.taskReminderDays.length > 0)
+
+// 小组
+const groups = ref([])
+const groupIdx = ref(-1)
+const groupOptions = computed(() => groups.value)
+const selectedGroup = computed(() =>
+  groupIdx.value >= 0 ? groups.value[groupIdx.value] : null
+)
+
+// 成员池
+const memberPool = ref([])
+const selectedMembers = computed(() => memberPool.value.filter(m => m.selected))
+
+// 阶段名列表（供任务选择）
+const stageNames = computed(() => form.stages.map((s, i) => s.name || ('阶段' + (i + 1))))
+
+// 步骤条进度线
+const lineWidth = computed(() => ((step.value - 1) / 3) * 75)
+
+// ---------- 模板 ----------
+const stageTemplates = [
+  { key: 'course', label: '课程项目' },
+  { key: 'research', label: '调研报告' },
+  { key: 'agile', label: '敏捷迭代' },
+]
+const STAGE_TEMPLATE_DATA = {
+  course: ['需求分析', '方案设计', '编码实现', '单元测试', '联调验收', '答辩提交'],
+  research: ['选题与文献调研', '数据收集', '分析论证', '报告撰写', '修改提交'],
+  agile: ['迭代规划', '需求澄清', '开发', '评审', '复盘'],
 }
-// 负责人选择器数据：从成员池映射昵称（与 NativeFragment 内一致），池空时兜底当前用户
-const memberNames = computed(() => {
-  const pool = controller.rocMemberPool || []
-  const names = pool.map(m => m.nickname || '')
-  if (!names.length && controller.currentUserNickname) names.push(controller.currentUserNickname)
-  return names
-})
-// 所属阶段选择器数据：实时读阶段容器（n56）各行的阶段名输入，空名以「阶段N」占位（与收集索引对应）
-const stageNames = computed(() => {
-  const names = []
-  const collect = (n) => {
-    if (!n || n.removed) return
-    const input = (n.children || []).map(r => r.id ? controller.ui[r.id] : null)
-      .find(x => x && x.tag === 'input' && x.attrs.type !== 'date')
-    const v = input ? String(input.value || '').trim() : ''
-    names.push(v || ('阶段' + (names.length + 1)))
+
+const taskTemplates = [
+  { key: 'dev', label: '通用开发' },
+  { key: 'report', label: '报告答辩' },
+]
+const TASK_TEMPLATE_DATA = {
+  dev: ['需求分析', '系统设计', '编码实现', '单元测试', '集成联调', '文档整理'],
+  report: ['资料收集', '初稿撰写', '小组评审', '修改定稿', '答辩准备'],
+}
+
+// ---------- 方法 ----------
+
+function onBack() {
+  if (step.value > 1) {
+    step.value--
+  } else {
+    uni.navigateBack()
   }
-  ;(controller.ui.n56.children || []).forEach(ref => ref.id && collect(controller.ui[ref.id]))
-  ;(controller.ui.n56.appended || []).forEach(id => collect(controller.ui[id]))
-  return names
+}
+
+function nextStep() {
+  // 校验
+  if (step.value === 1) {
+    if (!form.name.trim()) {
+      uni.showToast({ title: '请输入项目名称', icon: 'none' })
+      return
+    }
+    if (!selectedGroup.value) {
+      uni.showToast({ title: '请选择小组', icon: 'none' })
+      return
+    }
+  }
+  if (step.value === 2) {
+    const validStages = form.stages.filter(s => s.name.trim())
+    if (!validStages.length) {
+      uni.showToast({ title: '至少添加一个阶段', icon: 'none' })
+      return
+    }
+  }
+  if (step.value < 4) {
+    step.value++
+  }
+}
+
+function prevStep() {
+  if (step.value > 1) step.value--
+}
+
+function onGroupPick(e) {
+  groupIdx.value = Number(e.detail.value)
+  loadMembers(groups.value[groupIdx.value].groupId)
+}
+
+function onGoGroups() {
+  uni.showToast({ title: '请先在首页创建/加入小组', icon: 'none' })
+}
+
+// 阶段操作
+function addStage() {
+  form.stages.push({ name: '', endDate: '' })
+}
+function removeStage(idx) {
+  if (form.stages.length <= 1) return
+  form.stages.splice(idx, 1)
+}
+function applyStageTemplate(key) {
+  const names = STAGE_TEMPLATE_DATA[key]
+  if (!names) return
+  form.stages = names.map(n => ({ name: n, endDate: '' }))
+  const label = stageTemplates.find(t => t.key === key)?.label || key
+  uni.showToast({ title: `已套用「${label}」模板`, icon: 'none' })
+}
+
+// 成员操作
+function toggleMember(m) {
+  m.selected = !m.selected
+}
+function avatarColor(name) {
+  const colors = ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#f97316']
+  let hash = 0
+  for (let i = 0; i < (name || '').length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return colors[Math.abs(hash) % colors.length]
+}
+function avatarText(name) {
+  if (!name) return '?'
+  return String(name).trim().charAt(0).toUpperCase()
+}
+function formatNo(n) {
+  return n < 10 ? '0' + n : '' + n
+}
+
+// 任务操作
+function addTask() {
+  form.tasks.push({ name: '', stageIdx: 0, deadline: '' })
+}
+function removeTask(idx) {
+  if (form.tasks.length <= 1) return
+  form.tasks.splice(idx, 1)
+}
+function applyTaskTemplate(key) {
+  const names = TASK_TEMPLATE_DATA[key]
+  if (!names) return
+  const startIdx = form.tasks.length
+  names.forEach((n, i) => {
+    form.tasks.push({
+      name: n,
+      stageIdx: Math.min(i, form.stages.length - 1) < 0 ? 0 : Math.min(i, form.stages.length - 1),
+      deadline: '',
+    })
+  })
+  const label = taskTemplates.find(t => t.key === key)?.label || key
+  uni.showToast({ title: `已添加「${label}」模板`, icon: 'none' })
+}
+
+// 提醒开关
+function onReminderChange(e) {
+  if (e.detail.value) {
+    form.reminderRule.taskReminderDays = [3, 1]
+  } else {
+    form.reminderRule.taskReminderDays = []
+  }
+}
+
+// ---------- 数据加载 ----------
+
+async function loadGroups() {
+  try {
+    const res = await api.myGroups()
+    const list = Array.isArray(res) ? res : []
+    groups.value = list
+    if (list.length) {
+      groupIdx.value = 0
+      loadMembers(list[0].groupId)
+    }
+  } catch (e) {
+    console.warn('[create] 加载小组失败:', e)
+  }
+}
+
+async function loadMembers(groupId) {
+  if (!groupId) return
+  try {
+    const res = await api.groupMembers(groupId, { pageNum: 1, pageSize: 50 })
+    const list = (res && res.members) || (Array.isArray(res) ? res : [])
+    // 默认全不选中
+    memberPool.value = list.map(m => ({
+      ...m,
+      selected: false,
+    }))
+  } catch (e) {
+    console.warn('[create] 加载成员失败:', e)
+  }
+}
+
+// ---------- 提交 ----------
+
+async function submitCreate() {
+  if (submitting.value) return
+  const group = selectedGroup.value
+  if (!group) {
+    uni.showToast({ title: '请选择小组', icon: 'none' })
+    return
+  }
+  if (!form.name.trim()) {
+    uni.showToast({ title: '请输入项目名称', icon: 'none' })
+    return
+  }
+  const validStages = form.stages.filter(s => s.name.trim())
+  if (!validStages.length) {
+    uni.showToast({ title: '至少添加一个阶段', icon: 'none' })
+    return
+  }
+
+  submitting.value = true
+  try {
+    // 组装阶段数据（计算 startDate = 上一个 endDate + 1）
+    const stages = []
+    let prevEnd = ''
+    validStages.forEach((s, i) => {
+      const endDate = s.endDate ? String(s.endDate).slice(0, 10) : null
+      let startDate = null
+      if (prevEnd) {
+        const d = new Date(prevEnd + 'T00:00:00')
+        d.setDate(d.getDate() + 1)
+        const m = String(d.getMonth() + 1).padStart(2, '0')
+        const day = String(d.getDate()).padStart(2, '0')
+        startDate = d.getFullYear() + '-' + m + '-' + day
+      }
+      stages.push({
+        name: s.name.trim(),
+        orderNum: i + 1,
+        startDate,
+        endDate,
+      })
+      if (endDate) prevEnd = endDate
+    })
+
+    // 组装成员
+    const members = selectedMembers.value.map(m => ({
+      userId: m.userId,
+      role: m.role || 'member',
+    }))
+
+    // 创建项目
+    const data = await api.createProject({
+      groupId: group.groupId,
+      name: form.name.trim(),
+      description: form.description || '',
+      stages,
+      members,
+      auditRule: form.auditRule,
+      reminderRule: form.reminderRule,
+    })
+
+    const projectId = data && data.projectId
+    if (!projectId) throw new Error('创建失败')
+
+    // 创建任务
+    const validTasks = form.tasks.filter(t => t.name.trim())
+    if (validTasks.length) {
+      const createdStages = (data.stages || [])
+        .slice()
+        .sort((a, b) => (a.orderNum || 0) - (b.orderNum || 0))
+
+      if (createdStages.length) {
+        // 获取当前用户ID作为兜底
+        const profile = await api.getProfile().catch(() => null)
+        const currentUserId = profile && profile.userId
+
+        for (let i = 0; i < validTasks.length; i++) {
+          const t = validTasks[i]
+          const stageIdx = Math.min(t.stageIdx || 0, createdStages.length - 1)
+          const st = createdStages[stageIdx]
+          if (!st) continue
+
+          // 负责人：当前选了谁？这里简化：默认当前用户
+          const assigneeId = currentUserId
+
+          let deadline = ''
+          if (t.deadline && String(t.deadline).length >= 10) {
+            deadline = String(t.deadline).slice(0, 10) + ' 23:59:59'
+          } else {
+            const d = new Date(Date.now() + 7 * 24 * 3600 * 1000)
+            const m = String(d.getMonth() + 1).padStart(2, '0')
+            const day = String(d.getDate()).padStart(2, '0')
+            deadline = d.getFullYear() + '-' + m + '-' + day + ' 23:59:59'
+          }
+
+          await api.createTask({
+            projectId,
+            stageId: st.stageId,
+            name: t.name.trim(),
+            assigneeId,
+            deadline,
+          })
+        }
+      }
+    }
+
+    uni.showToast({ title: '创建成功', icon: 'success' })
+    uni.setStorageSync('rocgit_current_project_id', projectId)
+
+    setTimeout(() => {
+      uni.redirectTo({ url: '/pages/project/project?id=' + projectId })
+    }, 800)
+  } catch (e) {
+    uni.showToast({ title: (e && e.message) || '创建失败', icon: 'none' })
+  } finally {
+    submitting.value = false
+  }
+}
+
+onMounted(() => {
+  loadGroups()
 })
-onUnload(controller.dispose)
 </script>
+
+<style scoped>
+.create-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f8fafc;
+}
+
+/* 导航栏 */
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 44px 16px 12px;
+  background: #fff;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+.nav-bar__back {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #475569;
+}
+.nav-bar__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.nav-bar__placeholder {
+  width: 32px;
+}
+
+/* 步骤条 */
+.step-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: #fff;
+  position: relative;
+  flex-shrink: 0;
+}
+.step-bar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 1;
+  flex: 1;
+}
+.step-bar__dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+.step-bar__item--active .step-bar__dot {
+  background: #2563eb;
+  color: #fff;
+}
+.step-bar__item--done .step-bar__dot {
+  background: #10b981;
+  color: #fff;
+  font-size: 12px;
+}
+.step-bar__label {
+  font-size: 11px;
+  color: #94a3b8;
+}
+.step-bar__item--active .step-bar__label {
+  color: #2563eb;
+  font-weight: 500;
+}
+.step-bar__item--done .step-bar__label {
+  color: #10b981;
+}
+.step-bar__line {
+  position: absolute;
+  top: 34px;
+  height: 2px;
+  background: #2563eb;
+  z-index: 0;
+  transition: width 0.3s;
+}
+
+/* 内容区 */
+.content {
+  flex: 1;
+  overflow: hidden;
+}
+.step-content {
+  padding: 16px;
+}
+
+.section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  display: block;
+  margin-bottom: 12px;
+}
+.section__header .section__title {
+  margin-bottom: 0;
+}
+.section__count {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.required {
+  color: #dc2626;
+}
+
+/* 表单控件 */
+.form-input {
+  height: 44px;
+  padding: 0 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #0f172a;
+}
+.form-input__ph {
+  color: #94a3b8;
+}
+.form-textarea {
+  min-height: 80px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #0f172a;
+  line-height: 1.5;
+  width: 100%;
+  box-sizing: border-box;
+}
+.form-picker {
+  height: 44px;
+  padding: 0 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.form-picker__arrow {
+  font-size: 16px;
+  color: #94a3b8;
+}
+.form-tip {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+.form-tip__link {
+  color: #2563eb;
+}
+
+/* 模板行 */
+.template-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.template-row__label {
+  font-size: 12px;
+  color: #64748b;
+}
+.template-chip {
+  padding: 4px 12px;
+  background: #eff6ff;
+  border-radius: 999px;
+  font-size: 11px;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+/* 阶段行 */
+.stage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.stage-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+.stage-row__no {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  width: 24px;
+  flex-shrink: 0;
+}
+.stage-row__input {
+  flex: 1;
+  font-size: 13px;
+  color: #0f172a;
+  background: transparent;
+}
+.stage-row__date {
+  font-size: 11px;
+  color: #64748b;
+  flex-shrink: 0;
+  padding: 4px 8px;
+  background: #fff;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.stage-row__del {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+/* 任务行 */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+.task-row__stage {
+  font-size: 11px;
+  color: #2563eb;
+  background: #dbeafe;
+  padding: 3px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.task-row__input {
+  flex: 1;
+  font-size: 13px;
+  color: #0f172a;
+  background: transparent;
+  min-width: 0;
+}
+.task-row__date {
+  font-size: 11px;
+  color: #64748b;
+  flex-shrink: 0;
+  padding: 3px 6px;
+  background: #fff;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.task-row__del {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+/* 添加行按钮 */
+.add-row-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #64748b;
+  border: 1px dashed #cbd5e1;
+}
+.add-row-btn__icon {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* 成员池 */
+.member-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.member-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 6px 6px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  position: relative;
+  transition: all 0.2s;
+}
+.member-chip--on {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+.member-chip__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+}
+.member-chip__name {
+  font-size: 12px;
+  color: #475569;
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.member-chip--on .member-chip__name {
+  color: #2563eb;
+  font-weight: 500;
+}
+.member-chip__check {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  background: #2563eb;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+}
+
+/* 规则项 */
+.rule-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.rule-item:last-child {
+  border-bottom: none;
+}
+.rule-item__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rule-item__title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+}
+.rule-item__desc {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* 概览卡片 */
+.overview-card {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 4px 0;
+}
+.overview-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+}
+.overview-row__label {
+  font-size: 13px;
+  color: #64748b;
+}
+.overview-row__value {
+  font-size: 13px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.bottom-spacing {
+  height: 100px;
+}
+
+/* 底部按钮栏 */
+.bottom-bar {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+.bottom-bar__btn {
+  flex: 1;
+  padding: 13px;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+.bottom-bar__btn--ghost {
+  background: #f1f5f9;
+  color: #64748b;
+}
+.bottom-bar__btn--primary {
+  background: #2563eb;
+  color: #fff;
+}
+.bottom-bar__btn--disabled {
+  opacity: 0.6;
+}
+</style>
