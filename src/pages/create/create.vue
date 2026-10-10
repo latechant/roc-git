@@ -283,11 +283,15 @@
       </view>
     </view>
   </view>
+
+  <!-- 小组管理弹窗 -->
+  <GroupPopup :show="showGroupPopup" @close="showGroupPopup = false" @joined="onGroupJoined" />
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import api from '../../utils/api.js'
+import GroupPopup from '../../components/GroupPopup.vue'
 
 const steps = [
   { label: '基础信息' },
@@ -323,6 +327,7 @@ const groupOptions = computed(() => groups.value)
 const selectedGroup = computed(() =>
   groupIdx.value >= 0 ? groups.value[groupIdx.value] : null
 )
+const showGroupPopup = ref(false)
 
 // 成员池
 const memberPool = ref([])
@@ -399,7 +404,19 @@ function onGroupPick(e) {
 }
 
 function onGoGroups() {
-  uni.showToast({ title: '请先在首页创建/加入小组', icon: 'none' })
+  showGroupPopup.value = true
+}
+
+/** 小组创建/加入成功后刷新列表并选中新小组 */
+async function onGroupJoined() {
+  showGroupPopup.value = false
+  const list = await api.myGroups().catch(() => null)
+  groups.value = Array.isArray(list) ? list : []
+  if (groups.value.length) {
+    // 选中最新加入/创建的小组
+    groupIdx.value = 0
+    loadMembers(groups.value[0].groupId)
+  }
 }
 
 // 阶段操作
