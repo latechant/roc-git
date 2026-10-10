@@ -12,3 +12,4 @@ artifacts/
 .idea/
 .vscode/
 Thumbs.db
+.npm-cache/
