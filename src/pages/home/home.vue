@@ -11,7 +11,7 @@
         <text class="home-header__date">{{ dateText }}</text>
         <text class="home-header__name">{{ userStore.nickname || '同学' }}</text>
       </view>
-      <view class="home-header__right" :style="headerRightStyle">
+      <view class="home-header__right">
         <view class="home-header__icon-btn home-header__icon-btn--primary" @tap="onCreate">
           <text class="home-header__icon">+</text>
         </view>
@@ -248,9 +248,6 @@ const showGroupPopup = ref(false)
 const showProjectList = ref(false)
 const showGroupSwitcher = ref(false)
 
-// 小程序端右上角避让微信胶囊（退出键）所需的额外右边距；H5 恒为 0
-const capsulePadRight = ref(0)
-
 // ---------- 计算属性 ----------
 const dateText = computed(() => {
   const now = new Date()
@@ -263,11 +260,6 @@ const currentGroupName = computed(() => {
   const g = groupStore.groups.find(x => x.groupId === groupStore.currentGroupId)
   return g ? g.name : '未加入小组'
 })
-
-// 头部右侧容器样式：小程序端右移避让胶囊，H5 无额外样式
-const headerRightStyle = computed(() =>
-  capsulePadRight.value ? { marginRight: capsulePadRight.value + 'px' } : {}
-)
 
 const stats = computed(() => ({
   activeCount: activeProjects.value.length,
@@ -435,16 +427,6 @@ function onLoadMore() {
 
 // ---------- 生命周期 ----------
 onMounted(() => {
-  // #ifdef MP-WEIXIN
-  // 读取微信胶囊位置，让右上角按钮整体左移避让（退出键在胶囊内）
-  try {
-    const rect = uni.getMenuButtonBoundingClientRect()
-    const win = uni.getWindowInfo ? uni.getWindowInfo() : uni.getSystemInfoSync()
-    capsulePadRight.value = Math.max(0, win.windowWidth - rect.left)
-  } catch (e) {
-    capsulePadRight.value = 96 // 兜底：胶囊宽约87px + 右距约10px
-  }
-  // #endif
   loadData()
 })
 
@@ -466,6 +448,7 @@ onShow(() => {
 
 /* ---------- 顶部 Header ---------- */
 .home-header {
+  position: relative;
   padding: 48px 20px 16px;
   background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
   display: flex;
@@ -487,6 +470,11 @@ onShow(() => {
   color: #1e293b;
 }
 .home-header__right {
+  /* + 按钮水平垂直居中于头部，天然避让小程序右上角胶囊 */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   gap: 10px;
