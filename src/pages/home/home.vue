@@ -49,26 +49,29 @@
     </view>
 
     <!-- 可滚动内容区 -->
-    <scroll-view class="home-scroll" scroll-y :show-scrollbar="false" @scrolltolower="onLoadMore">
+    <scroll-view class="home-scroll" scroll-y scroll-with-animation :scroll-into-view="scrollAnchor" :show-scrollbar="false" @scrolltolower="onLoadMore">
 
       <!-- ========== 统计卡片 ========== -->
       <view class="stats-row">
-        <view class="stats-card stats-card--blue">
+        <view class="stats-card stats-card--blue" hover-class="stats-card--pressed" @tap="scrollToBlock('projects')">
           <text class="stats-card__num">{{ stats.activeCount }}</text>
           <text class="stats-card__label">进行中</text>
+          <text class="stats-card__arrow">›</text>
         </view>
-        <view class="stats-card stats-card--orange">
+        <view class="stats-card stats-card--orange" hover-class="stats-card--pressed" @tap="scrollToBlock('audit')">
           <text class="stats-card__num">{{ stats.pendingCount }}</text>
           <text class="stats-card__label">待审核</text>
+          <text class="stats-card__arrow">›</text>
         </view>
-        <view class="stats-card stats-card--red">
+        <view class="stats-card stats-card--red" hover-class="stats-card--pressed" @tap="scrollToBlock('tasks')">
           <text class="stats-card__num">{{ stats.dueCount }}</text>
           <text class="stats-card__label">临期</text>
+          <text class="stats-card__arrow">›</text>
         </view>
       </view>
 
       <!-- ========== 当前项目 ========== -->
-      <view class="section">
+      <view class="section" id="block-projects">
         <view class="section__header">
           <text class="section__title">当前项目</text>
           <text v-if="activeProjects.length > 3" class="section__more" @tap="showProjectList = true">查看全部</text>
@@ -119,7 +122,7 @@
       </view>
 
       <!-- ========== 临期任务 ========== -->
-      <view class="section">
+      <view class="section" id="block-tasks">
         <view class="section__header">
           <text class="section__title">临期任务</text>
           <text class="section__count">{{ dueTasks.length }}项</text>
@@ -147,7 +150,7 @@
       </view>
 
       <!-- ========== 待审核 ========== -->
-      <view class="section">
+      <view class="section" id="block-audit">
         <view class="section__header">
           <text class="section__title">待审核</text>
           <text v-if="pendingFiles.length" class="section__more" @tap="onGoAudit">全部</text>
@@ -215,7 +218,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '../../stores/index.js'
 import { useGroupStore } from '../../stores/index.js'
@@ -319,6 +322,14 @@ async function loadData() {
 }
 
 // ---------- 交互 ----------
+
+/** 统计卡点击：scroll-view 内平滑滚动到对应区块 */
+const scrollAnchor = ref('')
+function scrollToBlock(block) {
+  // 先清空再赋值，保证同一目标可重复触发
+  scrollAnchor.value = ''
+  nextTick(() => { scrollAnchor.value = 'block-' + block })
+}
 
 /** 切换小组下拉面板 */
 function onToggleGroupSwitcher() {
@@ -597,6 +608,7 @@ onShow(() => {
   padding: 0 20px 16px;
 }
 .stats-card {
+  position: relative;
   flex: 1;
   border-radius: 14px;
   padding: 14px 12px;
@@ -608,6 +620,18 @@ onShow(() => {
 .stats-card--blue { background: #dbeafe; }
 .stats-card--orange { background: #fef3c7; }
 .stats-card--red { background: #fee2e2; }
+.stats-card--pressed {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+.stats-card__arrow {
+  position: absolute;
+  top: 4px;
+  right: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #94a3b8;
+}
 .stats-card__num {
   font-size: 24px;
   font-weight: 700;
