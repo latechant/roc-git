@@ -84,8 +84,8 @@
 
       <!-- 成员 Tab（已迁移） -->
       <ProjectMemberTab
-        v-else-if="activeTab === 'members' && projectInfo.groupId"
-        :group-id="projectInfo.groupId"
+        v-else-if="activeTab === 'members' && project.groupId"
+        :group-id="project.groupId"
         ref="memberTabRef"
       />
 
