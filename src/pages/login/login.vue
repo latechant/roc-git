@@ -79,6 +79,10 @@ onLoad(() => {
   // 只有 token 没有用户信息 → 清理残留
   if (userStore.isLoggedIn && userStore.userInfo) {
     nickname.value = userStore.userInfo.nickname || ''
+    // #ifdef MP-WEIXIN
+    // 缓存昵称是占位默认名"微信用户"时视为未设置，不预填，强制补填真实昵称
+    if (nickname.value === '微信用户') nickname.value = ''
+    // #endif
   } else if (userStore.token && !userStore.userInfo) {
     userStore.logout()
   }
