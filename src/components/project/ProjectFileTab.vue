@@ -534,6 +534,23 @@ function onStageChange(e) {
   uploadStageIdx.value = e.detail.value
 }
 
+/** 上传前置校验：大小 50MB + 类型白名单（与后端规则保持一致） */
+const UPLOAD_MAX_SIZE = 50 * 1024 * 1024
+const UPLOAD_ALLOWED_EXT = ['md', 'txt', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'png', 'jpg', 'jpeg', 'zip']
+function checkFileBeforeUpload(file) {
+  if ((file.size || 0) > UPLOAD_MAX_SIZE) {
+    uni.showToast({ title: '文件超过 50MB 限制', icon: 'none' })
+    return false
+  }
+  const name = file.name || ''
+  const ext = name.includes('.') ? name.split('.').pop().toLowerCase() : ''
+  if (!UPLOAD_ALLOWED_EXT.includes(ext)) {
+    uni.showToast({ title: '不支持 .' + (ext || '?') + ' 类型文件', icon: 'none' })
+    return false
+  }
+  return true
+}
+
 /** 上传文件 */
 async function doUpload() {
   if (uploading.value) return
@@ -541,6 +558,7 @@ async function doUpload() {
     uni.showToast({ title: '请先选择文件', icon: 'none' })
     return
   }
+  if (!checkFileBeforeUpload(tempFile.value)) return
   if (!stages.value.length) {
     uni.showToast({ title: '请先创建阶段', icon: 'none' })
     return
