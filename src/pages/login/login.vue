@@ -1,6 +1,7 @@
 <!--
   登录页
   功能：昵称输入 + 登录 + JWT 存储 + 跳转首页
+  小程序端：微信一键登录（uni.login 真实 code，昵称可用 type=nickname 一键填入，可空）
   接入：userStore + AppButton 组件
 -->
 <template>
@@ -11,6 +12,17 @@
       <view class="login-subtitle">课程项目协作平台</view>
 
       <view class="input-wrap">
+        <!-- #ifdef MP-WEIXIN -->
+        <input
+          class="nickname-input"
+          type="nickname"
+          v-model="nickname"
+          placeholder="点这里一键填入微信昵称（可选）"
+          maxlength="20"
+          :disabled="userStore.loading"
+        />
+        <!-- #endif -->
+        <!-- #ifdef H5 -->
         <input
           class="nickname-input"
           v-model="nickname"
@@ -20,6 +32,7 @@
           :disabled="userStore.loading"
           @confirm="handleLogin"
         />
+        <!-- #endif -->
       </view>
 
       <AppButton
@@ -30,7 +43,12 @@
         :disabled="userStore.loading"
         @tap="handleLogin"
       >
+        <!-- #ifdef MP-WEIXIN -->
+        {{ userStore.loading ? '登录中...' : '微信一键登录' }}
+        <!-- #endif -->
+        <!-- #ifdef H5 -->
         {{ userStore.loading ? '进入中...' : '进入平台' }}
+        <!-- #endif -->
       </AppButton>
 
       <view class="login-tip">
@@ -98,11 +116,17 @@ function fetchLoginCode() {
 }
 
 async function handleLogin() {
-  const name = (nickname.value || '').trim()
+  let name = (nickname.value || '').trim()
+  // #ifdef H5
   if (!name) {
     uni.showToast({ title: '请输入昵称', icon: 'none' })
     return
   }
+  // #endif
+  // #ifdef MP-WEIXIN
+  // 一键登录：昵称可空，空则用固定默认名；老用户已预填原昵称，不会被覆盖
+  if (!name) name = '微信用户'
+  // #endif
 
   try {
     const code = await fetchLoginCode()
