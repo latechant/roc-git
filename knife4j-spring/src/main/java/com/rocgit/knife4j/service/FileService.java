@@ -87,7 +87,7 @@ public class FileService {
      */
     @Transactional
     public FileVO upload(MultipartFile file, Long projectId, Long stageId, Long uploaderId, String remark) {
-        String originalName = file.getOriginalFilename();
+        String originalName = validateAndSanitize(file);
         String ext = getExt(originalName);
         String uuidDir = UUID.randomUUID().toString().replace("-", "");
         String path = "/files/" + uuidDir + "/" + originalName;
@@ -293,7 +293,7 @@ public class FileService {
     @Transactional
     public FileVO resubmit(Long fileId, MultipartFile file, Long uploaderId, String remark) {
         File f = mustGetFile(fileId);
-        String originalName = file.getOriginalFilename();
+        String originalName = validateAndSanitize(file);
         String ext = getExt(originalName);
         String uuidDir = UUID.randomUUID().toString().replace("-", "");
         String path = "/files/" + uuidDir + "/" + originalName;
@@ -646,6 +646,55 @@ public class FileService {
         data.put("newVersion", newVersion);
         data.put("rollbackToVersion", targetVersion);
         return data;
+    }
+
+    // ===================== 上传限制 =====================
+
+    /** 允许的文件类型白名单（小写扩展名） */
+    private static final List<String> ALLOWED_EXT = Arrays.asList(
+            "md", "txt", "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "png", "jpg", "jpeg", "zip");
+    /** 单文件大小上限：50MB */
+    private static final long MAX_FILE_SIZE = 50L * 1024 * 1024;
+
+    /**
+     * 上传前置校验 + 文件名消毒，返回安全文件名。
+     * 防路径穿越：剥离目录与控制字符；超长截断保留扩展名；类型白名单。
+     */
+    private String validateAndSanitize(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException(ResultCode.FAIL, "文件为空");
+        }
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new BusinessException(ResultCode.FAIL, "文件超过 50MB 大小限制");
+        }
+        String name = file.getOriginalFilename();
+        if (name == null) {
+            name = "";
+        }
+        // 剥离目录部分（兼容 / 与 \），防路径穿越
+        name = name.replace('\\', '/');
+        int slash = name.lastIndexOf('/');
+        if (slash >= 0) {
+            name = name.substring(slash + 1);
+        }
+        // 去除控制字符
+        name = name.replaceAll("\\p{Cntrl}", "").trim();
+        if (name.isEmpty()) {
+            name = "unnamed";
+        }
+        // 超长截断（保留扩展名）
+        if (name.length() > 100) {
+            String ext0 = getExt(name);
+            int suffixLen = ext0.isEmpty() ? 0 : ext0.length() + 1;
+            name = name.substring(0, Math.max(100 - suffixLen, 1)) + (ext0.isEmpty() ? "" : "." + ext0);
+        }
+        // 类型白名单
+        String ext = getExt(name).toLowerCase();
+        if (!ALLOWED_EXT.contains(ext)) {
+            throw new BusinessException(ResultCode.FAIL,
+                    "不支持的文件类型 ." + ext + "，允许：" + String.join("/", ALLOWED_EXT));
+        }
+        return name;
     }
 
     // ===================== 私有辅助 =====================
