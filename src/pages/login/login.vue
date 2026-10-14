@@ -1,7 +1,7 @@
 <!--
   登录页
   功能：昵称输入 + 登录 + JWT 存储 + 跳转首页
-  小程序端：纯一键登录（无输入框；新用户默认"微信用户"，老用户沿用缓存昵称）
+  小程序端：微信一键登录（type=nickname 一键带出真实微信昵称；老用户预填原昵称）
   接入：userStore + AppButton 组件
 -->
 <template>
@@ -11,6 +11,18 @@
       <view class="login-title">ROC-git</view>
       <view class="login-subtitle">课程项目协作平台</view>
 
+      <!-- #ifdef MP-WEIXIN -->
+      <view class="input-wrap">
+        <input
+          class="nickname-input"
+          type="nickname"
+          v-model="nickname"
+          placeholder="点这里填入微信昵称"
+          maxlength="20"
+          :disabled="userStore.loading"
+        />
+      </view>
+      <!-- #endif -->
       <!-- #ifdef H5 -->
       <view class="input-wrap">
         <input
@@ -114,8 +126,11 @@ async function handleLogin() {
   }
   // #endif
   // #ifdef MP-WEIXIN
-  // 一键登录：昵称可空，空则用固定默认名；老用户已预填原昵称，不会被覆盖
-  if (!name) name = '微信用户'
+  // 需真实昵称：type=nickname 可一键带出微信昵称；老用户已预填原昵称
+  if (!name) {
+    uni.showToast({ title: '请点击输入框填入微信昵称', icon: 'none' })
+    return
+  }
   // #endif
 
   try {
