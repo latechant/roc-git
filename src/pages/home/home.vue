@@ -8,13 +8,10 @@
     <!-- ========== 顶部 Header ========== -->
     <view class="home-header">
       <view class="home-header__left">
-        <text class="home-header__date">{{ dateText }}</text>
-        <text class="home-header__name">{{ userStore.nickname || '同学' }}</text>
-      </view>
-      <view class="home-header__right">
         <view class="home-header__icon-btn home-header__icon-btn--primary" @tap="onCreate">
           <text class="home-header__icon">+</text>
         </view>
+        <text class="home-header__name">{{ userStore.nickname || '同学' }}</text>
       </view>
     </view>
 
@@ -249,12 +246,6 @@ const showProjectList = ref(false)
 const showGroupSwitcher = ref(false)
 
 // ---------- 计算属性 ----------
-const dateText = computed(() => {
-  const now = new Date()
-  const wd = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][now.getDay()]
-  return `${wd}，${now.getMonth() + 1}月${now.getDate()}日`
-})
-
 const currentGroupName = computed(() => {
   if (!groupStore.currentGroupId) return '未加入小组'
   const g = groupStore.groups.find(x => x.groupId === groupStore.currentGroupId)
@@ -448,36 +439,20 @@ onShow(() => {
 
 /* ---------- 顶部 Header ---------- */
 .home-header {
-  position: relative;
   padding: 48px 20px 16px;
   background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
   display: flex;
   align-items: center;
-  justify-content: space-between;
 }
 .home-header__left {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.home-header__date {
-  font-size: 13px;
-  color: #64748b;
+  align-items: center;
+  gap: 12px;
 }
 .home-header__name {
   font-size: 22px;
   font-weight: 700;
   color: #1e293b;
-}
-.home-header__right {
-  /* + 按钮水平垂直居中于头部，天然避让小程序右上角胶囊 */
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 .home-header__icon-btn {
   width: 36px;
