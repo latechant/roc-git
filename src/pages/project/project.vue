@@ -124,7 +124,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onShow, onLoad } from '@dcloudio/uni-app'
 import api from '../../utils/api.js'
 import ProjectFileTab from '../../components/project/ProjectFileTab.vue'
 import ProjectStageTab from '../../components/project/ProjectStageTab.vue'
@@ -287,6 +287,14 @@ function onTaskChange() {
 }
 
 // ---------- 生命周期 ----------
+onLoad((options) => {
+  // 支持 ?tab=xxx 直达指定 Tab（消息页跳转用），非法值回退默认 files
+  const key = options && options.tab
+  if (key && tabs.some(t => t.key === key)) {
+    activeTab.value = key
+  }
+})
+
 onMounted(() => {
   const pid = uni.getStorageSync('rocgit_current_project_id')
   if (pid) {

@@ -199,6 +199,21 @@ async function onMarkAllRead() {
   }
 }
 
+/** 消息类型 → 项目详情 Tab 映射 */
+function msgTargetTab(type) {
+  const map = {
+    audit: 'files',
+    review: 'files',
+    version: 'files',
+    file: 'files',
+    deadline: 'tasks',
+    task: 'tasks',
+    meeting: 'activity',
+    discussion: 'activity',
+  }
+  return map[type] || ''
+}
+
 /** 打开消息 */
 async function onOpenMessage(msg) {
   // 标记已读
@@ -206,11 +221,12 @@ async function onOpenMessage(msg) {
   if (id && !msg.read) {
     messageStore.readMessage(id).catch(() => {})
   }
-  // 跳对应项目详情
+  // 跳对应项目详情并定位到对应 Tab
   const pid = msg.projectId
   if (pid) {
     uni.setStorageSync('rocgit_current_project_id', Number(pid))
-    uni.navigateTo({ url: '/pages/project/project' })
+    const tab = msgTargetTab(msg.type)
+    uni.navigateTo({ url: '/pages/project/project' + (tab ? `?tab=${tab}` : '') })
   }
 }
 
