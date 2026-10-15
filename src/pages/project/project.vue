@@ -9,9 +9,14 @@
       <view class="project-nav__back" @tap="onBack">
         <text class="project-nav__back-icon">‹</text>
       </view>
-      <text class="project-nav__title">{{ project.name || '加载中...' }}</text>
-      <view class="project-nav__more" @tap="toggleMore">
-        <text class="project-nav__more-icon">⋯</text>
+      <!-- 标题与「更多操作」合并为一个可点元素 -->
+      <view
+        class="project-nav__title"
+        hover-class="project-nav__title--pressed"
+        @tap="toggleMore"
+      >
+        <text class="project-nav__title-text">{{ project.name || '加载中...' }}</text>
+        <text class="project-nav__title-arrow">⋯</text>
       </view>
     </view>
 
@@ -340,6 +345,7 @@ onShow(() => {
 
 /* ---------- 顶部导航 ---------- */
 .project-nav {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -359,27 +365,39 @@ onShow(() => {
   color: #334155;
   font-weight: 300;
 }
+/* 标题即「更多操作」入口：绝对居中，含不收缩的 ⋯ 图标作可点暗示 */
 .project-nav__title {
-  flex: 1;
-  text-align: center;
+  position: absolute;
+  left: 50%;
+  top: 44px;
+  transform: translateX(-50%);
+  max-width: calc(100% - 220px); /* 限宽：不侵入返回键与右上角胶囊区 */
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 10px;
+  border-radius: 10px;
+}
+.project-nav__title--pressed {
+  background: #f1f5f9;
+}
+.project-nav__title-text {
+  flex: 0 1 auto;
+  min-width: 0;
   font-size: 16px;
   font-weight: 600;
   color: #0f172a;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding: 0 10px;
 }
-.project-nav__more {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.project-nav__more-icon {
-  font-size: 20px;
-  color: #64748b;
+.project-nav__title-arrow {
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: 1;
+  color: #94a3b8;
 }
 
 /* ---------- 项目信息头 ---------- */
