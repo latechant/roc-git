@@ -18,13 +18,13 @@ roc-git/
 │   └── README.md            #   双模式打包（Fat WAR / 标准 WAR）部署指南
 ├── openapi.yaml             # OpenAPI 3.0 规范（146 个 REST 接口）
 ├── SWAGGER_GUIDE.md         # Swagger/Knife4j 使用与部署指南
-├── scripts/                 # 迁移与验证脚本（见下文「脚本」）
-├── docs/                    # 报告与需求材料
-│   ├── original-readme.md   #   原始 HTML 版说明备份
-│   ├── docx_content.txt     #   报告 docx 正文提取
-│   ├── 功能点.docx          #   功能点清单
-│   ├── 项目可行技术栈选型….docx  # 技术栈选型（SpringBoot+MyBatis-Plus+MySQL 等）
-│   └── 《软件系统分析与设计…》.docx  # 课程报告参考模板
+├── scripts/                 # 验证脚本（见下文「脚本」）
+├── docs/                    # 课程报告与配套材料
+│   ├── 《软件系统分析与设计综合实践》.docx  # 课程报告主文档
+│   ├── 任务与报告对照及错位说明.md          # 报告与工程实现对照
+│   ├── AI_HANDOFF_PROMPT.md  # AI 会话交接提示词
+│   ├── flowchart_images/     # 报告用图（流程图/用例图/类图/时序图）
+│   └── 参考文献/             # 报告参考文献 PDF 与目录
 ├── 需求规格说明书.md         # 需求文档 v1.9（概述/角色/用例/类图/时序图/功能/流程/数据字典等）
 ├── package.json             # 前端依赖与脚本（uni-app CLI）
 ├── vite.config.js           # Vite 配置
@@ -121,7 +121,6 @@ npm.cmd run build:mp-weixin
 - `src/static/icons/`：原 Lucide 图标的本地 PNG，不依赖在线 Iconify。
 - `src/utils/api.js`：真实接口请求层，基于 `uni.request`，自动管理 JWT token、以相对 `/api` 走 nginx 反向代理（H5 部署时）。涵盖认证、小组、项目、任务、消息等全部后端接口封装（研讨等接口封装按「接口预留」保留）。
 - `src/components/NativeDate.vue`：仅 H5 使用的浏览器日期输入，小程序使用 `picker`。
-- `docs/original-readme.md`、`docx_content.txt`：保留原说明和需求材料。
 
 Vue 页面使用 `view`、`text`、`button`、`scroll-view`、`input`、`textarea`、`picker`、`image`，没有用 web-view 包装 HTML。页面已全部迁移为标准 Vue 单文件组件，旧 DOM-adapter 架构（page-controller.js、bind-api.js、NativeFragment.vue、controllers/、data/）已在研讨页下线后清理完毕。
 
