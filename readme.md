@@ -9,8 +9,7 @@
 ```
 roc-git/
 ├── src/                     # uni-app + Vue 3 前端源码（H5 / 微信小程序双端）
-│   ├── utils/api.js         #   真实接口请求层（token 管理、/api 反代）
-│   └── utils/bind-api.js    #   后端数据绑定层（页面节点渲染）
+│   └── utils/api.js         #   真实接口请求层（token 管理、/api 反代）
 ├── database/                # MySQL 数据库层（建库建表 + 种子数据 + 说明）
 │   ├── schema.sql           #   建库建表脚本（MySQL 8.0，15 张表，可重复执行）
 │   ├── seed.sql             #   初始化数据（默认阶段模板）
@@ -46,7 +45,7 @@ roc-git/
 | 后端 | `knife4j-spring/` | Spring Boot + Knife4j | 已部署，连 MySQL 8.0，鉴权/CRUD/文件落盘/消息日志可用 |
 | 数据库 | `database/` | MySQL 8.0 | 22 张表 + seed 就绪 |
 
-uni-app 端（前端 A）通过 `src/utils/api.js`（真实请求层）+ `src/utils/bind-api.js`（数据绑定层）接入后端真实接口：`api.js` 统一管理 token、以相对 `/api` 走 nginx 反向代理，页面控制器创建后调用 `bind-api` 把后端数据渲染进对应节点，无需改动原型布局。原生小程序端仍为 mock。接口路径统一按 `/api/...` 预留。
+uni-app 端（前端 A）通过 `src/utils/api.js`（真实请求层）接入后端真实接口：统一管理 token、以相对 `/api` 走 nginx 反向代理，页面 setup 直接调用接口并把数据渲染到标准 Vue 组件中。原生小程序端仍为 mock。接口路径统一按 `/api/...` 预留。
 
 ---
 
@@ -113,7 +112,6 @@ npm.cmd run build:mp-weixin
 | `home.html` | `src/pages/home/home.vue` |
 | `project.html` | `src/pages/project/project.vue` |
 | `create.html` | `src/pages/create/create.vue` |
-| `meeting.html` | `src/pages/meeting/meeting.vue` |
 | `messages.html` | `src/pages/messages/messages.vue` |
 | `profile.html` | `src/pages/profile/profile.vue` |
 
@@ -121,18 +119,13 @@ npm.cmd run build:mp-weixin
 - `src/manifest.json`：微信 AppID、版本、平台配置。
 - `src/styles/`：本地样式，保留 Tailwind 原数值，rem 转为 px，复杂类名转为小程序兼容类名。
 - `src/static/icons/`：原 Lucide 图标的本地 PNG，不依赖在线 Iconify。
-- `src/controllers/`：各页面原型操作。
-- `src/data/`：页面初始状态、样式映射。
-- `src/utils/page-controller.js`：Vue 响应式状态适配器，以及 uni-app 导航、剪贴板、定时器适配，没有浏览器 DOM 或 eval。
-- `src/utils/api.js`：真实接口请求层，基于 `uni.request`，自动管理 JWT token、以相对 `/api` 走 nginx 反向代理（H5 部署时）。涵盖认证、小组、项目、任务、消息、研讨等全部后端接口封装。
-- `src/utils/bind-api.js`：数据绑定层，将后端接口返回的数据渲染进各页面 DOM 节点，保留原型布局与交互；页面控制器创建后调用对应 `load*` 函数。
-- `src/components/NativeFragment.vue`：新增成员、阶段、任务和研讨落地项的原生表单行。
+- `src/utils/api.js`：真实接口请求层，基于 `uni.request`，自动管理 JWT token、以相对 `/api` 走 nginx 反向代理（H5 部署时）。涵盖认证、小组、项目、任务、消息等全部后端接口封装（研讨等接口封装按「接口预留」保留）。
 - `src/components/NativeDate.vue`：仅 H5 使用的浏览器日期输入，小程序使用 `picker`。
 - `docs/original-readme.md`、`docx_content.txt`：保留原说明和需求材料。
 
-Vue 页面使用 `view`、`text`、`button`、`scroll-view`、`input`、`textarea`、`picker`、`image`，没有用 web-view 包装 HTML。原型动作通过响应式状态适配器保留，以减少重写造成的展示和行为变化。
+Vue 页面使用 `view`、`text`、`button`、`scroll-view`、`input`、`textarea`、`picker`、`image`，没有用 web-view 包装 HTML。页面已全部迁移为标准 Vue 单文件组件，旧 DOM-adapter 架构（page-controller.js、bind-api.js、NativeFragment.vue、controllers/、data/）已在研讨页下线后清理完毕。
 
-后续维护直接编辑 `src`。`npm.cmd run migrate` 是一次性迁移工具，会从桌面备份的原 HTML **覆盖生成的页面、控制器和初始状态**，正常开发不要重复运行。内容和布局对照检查也读取该备份；若备份移动，可设置环境变量 `ORIGINAL_HTML_DIR` 指定新路径。正常运行及构建不依赖备份。
+后续维护直接编辑 `src`。布局对照检查（`npm run check:layout`）会读取桌面备份的原 HTML；若备份移动，可设置环境变量 `ORIGINAL_HTML_DIR` 指定新路径。正常运行及构建不依赖备份。
 
 ---
 
@@ -185,12 +178,11 @@ java -jar target/knife4j-spring-1.0.0.war
 
 ### 前端接入方式
 
-前端新增两层，实现"不改动原型布局、真实调用后端"：
+前端新增一层，实现"不改动原型布局、真实调用后端"：
 
-- `src/utils/api.js`：封装全部后端接口，自动存储/注入 `Bearer` token；`baseUrl` 默认相对 `/api`（H5 经 nginx 反代），小程序端可覆盖为完整域名。
-- `src/utils/bind-api.js`：给页面节点 `ui['nX'].textContent` 赋值即覆盖原型文本（模板优先渲染 `textContent`），保留布局与交互。每个页面控制器创建后调用对应 `load*` 函数异步拉取并渲染。
+- `src/utils/api.js`：封装全部后端接口，自动存储/注入 `Bearer` token；`baseUrl` 默认相对 `/api`（H5 经 nginx 反代），小程序端可覆盖为完整域名。页面 setup 直接调用接口，把数据渲染到标准 Vue 组件中。
 
-已接入页面：首页（登录、个人资料、小组、项目列表、未读数）、项目详情、个人中心、消息、研讨记录。
+已接入页面：首页（登录、个人资料、小组、项目列表、未读数）、项目详情、个人中心、消息。
 
 ### 当前状态
 
@@ -204,8 +196,6 @@ java -jar target/knife4j-spring-1.0.0.war
 
 | 命令 | 脚本 | 作用 |
 |---|---|---|
-| `npm run migrate` | `migrate.mjs` | 一次性迁移工具，从备份原 HTML 覆盖生成页面/控制器/初始状态，正常开发勿重复运行 |
-| `npm run check` | `check.mjs` | 内容检查：逐一对照 6 页元素、文字、属性（含隐藏弹层、表单初始值） |
 | `npm run check:browser` | `interaction-check.mjs` | 浏览器交互检查（本机 Edge）：Tab、筛选、弹层、动态表单 |
 | `npm run check:layout` | `preview-check.mjs` | 393×852 视口布局检查，生成 `artifacts/*-original.png`、`*-uniapp.png`、`layout-report.json` |
 | `npm run build:h5` | — | 验证 H5 编译 |
@@ -214,7 +204,6 @@ java -jar target/knife4j-spring-1.0.0.war
 ## 验证
 
 ```powershell
-npm.cmd run check
 npm.cmd run build:h5
 npm.cmd run build:mp-weixin
 ```

@@ -218,15 +218,15 @@ src/
 - [ ] **第 13 步**：分享页（访客免登录）⏸️ 跳过，暂不上线
   - 旧代码保留（pages/share/share.vue 已是标准 Vue）
 
-- [ ] **第 14 步**：研讨页⏸️ 跳过，暂不上线
-  - 旧代码保留（DOM-adapter 模式，等待后续迭代）
-  - 保留文件：controllers/meeting.js、data/meeting.json、data/classes.js、data/classes.json
+- [x] **第 14 步**：研讨页⏸️ 已跳过并下线（2026-10-15 删除整页）
+  - 已删除：pages/meeting/meeting.vue、controllers/meeting.js、data/meeting.json（该页从未在 pages.json 注册路由）
+  - 后端研讨/决策接口与 api.js 封装按「接口预留」保留，不删
 
 - [ ] **第 15 步**：旧代码清理
   - [x] 已清理：home/messages/profile/project/create 对应的 controller + data
   - [x] 已清理：pages-new 临时目录（页面全部替换到原路径）
   - [x] 已清理：pages/home/ 下 5 个死文件
-  - [ ] 待研讨页迁移后清理：page-controller.js、bind-api.js
+  - [x] 已清理：page-controller.js、bind-api.js、classes.js/json、NativeFragment.vue（研讨页删除后无引用）
 
 - [x] **部署上线**：H5 已部署到阿里云 116.62.81.113
 
@@ -451,11 +451,11 @@ refactor(login): 迁移登录页到标准 Vue 组件
 | 文件 | 用途 |
 |------|------|
 | `src/utils/api.js` | 现有 API 封装（重构后保留核心逻辑） |
-| `src/utils/bind-api.js` | 数据绑定逻辑（迁移到各页面 setup 中） |
-| `src/utils/page-controller.js` | DOM-adapter 核心（最终删除） |
-| `src/controllers/*.js` | 各页面交互逻辑（迁移参考） |
-| `src/data/*.json` | 各页面节点树（迁移参考，最终删除） |
-| `src/pages/*/*.vue` | 旧页面模板（迁移参考，最终删除） |
+| `src/utils/bind-api.js` | 数据绑定逻辑（已删除，逻辑已迁入各页面 setup） |
+| `src/utils/page-controller.js` | DOM-adapter 核心（已删除） |
+| `src/controllers/*.js` | 各页面交互逻辑（已删除） |
+| `src/data/*.json` | 各页面节点树（已删除） |
+| `src/pages/*/*.vue` | 标准 Vue 页面（重构后主战场） |
 | `vite.config.js` | 构建配置（保持不变） |
 | `tailwind.config.js` | 样式配置（保持不变） |
 

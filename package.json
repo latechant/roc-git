@@ -7,8 +7,6 @@
     "build:h5": "uni build",
     "dev:mp-weixin": "uni -p mp-weixin",
     "build:mp-weixin": "uni build -p mp-weixin",
-    "migrate": "node scripts/migrate.mjs",
-    "check": "node scripts/check.mjs",
     "check:browser": "node scripts/interaction-check.mjs",
     "check:layout": "node scripts/preview-check.mjs"
   },
