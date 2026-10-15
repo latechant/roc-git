@@ -97,7 +97,6 @@ const tabs = [
   { key: 'review', label: '审核' },
   { key: 'deadline', label: '截止' },
   { key: 'version', label: '版本' },
-  { key: 'meeting', label: '研讨' },
 ]
 
 // ---------- 计算属性 ----------
@@ -132,8 +131,6 @@ function msgIcon(type) {
     task: '⏰',
     version: '📄',
     file: '📄',
-    meeting: '💬',
-    discussion: '💬',
     mention: '👋',
     system: '🔔',
   }
@@ -149,8 +146,6 @@ function msgTypeCategory(type) {
     task: 'deadline',
     version: 'version',
     file: 'version',
-    meeting: 'meeting',
-    discussion: 'meeting',
   }
   return map[type] || 'other'
 }
@@ -208,8 +203,6 @@ function msgTargetTab(type) {
     file: 'files',
     deadline: 'tasks',
     task: 'tasks',
-    meeting: 'activity',
-    discussion: 'activity',
   }
   return map[type] || ''
 }
