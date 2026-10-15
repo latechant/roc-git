@@ -5,7 +5,7 @@
 <template>
   <view class="project-page">
     <!-- ========== 顶部导航栏 ========== -->
-    <view class="project-nav" :style="{ paddingRight: navPaddingRight }">
+    <view class="project-nav">
       <view class="project-nav__back" @tap="onBack">
         <text class="project-nav__back-icon">‹</text>
       </view>
@@ -149,8 +149,6 @@ const stageTabRef = ref(null)
 const memberTabRef = ref(null)
 const traceTabRef = ref(null)
 const taskTabRef = ref(null)
-/** 顶部导航右侧内边距：小程序端避让微信胶囊（H5 端保持 12px） */
-const navPaddingRight = ref('12px')
 
 const tabs = [
   { key: 'files', label: '文件' },
@@ -289,22 +287,6 @@ function onTaskChange() {
 }
 
 // ---------- 生命周期 ----------
-/** 避让微信胶囊：⋯ 操作按钮右移出胶囊覆盖区（H5 端由条件编译剔除，保持默认 12px） */
-function initNavPadding() {
-  // #ifdef MP-WEIXIN
-  try {
-    const rect = uni.getMenuButtonBoundingClientRect()
-    const info = uni.getSystemInfoSync()
-    if (rect && rect.width && info && info.windowWidth) {
-      // 内容右边界落在胶囊左缘左侧 8px 处
-      navPaddingRight.value = (info.windowWidth - rect.left + 8) + 'px'
-    }
-  } catch (e) {
-    // 取不到胶囊信息时保持默认内边距
-  }
-  // #endif
-}
-
 onLoad((options) => {
   // 支持 ?tab=xxx 直达指定 Tab（消息页跳转用），非法值回退默认 files
   const key = options && options.tab
@@ -314,7 +296,6 @@ onLoad((options) => {
 })
 
 onMounted(() => {
-  initNavPadding()
   const pid = uni.getStorageSync('rocgit_current_project_id')
   if (pid) {
     projectId.value = Number(pid)
@@ -359,7 +340,6 @@ onShow(() => {
 
 /* ---------- 顶部导航 ---------- */
 .project-nav {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -380,14 +360,7 @@ onShow(() => {
   font-weight: 300;
 }
 .project-nav__title {
-  /* 绝对居中：不受返回键与胶囊避让内边距影响；限宽避免侵入两侧 */
-  position: absolute;
-  left: 50%;
-  top: 44px;
-  transform: translateX(-50%);
-  height: 36px;
-  line-height: 36px;
-  max-width: calc(100% - 200px);
+  flex: 1;
   text-align: center;
   font-size: 16px;
   font-weight: 600;
@@ -395,6 +368,7 @@ onShow(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding: 0 10px;
 }
 .project-nav__more {
   width: 36px;
