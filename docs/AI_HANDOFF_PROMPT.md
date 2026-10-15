@@ -115,7 +115,11 @@ avatarUrl 字段；PowerShell 下 curl 传 JSON 用 --data @file 避免截断。
 1. npm 安装依赖失败：本机 npm 配了全局代理，需先执行
    npm config delete proxy; npm config delete https-proxy
    再 npm install。装 Pinia 必须指定 2.1.7（vue 3.4.21 不兼容 pinia 最新版）。
-2. git 推送失败：全局 git 代理 127.0.0.1:3066 未运行，推送时需绕过代理。
+2. git 推送走仓库本地代理：`.git/config` 配了 `http(s).proxy=http://127.0.0.1:3066`
+   （local 级，非全局/系统代理）。推送前必须先启动 sing-box：
+   非沙箱运行 `D:\zxc\work\proxy\sing-box\ai\start_proxy.ps1`（沙箱内启动的进程
+   会随命令结束被清理）；github.com 已在代理白名单。代理未运行时推送报
+   "Failed to connect to 127.0.0.1 port 3066"。
 3. 微信开发者工具导入目录必须是编译产物 dist/dev/mp-weixin 或 dist/build/mp-weixin，
    不要导入根目录或 src。
 4. 小程序构建产物会压缩改写函数名与 CSS 属性（paddingRight→padding-right、
