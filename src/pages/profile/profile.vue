@@ -83,22 +83,6 @@
       </view>
 
       <view class="menu-section">
-        <text class="menu-section__title">教学管理</text>
-
-        <view class="menu-item" @tap="onTeacherGroups">
-          <view class="menu-item__icon">👥</view>
-          <text class="menu-item__label">我指导的小组</text>
-          <text class="menu-item__arrow">›</text>
-        </view>
-
-        <view class="menu-item" @tap="onEvaluation">
-          <view class="menu-item__icon">📊</view>
-          <text class="menu-item__label">过程性评价</text>
-          <text class="menu-item__arrow">›</text>
-        </view>
-      </view>
-
-      <view class="menu-section">
         <text class="menu-section__title">设置</text>
 
         <view class="menu-item">
@@ -265,16 +249,6 @@ function doArchive() {
 /** 存储与下载 */
 function onStorage() {
   uni.showToast({ title: '存储正常', icon: 'none' })
-}
-
-/** 我指导的小组 */
-function onTeacherGroups() {
-  uni.showToast({ title: '教师端功能', icon: 'none' })
-}
-
-/** 过程性评价 */
-function onEvaluation() {
-  uni.showToast({ title: '教师端功能', icon: 'none' })
 }
 
 /** 选中项目（弹窗） */
