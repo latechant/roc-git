@@ -1,0 +1,12 @@
+{
+  "endpoint": "GET /api/v1/project/{projectId}",
+  "concurrency": 100,
+  "requests": 200,
+  "successful": 200,
+  "seconds": 1.221,
+  "TPS": 163.75,
+  "P50_ms": 385.91,
+  "P95_ms": 976.6,
+  "mean_ms": 467.36,
+  "scope": "实际JWT鉴权+MySQL项目详情查询；含SSH及网络延迟；单轮采样"
+}

@@ -1,0 +1,147 @@
+{
+  "total": 225,
+  "statuses": {
+    "通过": 225
+  },
+  "methods": {
+    "黑盒": 94,
+    "灰盒": 16,
+    "白盒": 115
+  },
+  "goals": {
+    "安全": 35,
+    "边界与分支": 134,
+    "接口": 8,
+    "功能": 21,
+    "兼容性": 2,
+    "数据一致性": 10,
+    "可靠性": 3,
+    "性能": 5,
+    "健壮性": 7
+  },
+  "stages": {
+    "集成测试": 89,
+    "系统测试": 12,
+    "回归测试": 14,
+    "单元测试": 110
+  },
+  "baseline": [
+    [
+      "baseline-frontend",
+      65,
+      63,
+      2,
+      0,
+      0
+    ],
+    [
+      "baseline-java",
+      36,
+      36,
+      0,
+      0,
+      0
+    ],
+    [
+      "baseline-api",
+      92,
+      84,
+      8,
+      0,
+      0
+    ],
+    [
+      "final",
+      225,
+      225,
+      0,
+      0,
+      0
+    ]
+  ],
+  "baseline_failed": 10,
+  "performance": [
+    {
+      "concurrency": 1,
+      "requests": 20,
+      "successful": 20,
+      "seconds": 1.837,
+      "TPS": 10.89,
+      "mean_ms": 91.63,
+      "P50_ms": 91.58,
+      "P95_ms": 93.6,
+      "max_ms": 94.77,
+      "scope": "健康接口，经SSH隧道，含网络及隧道延迟；不是业务接口容量结论"
+    },
+    {
+      "concurrency": 10,
+      "requests": 50,
+      "successful": 50,
+      "seconds": 0.488,
+      "TPS": 102.54,
+      "mean_ms": 91.84,
+      "P50_ms": 85.58,
+      "P95_ms": 124.97,
+      "max_ms": 127.05,
+      "scope": "健康接口，经SSH隧道，含网络及隧道延迟；不是业务接口容量结论"
+    },
+    {
+      "concurrency": 100,
+      "requests": 200,
+      "successful": 200,
+      "seconds": 1.163,
+      "TPS": 171.9,
+      "mean_ms": 213.18,
+      "P50_ms": 110.2,
+      "P95_ms": 603.65,
+      "max_ms": 1133.03,
+      "scope": "健康接口，经SSH隧道，含网络及隧道延迟；不是业务接口容量结论"
+    },
+    {
+      "endpoint": "GET /api/v1/project/{projectId}",
+      "concurrency": 10,
+      "requests": 200,
+      "successful": 200,
+      "seconds": 2.11,
+      "TPS": 94.8,
+      "P50_ms": 98.34,
+      "P95_ms": 139.23,
+      "mean_ms": 103.19,
+      "scope": "实际JWT鉴权+MySQL项目详情查询；含SSH及网络延迟；单轮采样"
+    },
+    {
+      "endpoint": "GET /api/v1/project/{projectId}",
+      "concurrency": 100,
+      "requests": 200,
+      "successful": 200,
+      "seconds": 1.221,
+      "TPS": 163.75,
+      "P50_ms": 385.91,
+      "P95_ms": 976.6,
+      "mean_ms": 467.36,
+      "scope": "实际JWT鉴权+MySQL项目详情查询；含SSH及网络延迟；单轮采样"
+    }
+  ],
+  "java_unit_line_coverage_percent": 9.39,
+  "controllers": 14,
+  "http_endpoints": 131,
+  "endpoint_inventory": {
+    "AchievementController": 5,
+    "AnnouncementController": 2,
+    "CommonController": 5,
+    "DecisionController": 5,
+    "DiscussionController": 5,
+    "FileController": 22,
+    "GroupController": 13,
+    "LogController": 3,
+    "MessageController": 9,
+    "ProjectController": 22,
+    "ShareController": 18,
+    "TaskController": 11,
+    "UserController": 8,
+    "VersionController": 3
+  },
+  "git_head": "27f0db707c293b922b2d41ff5a9716cbccf36302",
+  "cleanup": "测试进程停止；测试库、专用账号、测试文件已删除",
+  "time": "2026-10-20T22:27:11.035283+08:00"
+}

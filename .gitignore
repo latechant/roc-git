@@ -13,3 +13,10 @@ artifacts/
 .vscode/
 Thumbs.db
 .npm-cache/
+
+# Python / Java test runtime artifacts
+.venv-testing/
+__pycache__/
+.pytest_cache/
+testing/target/
+knife4j-spring/target/

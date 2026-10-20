@@ -1,0 +1,12 @@
+﻿类,已覆盖行,未覆盖行,行覆盖率%,已覆盖分支,未覆盖分支,分支覆盖率%
+com/rocgit/knife4j/config/JwtInterceptor,17,0,100.0,8,0,100.0
+com/rocgit/knife4j/config/JwtUtil,23,0,100.0,0,0,不适用
+com/rocgit/knife4j/service/FileService,32,429,6.94,22,180,10.89
+com/rocgit/knife4j/service/NotifyService,18,14,56.25,7,7,50.0
+com/rocgit/knife4j/service/WechatService,5,36,12.2,1,25,3.85
+com/rocgit/knife4j/service/ProjectService,10,415,2.35,3,155,1.9
+com/rocgit/knife4j/service/TaskService,71,83,46.1,26,44,37.14
+com/rocgit/knife4j/service/ShareService,28,214,11.57,11,69,13.75
+com/rocgit/knife4j/common/BusinessException,6,3,66.67,0,0,不适用
+com/rocgit/knife4j/common/ResultCode,24,0,100.0,0,0,不适用
+com/rocgit/knife4j/common/Result,7,8,46.67,0,0,不适用

@@ -1,0 +1,5 @@
+﻿执行批次,用例数,通过,失败,错误,跳过
+baseline-frontend,65,63,2,0,0
+baseline-java,36,36,0,0,0
+baseline-api,92,84,8,0,0
+final,225,225,0,0,0

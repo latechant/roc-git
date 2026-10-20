@@ -1,0 +1,12 @@
+{
+  "concurrency": 100,
+  "requests": 200,
+  "successful": 200,
+  "seconds": 1.163,
+  "TPS": 171.9,
+  "mean_ms": 213.18,
+  "P50_ms": 110.2,
+  "P95_ms": 603.65,
+  "max_ms": 1133.03,
+  "scope": "健康接口，经SSH隧道，含网络及隧道延迟；不是业务接口容量结论"
+}
