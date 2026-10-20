@@ -51,6 +51,7 @@
           :selected="selectedIds.includes(f.fileId)"
           @select="toggleSelect(f.fileId)"
           @menu="openFileMenu(f)"
+          @open="onDownload(f)"
           @approve="onApprove(f)"
           @reject="onReject(f)"
           @resubmit="onResubmit(f)"
@@ -183,6 +184,10 @@
     <view v-if="showMenu" class="modal-mask" @tap="showMenu = false">
       <view class="modal-sheet modal-sheet--sm" @tap.stop>
         <view class="menu-list">
+          <view class="menu-list__item" @tap="onDownload">
+            <app-icon name="download" :size="16" color="#2563eb" />
+            <text>下载/查看</text>
+          </view>
           <view class="menu-list__item" @tap="onFavorite">
             <app-icon name="star" :size="16" color="#f59e0b" />
             <text>收藏</text>
@@ -391,6 +396,57 @@ function toggleSelect(fileId) {
 function openFileMenu(file) {
   currentFile.value = file
   showMenu.value = true
+}
+
+/** 下载/查看文件 */
+async function onDownload(file) {
+  showMenu.value = false
+  const f = file || currentFile.value
+  if (!f) return
+  try {
+    uni.showLoading({ title: '准备中...' })
+    // 1) 向后端换取下载链接（downloadUrl 为 /files/{uuid}/{name} 相对路径）
+    const data = await api.downloadFile(f.fileId)
+    const origin = api.BASE_URL.replace(/\/api\/?$/, '')
+    const url = origin + (data.downloadUrl || '')
+    const name = f.name || data.filename || 'file'
+    const ext = name.includes('.') ? name.split('.').pop().toLowerCase() : ''
+    const isImage = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp'].includes(ext)
+
+    // #ifdef H5
+    uni.hideLoading()
+    window.open(url, '_blank')
+    // #endif
+
+    // #ifndef H5
+    uni.downloadFile({
+      url,
+      success: (res) => {
+        uni.hideLoading()
+        if (res.statusCode === 200) {
+          if (isImage) {
+            uni.previewImage({ urls: [res.tempFilePath], current: res.tempFilePath })
+          } else {
+            uni.openDocument({
+              filePath: res.tempFilePath,
+              showMenu: true,
+              fail: () => uni.showToast({ title: '暂不支持预览此格式', icon: 'none' })
+            })
+          }
+        } else {
+          uni.showToast({ title: '下载失败(' + res.statusCode + ')', icon: 'none' })
+        }
+      },
+      fail: () => {
+        uni.hideLoading()
+        uni.showToast({ title: '下载失败，请检查网络', icon: 'none' })
+      }
+    })
+    // #endif
+  } catch (e) {
+    uni.hideLoading()
+    uni.showToast({ title: (e && e.message) || '获取下载链接失败', icon: 'none' })
+  }
 }
 
 /** 收藏 */

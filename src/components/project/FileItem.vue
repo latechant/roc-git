@@ -4,7 +4,7 @@
   Events: select, menu, approve, reject, resubmit, viewVersion
 -->
 <template>
-  <view class="file-item" :class="{ 'file-item--selected': selected }">
+  <view class="file-item" :class="{ 'file-item--selected': selected }" @tap="onTap">
     <!-- 批量选择框 -->
     <view
       v-if="batchMode"
@@ -77,7 +77,16 @@ const props = defineProps({
   selected: { type: Boolean, default: false },
 })
 
-defineEmits(['select', 'menu', 'approve', 'reject', 'resubmit', 'viewVersion'])
+const emit = defineEmits(['select', 'menu', 'approve', 'reject', 'resubmit', 'viewVersion', 'open'])
+
+function onTap() {
+  // 批量模式下点击整行切换选中；非批量模式触发打开/下载
+  if (props.batchMode) {
+    emit('select')
+  } else {
+    emit('open')
+  }
+}
 
 const statusText = computed(() => {
   const map = {

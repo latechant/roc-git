@@ -288,6 +288,8 @@ function uploadFile(file, params = {}) {
   // #endif
 }
 // 文件操作（/v1/file）
+function downloadFile(fileId) { return request({ url: `/v1/file/${fileId}/download` }) }
+function previewFile(fileId) { return request({ url: `/v1/file/${fileId}/preview` }) }
 function moveFile(fileId, targetStageId) { return request({ url: `/v1/file/${fileId}/move`, method: 'PUT', data: { targetStageId } }) }
 function renameFile(fileId, name) { return request({ url: `/v1/file/${fileId}/rename`, method: 'PUT', data: { name } }) }
 function favoriteFile(fileId) { return request({ url: `/v1/file/${fileId}/favorite`, method: 'POST' }) }
@@ -422,6 +424,8 @@ export default {
   fileDetail,
   pendingAudit,
   uploadFile,
+  downloadFile,
+  previewFile,
   approveFile,
   rejectFile,
   resubmitFile,
