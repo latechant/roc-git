@@ -276,13 +276,27 @@ function uploadFile(file, params = {}) {
         remark: params.remark
       },
       success: (res) => {
+        if (res.statusCode === 413) {
+          reject(new Error('上传失败：文件过大，服务器 Nginx 限制了上传大小（需在服务器配置 client_max_body_size）'))
+          return
+        }
+        if (res.statusCode !== 200) {
+          reject(new Error('上传失败 HTTP ' + res.statusCode + '：' + (res.data || '').slice(0, 200)))
+          return
+        }
         try {
           const body = JSON.parse(res.data)
           if (body.code === 0) resolve(body.data)
           else reject(new Error(body.message || '上传失败'))
-        } catch (e) { reject(new Error('上传失败')) }
+        } catch (e) {
+          reject(new Error('上传失败：响应解析错误 ' + (res.data || '').slice(0, 200)))
+        }
       },
-      fail: (err) => reject(new Error((err && err.errMsg) || '上传失败'))
+      fail: (err) => {
+        const msg = (err && err.errMsg) || '上传失败'
+        // 常见：url not in domain list / 网络错误 / 文件路径无效
+        reject(new Error('上传失败：' + msg))
+      }
     })
   })
   // #endif

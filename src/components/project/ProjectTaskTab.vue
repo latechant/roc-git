@@ -466,6 +466,14 @@ async function submitForm() {
     uni.showToast({ title: '请输入任务名称', icon: 'none' })
     return
   }
+  if (!formData.value.assigneeId) {
+    uni.showToast({ title: '请选择负责人', icon: 'none' })
+    return
+  }
+  if (!formData.value.deadline) {
+    uni.showToast({ title: '请选择截止时间', icon: 'none' })
+    return
+  }
   submitting.value = true
   try {
     const data = {
@@ -473,7 +481,8 @@ async function submitForm() {
       name: formData.value.name.trim(),
       stageId: formData.value.stageId,
       assigneeId: formData.value.assigneeId,
-      deadline: formData.value.deadline || null,
+      // 后端 Jackson 格式 yyyy-MM-dd HH:mm:ss；picker 只返回日期，补 23:59:59
+      deadline: formData.value.deadline + ' 23:59:59',
       description: formData.value.description || '',
     }
     if (editingTask.value) {
