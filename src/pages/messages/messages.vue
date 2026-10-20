@@ -7,13 +7,13 @@
   <view class="messages-page">
     <!-- ========== 顶部 Header ========== -->
     <view class="msg-header">
-      <view class="msg-header__left">
+      <view class="msg-header__title-row">
         <text class="msg-header__title">协作消息</text>
-        <text v-if="unreadTotal > 0" class="msg-header__count">{{ unreadTotal }} 条变更</text>
+        <view v-if="unreadTotal > 0" class="msg-header__action" @tap="onMarkAllRead">
+          <app-icon name="check-check" :size="16" color="#2563eb" />
+        </view>
       </view>
-      <view v-if="unreadTotal > 0" class="msg-header__action" @tap="onMarkAllRead">
-        <text class="msg-header__action-text">全部已读</text>
-      </view>
+      <text v-if="unreadTotal > 0" class="msg-header__count">{{ unreadTotal }} 条变更</text>
     </view>
 
     <!-- ========== 分类 Tab ========== -->
@@ -275,14 +275,14 @@ onShow(() => {
   padding: 48px 20px 12px;
   background: #fff;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #f1f5f9;
-}
-.msg-header__left {
-  display: flex;
   flex-direction: column;
   gap: 2px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.msg-header__title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .msg-header__title {
   font-size: 20px;
@@ -294,14 +294,8 @@ onShow(() => {
   color: #64748b;
 }
 .msg-header__action {
-  padding: 6px 14px;
-  background: #dbeafe;
-  border-radius: 8px;
-}
-.msg-header__action-text {
-  font-size: 13px;
-  font-weight: 500;
-  color: #2563eb;
+  padding: 3px;
+  border-radius: 6px;
 }
 
 /* ---------- 分类 Tab ---------- */
