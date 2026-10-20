@@ -522,11 +522,37 @@ function chooseFile() {
   }
   input.click()
   // #endif
-  // #ifndef H5
-  uni.chooseFile({
-    count: 1,
+
+  // #ifdef MP-WEIXIN
+  // 小程序无系统文件管理器 API，提供两个入口：
+  // 1) 微信聊天文件（含文档/图片/视频）—— wx.chooseMessageFile
+  // 2) 手机相册图片 —— wx.chooseMedia
+  uni.showActionSheet({
+    itemList: ['从微信聊天选择', '从手机相册选择'],
     success: (res) => {
-      tempFile.value = res.tempFiles[0]
+      if (res.tapIndex === 0) {
+        uni.chooseMessageFile({
+          count: 1,
+          type: 'all',
+          success: (r) => {
+            const f = r.tempFiles[0]
+            tempFile.value = { name: f.name, size: f.size, path: f.path }
+            uni.showToast({ title: '已选择: ' + f.name, icon: 'none' })
+          }
+        })
+      } else if (res.tapIndex === 1) {
+        uni.chooseMedia({
+          count: 1,
+          mediaType: ['image'],
+          sourceType: ['album'],
+          success: (r) => {
+            const f = r.tempFiles[0]
+            const name = (f.tempFilePath || '').split('/').pop() || 'image.jpg'
+            tempFile.value = { name, size: f.size, path: f.tempFilePath }
+            uni.showToast({ title: '已选择: ' + name, icon: 'none' })
+          }
+        })
+      }
     }
   })
   // #endif
@@ -569,7 +595,15 @@ async function doUpload() {
   uploading.value = true
   try {
     const stage = stages.value[uploadStageIdx.value]
-    await api.uploadFile(tempFile.value, {
+    // H5 传 File 对象；小程序传本地文件路径字符串
+    let fileToUpload
+    // #ifdef H5
+    fileToUpload = tempFile.value
+    // #endif
+    // #ifndef H5
+    fileToUpload = tempFile.value.path
+    // #endif
+    await api.uploadFile(fileToUpload, {
       projectId: props.projectId,
       stageId: stage ? stage.stageId : null,
     })
