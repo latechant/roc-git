@@ -3,7 +3,9 @@
     <view class="group-popup-card" @tap.stop>
       <view class="group-popup-header">
         <text class="group-popup-title">我的小组</text>
-        <text class="group-popup-close" @tap="emit('close')">✕</text>
+        <view class="group-popup-close" @tap="emit('close')">
+          <app-icon name="x" :size="18" color="#94a3b8" />
+        </view>
       </view>
 
       <!-- ① 我的小组列表 -->
@@ -387,9 +389,10 @@ function onMaskTap() { emit('close') }
   color: #0f172a;
 }
 .group-popup-close {
-  font-size: 16px;
-  color: #94a3b8;
   padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .group-popup-section {
   margin-bottom: 16px;

@@ -3,7 +3,9 @@
     <view class="project-popup-card" @tap.stop>
       <view class="project-popup-header">
         <text class="project-popup-title">{{ title }}</text>
-        <text class="project-popup-close" @tap="emit('close')">✕</text>
+        <view class="project-popup-close" @tap="emit('close')">
+          <app-icon name="x" :size="18" color="#94a3b8" />
+        </view>
       </view>
 
       <view v-if="!projects.length" class="project-popup-empty">
@@ -70,9 +72,10 @@ const emit = defineEmits(['close', 'select'])
   color: #0f172a;
 }
 .project-popup-close {
-  font-size: 16px;
-  color: #94a3b8;
   padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .project-popup-empty {
   padding: 16px 0;

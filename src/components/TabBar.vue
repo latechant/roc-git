@@ -16,7 +16,12 @@
       @tap="onTap(item.key)"
     >
       <view class="tab-bar__icon-wrap">
-        <text class="tab-bar__icon">{{ item.icon }}</text>
+        <app-icon
+          class="tab-bar__icon"
+          :name="item.icon"
+          :size="20"
+          :color="current === item.key ? '#2563eb' : '#94a3b8'"
+        />
         <view v-if="item.key === 'messages' && unreadCount > 0" class="tab-bar__badge">
           {{ unreadCount > 99 ? '99+' : unreadCount }}
         </view>
@@ -34,9 +39,9 @@ const props = defineProps({
 const emit = defineEmits(['change'])
 
 const tabs = [
-  { key: 'home', label: '首页', icon: '🏠' },
-  { key: 'messages', label: '消息', icon: '🔔' },
-  { key: 'profile', label: '我的', icon: '👤' },
+  { key: 'home', label: '首页', icon: 'home' },
+  { key: 'messages', label: '消息', icon: 'bell' },
+  { key: 'profile', label: '我的', icon: 'user' },
 ]
 
 function onTap(key) {
@@ -75,8 +80,6 @@ function onTap(key) {
   align-items: center;
   justify-content: center;
 }
-.tab-bar__icon { font-size: 20px; opacity: 0.6; }
-.tab-bar__item--active .tab-bar__icon { opacity: 1; }
 .tab-bar__label {
   font-size: 11px;
   color: #94a3b8;
