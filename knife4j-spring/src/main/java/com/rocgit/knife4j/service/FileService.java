@@ -89,9 +89,7 @@ public class FileService {
     public FileVO upload(MultipartFile file, Long projectId, Long stageId, Long uploaderId, String remark, String fileName) {
         // 小程序端 uni.uploadFile 上传时原始文件名丢失（变成 tmp_xxx），
         // 由前端通过 formData 传入原始 fileName，优先使用；回退到 multipart 原始名
-        String originalName = (fileName != null && !fileName.trim().isEmpty())
-                ? fileName.trim()
-                : validateAndSanitize(file);
+        String originalName = validateAndSanitize(file, fileName);
         String ext = getExt(originalName);
         String uuidDir = UUID.randomUUID().toString().replace("-", "");
         String path = "/files/" + uuidDir + "/" + originalName;
@@ -252,6 +250,7 @@ public class FileService {
     @Transactional
     public void approve(Long fileId, Long reviewerId) {
         File f = mustGetFile(fileId);
+        checkReviewer(f, reviewerId);
         f.setStatus("approved");
         f.setRejectReason(null);
         fileMapper.updateById(f);
@@ -274,6 +273,7 @@ public class FileService {
     @Transactional
     public void reject(Long fileId, Long reviewerId, String reason) {
         File f = mustGetFile(fileId);
+        checkReviewer(f, reviewerId);
         f.setStatus("rejected");
         f.setRejectReason(reason);
         fileMapper.updateById(f);
@@ -665,13 +665,18 @@ public class FileService {
      * 防路径穿越：剥离目录与控制字符；超长截断保留扩展名；类型白名单。
      */
     private String validateAndSanitize(MultipartFile file) {
+        return validateAndSanitize(file, null);
+    }
+
+    private String validateAndSanitize(MultipartFile file, String fileName) {
         if (file == null || file.isEmpty()) {
             throw new BusinessException(ResultCode.FAIL, "文件为空");
         }
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new BusinessException(ResultCode.FAIL, "文件超过 50MB 大小限制");
         }
-        String name = file.getOriginalFilename();
+        String name = fileName != null && !fileName.trim().isEmpty()
+                ? fileName : file.getOriginalFilename();
         if (name == null) {
             name = "";
         }
@@ -702,6 +707,22 @@ public class FileService {
     }
 
     // ===================== 私有辅助 =====================
+
+    /** 审核人须为项目所属小组的有效组长。 */
+    private void checkReviewer(File file, Long reviewerId) {
+        Project project = projectMapper.selectById(file.getProjectId());
+        if (project == null) {
+            throw new BusinessException(ResultCode.PROJECT_NOT_FOUND);
+        }
+        Long count = groupMemberMapper.selectCount(new LambdaQueryWrapper<GroupMember>()
+                .eq(GroupMember::getGroupId, project.getGroupId())
+                .eq(GroupMember::getUserId, reviewerId)
+                .eq(GroupMember::getRole, "leader")
+                .eq(GroupMember::getStatus, "active"));
+        if (count == null || count == 0) {
+            throw new BusinessException(ResultCode.FORBIDDEN, "仅小组组长可审核文件");
+        }
+    }
 
     /**
      * 将上传文件物理写入磁盘：{storageDir}/{uuidDir}/{originalName}

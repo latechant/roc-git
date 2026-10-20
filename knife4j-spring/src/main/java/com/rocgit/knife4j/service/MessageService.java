@@ -112,6 +112,7 @@ public class MessageService {
             upd.setId(messageId);
             upd.setIsRead(1);
             messageMapper.updateById(upd);
+            m.setIsRead(1);
         }
         return toVO(m);
     }

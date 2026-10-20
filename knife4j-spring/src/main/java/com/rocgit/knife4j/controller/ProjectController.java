@@ -43,8 +43,9 @@ public class ProjectController {
 
     @Operation(summary = "项目详情", description = "获取项目详细信息")
     @GetMapping("/{projectId}")
-    public Result<ProjectDetailVO> detail(@PathVariable Long projectId) {
-        ProjectDetailVO data = projectService.getProjectDetail(projectId);
+    public Result<ProjectDetailVO> detail(@PathVariable Long projectId,
+                                         @RequestAttribute("userId") String userId) {
+        ProjectDetailVO data = projectService.getProjectDetailForUser(projectId, Long.parseLong(userId));
         return Result.success(data);
     }
 

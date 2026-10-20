@@ -92,7 +92,7 @@ function request(opts = {}) {
           const body = res.data
           if (body && typeof body === 'object' && 'code' in body) {
             // 后端业务码表示未授权/凭证失效时同样清理登录态
-            if (!isPublic && (body.code === 401 || body.code === 40101 || body.code === 1001)) {
+            if (!isPublic && (body.code === 401 || body.code === 40101 || body.code === 1001 || body.code === 10002 || body.code === 10003)) {
               handleUnauthorized()
               reject(new Error(body.message || '未登录或登录已过期'))
               return

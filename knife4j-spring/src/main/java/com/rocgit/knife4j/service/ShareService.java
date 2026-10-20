@@ -330,8 +330,12 @@ public class ShareService {
     }
 
     public Map<String, Object> filePreview(String shareToken, Long fileId) {
-        resolveShareByToken(shareToken);
-        File file = fileMapper.selectById(fileId);
+        Share share = resolveShareByToken(shareToken);
+        if (!Arrays.asList("flow_preview", "flow_download", "view_with_preview", "view_with_download")
+                .contains(share.getPermissionLevel())) {
+            throw new BusinessException(ResultCode.FORBIDDEN, "该分享不允许预览文件");
+        }
+        File file = requireSharedFile(share, fileId);
         Map<String, Object> data = new HashMap<>();
         data.put("previewUrl", file == null ? null : file.getUrl());
         data.put("type", file == null ? "file" : file.getType());
@@ -341,6 +345,10 @@ public class ShareService {
     @Transactional
     public Map<String, Object> fileDownload(String shareToken, Long fileId) {
         Share share = resolveShareByToken(shareToken);
+        if (!Arrays.asList("flow_download", "view_with_download").contains(share.getPermissionLevel())) {
+            throw new BusinessException(ResultCode.FORBIDDEN, "该分享不允许下载文件");
+        }
+        File file = requireSharedFile(share, fileId);
         ShareAccessLog accessLog = new ShareAccessLog();
         accessLog.setShareId(share.getId());
         accessLog.setAction("download");
@@ -349,9 +357,17 @@ public class ShareService {
         shareAccessLogMapper.insert(accessLog);
 
         Map<String, Object> data = new HashMap<>();
-        File file = fileMapper.selectById(fileId);
         data.put("downloadUrl", file == null ? null : file.getUrl());
         return data;
+    }
+
+    private File requireSharedFile(Share share, Long fileId) {
+        File file = fileMapper.selectById(fileId);
+        if (file == null || !share.getProjectId().equals(file.getProjectId())
+                || !"approved".equals(file.getStatus())) {
+            throw new BusinessException(ResultCode.FILE_NOT_FOUND);
+        }
+        return file;
     }
 
     public List<Map<String, Object>> discussions(String shareToken) {

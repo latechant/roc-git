@@ -164,6 +164,21 @@ public class ProjectService {
         return buildProjectDetail(project);
     }
 
+    public ProjectDetailVO getProjectDetailForUser(Long projectId, Long userId) {
+        Project project = projectMapper.selectById(projectId);
+        if (project == null) {
+            throw new BusinessException(ResultCode.PROJECT_NOT_FOUND);
+        }
+        Long count = groupMemberMapper.selectCount(new LambdaQueryWrapper<GroupMember>()
+                .eq(GroupMember::getGroupId, project.getGroupId())
+                .eq(GroupMember::getUserId, userId)
+                .eq(GroupMember::getStatus, "active"));
+        if (count == null || count == 0) {
+            throw new BusinessException(ResultCode.NOT_GROUP_MEMBER);
+        }
+        return buildProjectDetail(project);
+    }
+
     @Transactional
     public void updateProject(Long projectId, UpdateProjectRequest request) {
         Project project = projectMapper.selectById(projectId);

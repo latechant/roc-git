@@ -2,6 +2,9 @@ package com.rocgit.knife4j.service;
 
 import com.rocgit.knife4j.mapper.MessageMapper;
 import com.rocgit.knife4j.mapper.OperationLogMapper;
+import com.rocgit.knife4j.mapper.UserSubscriptionMapper;
+import com.rocgit.knife4j.model.UserSubscription;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.rocgit.knife4j.model.Message;
 import com.rocgit.knife4j.model.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,8 @@ public class NotifyService {
     private MessageMapper messageMapper;
     @Autowired
     private OperationLogMapper operationLogMapper;
+    @Autowired
+    private UserSubscriptionMapper userSubscriptionMapper;
 
     /**
      * 发送站内消息
@@ -30,6 +35,17 @@ public class NotifyService {
      * @param content   内容
      */
     public void sendMessage(Long userId, Long projectId, String type, String title, String content) {
+        UserSubscription subscription = userSubscriptionMapper.selectOne(
+                new LambdaQueryWrapper<UserSubscription>().eq(UserSubscription::getUserId, userId));
+        if (subscription != null) {
+            Integer enabled = null;
+            if ("audit".equals(type)) enabled = subscription.getAuditNotify();
+            else if ("task".equals(type)) enabled = subscription.getTaskRemind();
+            else if ("member".equals(type)) enabled = subscription.getMemberNotify();
+            else if ("stage".equals(type)) enabled = subscription.getStageNotify();
+            else if ("mention".equals(type)) enabled = subscription.getMentionNotify();
+            if (Integer.valueOf(0).equals(enabled)) return;
+        }
         Message msg = new Message();
         msg.setUserId(userId);
         msg.setProjectId(projectId);
