@@ -11,7 +11,7 @@
       </view>
 
       <view v-else-if="members.length === 0" class="empty-state">
-        <text class="empty-state__icon">👥</text>
+        <app-icon name="users" :size="42" color="#cbd5e1" />
         <text class="empty-state__text">暂无成员</text>
       </view>
 

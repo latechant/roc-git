@@ -27,7 +27,7 @@
       </view>
 
       <view v-else-if="filteredTasks.length === 0" class="empty-state">
-        <text class="empty-state__icon">✅</text>
+        <app-icon name="check-circle" :size="42" color="#cbd5e1" />
         <text class="empty-state__text">{{ emptyText }}</text>
         <view v-if="activeFilter !== 'completed'" class="empty-state__btn" @tap="openCreate">
           <text>添加任务</text>
@@ -55,7 +55,7 @@
                   class="task-card__check-inner"
                   :class="{ 'task-card__check-inner--on': t.status === 'completed' }"
                 >
-                  <text v-if="t.status === 'completed'">✓</text>
+                  <app-icon v-if="t.status === 'completed'" name="check" :size="12" color="#fff" />
                 </view>
               </view>
 
@@ -72,12 +72,14 @@
                 </view>
 
                 <view class="task-card__meta">
-                  <text v-if="t.deadline" class="task-card__deadline" :class="{ 'task-card__deadline--overdue': isOverdue(t) }">
-                    📅 {{ formatDate(t.deadline) }}
-                  </text>
-                  <text v-if="t.assigneeName" class="task-card__assignee">
-                    👤 {{ t.assigneeName }}
-                  </text>
+                  <view v-if="t.deadline" class="task-card__deadline" :class="{ 'task-card__deadline--overdue': isOverdue(t) }">
+                    <app-icon name="calendar" :size="12" :color="isOverdue(t) ? '#dc2626' : '#94a3b8'" />
+                    <text>{{ formatDate(t.deadline) }}</text>
+                  </view>
+                  <view v-if="t.assigneeName" class="task-card__assignee">
+                    <app-icon name="user" :size="12" color="#94a3b8" />
+                    <text>{{ t.assigneeName }}</text>
+                  </view>
                 </view>
               </view>
 
@@ -107,7 +109,7 @@
       <view class="modal-sheet" @tap.stop>
         <view class="modal-sheet__header">
           <text class="modal-sheet__title">{{ editingTask ? '编辑任务' : '添加任务' }}</text>
-          <text class="modal-sheet__close" @tap="showForm = false">✕</text>
+          <view class="modal-sheet__close" @tap="showForm = false"><app-icon name="x" :size="18" color="#94a3b8" /></view>
         </view>
         <scroll-view class="sheet-body" scroll-y>
           <view class="form-item">
@@ -180,13 +182,16 @@
     <view v-if="showMoreMenu" class="modal-mask" @tap="showMoreMenu = false">
       <view class="action-sheet" @tap.stop>
         <view class="action-sheet__item" @tap="onEdit">
-          <text>✏️ 编辑任务</text>
+          <app-icon name="pencil" :size="16" color="#0f172a" />
+          <text>编辑任务</text>
         </view>
         <view class="action-sheet__item" @tap="onTransfer">
-          <text>🔄 转交任务</text>
+          <app-icon name="arrow-right-left" :size="16" color="#0f172a" />
+          <text>转交任务</text>
         </view>
         <view class="action-sheet__item action-sheet__item--danger" @tap="onDelete">
-          <text>🗑️ 删除任务</text>
+          <app-icon name="trash-2" :size="16" color="#dc2626" />
+          <text>删除任务</text>
         </view>
         <view class="action-sheet__cancel" @tap="showMoreMenu = false">
           <text>取消</text>
@@ -841,6 +846,9 @@ watch(() => props.stages, () => {
 .task-card__deadline {
   font-size: 11px;
   color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 .task-card__deadline--overdue {
   color: #dc2626;
@@ -849,6 +857,9 @@ watch(() => props.stages, () => {
 .task-card__assignee {
   font-size: 11px;
   color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .task-card__more {
@@ -1015,12 +1026,15 @@ watch(() => props.stages, () => {
 }
 .action-sheet__item {
   padding: 16px;
-  text-align: center;
   background: #fff;
   border-radius: 12px;
   font-size: 15px;
   color: #0f172a;
   margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 .action-sheet__item--danger {
   color: #dc2626;

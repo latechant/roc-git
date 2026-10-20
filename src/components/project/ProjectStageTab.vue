@@ -12,7 +12,7 @@
       </view>
 
       <view v-else-if="stages.length === 0" class="empty-state">
-        <text class="empty-state__icon">📋</text>
+        <app-icon name="clipboard-list" :size="42" color="#cbd5e1" />
         <text class="empty-state__text">暂无阶段</text>
         <view class="empty-state__btn" @tap="showAdd = true">
           <text>添加阶段</text>
@@ -34,7 +34,7 @@
             <view class="stage-card__info">
               <view class="stage-card__name-row">
                 <text class="stage-card__name" :class="stageNameClass(s)">{{ s.name || '未命名阶段' }}</text>
-                <text v-if="s.status === 'completed'" class="stage-card__done">✓</text>
+                <app-icon v-if="s.status === 'completed'" class="stage-card__done" name="check" :size="14" color="#16a34a" />
               </view>
               <text v-if="formatRange(s)" class="stage-card__range">{{ formatRange(s) }}</text>
             </view>
@@ -65,7 +65,7 @@
                   :class="{ 'task-row__check--on': t.status === 'completed' }"
                   @tap.stop="onToggleTask(t)"
                 >
-                  <text v-if="t.status === 'completed'">✓</text>
+                  <app-icon v-if="t.status === 'completed'" name="check" :size="12" color="#fff" />
                 </view>
                 <view class="task-row__main">
                   <text class="task-row__name">{{ t.name || '未命名任务' }}</text>
@@ -114,7 +114,7 @@
       <view class="modal-sheet" @tap.stop>
         <view class="modal-sheet__header">
           <text class="modal-sheet__title">添加阶段</text>
-          <text class="modal-sheet__close" @tap="showAdd = false">✕</text>
+          <view class="modal-sheet__close" @tap="showAdd = false"><app-icon name="x" :size="18" color="#94a3b8" /></view>
         </view>
         <view class="sheet-body">
           <view class="form-item">
@@ -161,7 +161,7 @@
       <view class="modal-sheet" @tap.stop>
         <view class="modal-sheet__header">
           <text class="modal-sheet__title">编辑阶段</text>
-          <text class="modal-sheet__close" @tap="showEdit = false">✕</text>
+          <view class="modal-sheet__close" @tap="showEdit = false"><app-icon name="x" :size="18" color="#94a3b8" /></view>
         </view>
         <view class="sheet-body">
           <view class="form-item">

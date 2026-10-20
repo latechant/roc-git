@@ -8,7 +8,7 @@
     <!-- ========== 顶部操作栏 ========== -->
     <view class="file-toolbar">
       <view class="file-toolbar__search" @tap="onSearchTap">
-        <text class="file-toolbar__search-icon">🔍</text>
+        <app-icon name="search" :size="14" color="#94a3b8" />
         <text class="file-toolbar__search-ph">搜索文件名</text>
       </view>
       <view class="file-toolbar__actions">
@@ -17,10 +17,10 @@
           :class="{ 'file-toolbar__btn--on': batchMode }"
           @tap="toggleBatch"
         >
-          <text class="file-toolbar__btn-icon">☐</text>
+          <app-icon name="square" :size="16" :color="batchMode ? '#2563eb' : '#64748b'" />
         </view>
         <view class="file-toolbar__btn file-toolbar__btn--filter" @tap="showFilter = true">
-          <text class="file-toolbar__btn-icon">⚙</text>
+          <app-icon name="settings" :size="16" color="#64748b" />
         </view>
         <view class="file-toolbar__btn file-toolbar__btn--primary" @tap="showUpload = true">
           <text class="file-toolbar__btn-icon">+</text>
@@ -35,7 +35,7 @@
       </view>
 
       <view v-else-if="files.length === 0" class="empty-state">
-        <text class="empty-state__icon">📁</text>
+        <app-icon name="folder" :size="42" color="#cbd5e1" />
         <text class="empty-state__text">暂无文件</text>
         <view class="empty-state__btn" @tap="showUpload = true">
           <text>上传文件</text>
@@ -79,11 +79,11 @@
       <view class="modal-sheet" @tap.stop>
         <view class="modal-sheet__header">
           <text class="modal-sheet__title">上传文件</text>
-          <text class="modal-sheet__close" @tap="showUpload = false">✕</text>
+          <view class="modal-sheet__close" @tap="showUpload = false"><app-icon name="x" :size="18" color="#94a3b8" /></view>
         </view>
         <view class="upload-body">
           <view class="upload-area" @tap="chooseFile">
-            <text class="upload-area__icon">📤</text>
+            <app-icon name="upload-cloud" :size="36" color="#94a3b8" />
             <text class="upload-area__text">点击选择文件</text>
             <text class="upload-area__hint">支持 doc、pdf、图片等格式</text>
           </view>
@@ -108,7 +108,7 @@
       <view class="modal-sheet" @tap.stop>
         <view class="modal-sheet__header">
           <text class="modal-sheet__title">筛选</text>
-          <text class="modal-sheet__close" @tap="showFilter = false">✕</text>
+          <view class="modal-sheet__close" @tap="showFilter = false"><app-icon name="x" :size="18" color="#94a3b8" /></view>
         </view>
         <scroll-view class="filter-body" scroll-y>
           <view class="filter-group">
@@ -184,13 +184,16 @@
       <view class="modal-sheet modal-sheet--sm" @tap.stop>
         <view class="menu-list">
           <view class="menu-list__item" @tap="onFavorite">
-            <text>⭐ 收藏</text>
+            <app-icon name="star" :size="16" color="#f59e0b" />
+            <text>收藏</text>
           </view>
           <view class="menu-list__item" @tap="onMove">
-            <text>📂 移动到</text>
+            <app-icon name="folder-open" :size="16" color="#0f172a" />
+            <text>移动到</text>
           </view>
           <view class="menu-list__item menu-list__item--danger" @tap="onDelete">
-            <text>🗑 删除</text>
+            <app-icon name="trash-2" :size="16" color="#dc2626" />
+            <text>删除</text>
           </view>
         </view>
         <view class="menu-list__cancel" @tap="showMenu = false">
@@ -204,7 +207,7 @@
       <view class="modal-sheet" @tap.stop>
         <view class="modal-sheet__header">
           <text class="modal-sheet__title">版本历史</text>
-          <text class="modal-sheet__close" @tap="showVersion = false">✕</text>
+          <view class="modal-sheet__close" @tap="showVersion = false"><app-icon name="x" :size="18" color="#94a3b8" /></view>
         </view>
         <scroll-view class="version-body" scroll-y>
           <view v-if="versions.length === 0" class="empty-state empty-state--sm">
@@ -993,7 +996,10 @@ watch(() => props.projectId, (newId) => {
   padding: 14px 20px;
   font-size: 15px;
   color: #0f172a;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border-bottom: 1px solid #f8fafc;
 }
 .menu-list__item--danger {

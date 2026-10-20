@@ -12,11 +12,13 @@
       :class="{ 'file-item__check--on': selected }"
       @tap.stop="$emit('select')"
     >
-      <text v-if="selected">✓</text>
+      <app-icon v-if="selected" name="check" :size="12" color="#fff" />
     </view>
 
     <!-- 文件图标 -->
-    <view class="file-item__icon">📄</view>
+    <view class="file-item__icon">
+      <app-icon :name="fileIconName(file.name)" :size="20" color="#94a3b8" />
+    </view>
 
     <!-- 文件信息 -->
     <view class="file-item__info">
@@ -67,6 +69,7 @@
 <script setup>
 import { computed } from 'vue'
 import { formatFileSize } from '../../utils-new/format.js'
+import { fileIconName } from '../../utils/iconPaths'
 
 const props = defineProps({
   file: { type: Object, required: true },

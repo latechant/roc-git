@@ -11,7 +11,7 @@
       </view>
 
       <view v-else-if="activities.length === 0" class="empty-state">
-        <text class="empty-state__icon">📜</text>
+        <app-icon name="scroll-text" :size="42" color="#cbd5e1" />
         <text class="empty-state__text">暂无操作记录</text>
       </view>
 
@@ -24,7 +24,7 @@
           <!-- 时间线左侧 -->
           <view class="timeline-item__line">
             <view class="timeline-item__dot" :class="'timeline-item__dot--' + activityType(item).type">
-              <text class="timeline-item__icon">{{ activityType(item).icon }}</text>
+              <app-icon :name="activityType(item).icon" :size="14" :color="activityType(item).color" />
             </view>
             <view v-if="idx < activities.length - 1" class="timeline-item__bar"></view>
           </view>
@@ -73,12 +73,12 @@ const PAGE_SIZE = 30
 function activityType(item) {
   const type = item.type || ''
   const map = {
-    file:    { icon: '📄', type: 'file' },
-    task:    { icon: '📋', type: 'warning' },
-    stage:   { icon: '🚩', type: 'primary' },
-    member:  { icon: '👤', type: 'default' },
+    file:    { icon: 'file-text', color: '#0284c7', type: 'file' },
+    task:    { icon: 'clipboard-list', color: '#d97706', type: 'warning' },
+    stage:   { icon: 'flag', color: '#2563eb', type: 'primary' },
+    member:  { icon: 'user', color: '#64748b', type: 'default' },
   }
-  return map[type] || { icon: '📝', type: 'default' }
+  return map[type] || { icon: 'file-edit', color: '#64748b', type: 'default' }
 }
 
 /** 活动标题（优先用 action 字段，否则按 type 兜底） */
