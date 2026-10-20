@@ -86,8 +86,12 @@ public class FileService {
      * 上传文件：插入 file + file_version(version=1)
      */
     @Transactional
-    public FileVO upload(MultipartFile file, Long projectId, Long stageId, Long uploaderId, String remark) {
-        String originalName = validateAndSanitize(file);
+    public FileVO upload(MultipartFile file, Long projectId, Long stageId, Long uploaderId, String remark, String fileName) {
+        // 小程序端 uni.uploadFile 上传时原始文件名丢失（变成 tmp_xxx），
+        // 由前端通过 formData 传入原始 fileName，优先使用；回退到 multipart 原始名
+        String originalName = (fileName != null && !fileName.trim().isEmpty())
+                ? fileName.trim()
+                : validateAndSanitize(file);
         String ext = getExt(originalName);
         String uuidDir = UUID.randomUUID().toString().replace("-", "");
         String path = "/files/" + uuidDir + "/" + originalName;

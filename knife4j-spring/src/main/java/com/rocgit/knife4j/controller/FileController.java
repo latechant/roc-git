@@ -35,8 +35,9 @@ public class FileController {
                                  @RequestPart("file") MultipartFile file,
                                  @RequestParam(required = false) Long projectId,
                                  @RequestParam(required = false) Long stageId,
-                                 @RequestParam(required = false) String remark) {
-        FileVO data = fileService.upload(file, projectId, stageId, Long.parseLong(userId), remark);
+                                 @RequestParam(required = false) String remark,
+                                 @RequestParam(required = false) String fileName) {
+        FileVO data = fileService.upload(file, projectId, stageId, Long.parseLong(userId), remark, fileName);
         return Result.success(data);
     }
 

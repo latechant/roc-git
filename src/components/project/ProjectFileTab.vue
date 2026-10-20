@@ -659,10 +659,12 @@ async function doUpload() {
     // #endif
     // #ifndef H5
     fileToUpload = tempFile.value.path
+    console.log('[upload] tempFile:', JSON.stringify(tempFile.value), '| filePath:', fileToUpload)
     // #endif
     await api.uploadFile(fileToUpload, {
       projectId: props.projectId,
       stageId: stage ? stage.stageId : null,
+      fileName: tempFile.value.name,
     })
     uni.showToast({ title: '上传成功', icon: 'success' })
     showUpload.value = false

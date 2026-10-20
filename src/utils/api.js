@@ -250,6 +250,7 @@ function uploadFile(file, params = {}) {
     if (params.projectId != null) fd.append('projectId', params.projectId)
     if (params.stageId != null) fd.append('stageId', params.stageId)
     if (params.remark) fd.append('remark', params.remark)
+    if (params.fileName) fd.append('fileName', params.fileName)
     const xhr = new XMLHttpRequest()
     xhr.open('POST', BASE_URL + '/v1/file/upload')
     if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token)
@@ -273,7 +274,8 @@ function uploadFile(file, params = {}) {
       formData: {
         projectId: params.projectId,
         stageId: params.stageId,
-        remark: params.remark
+        remark: params.remark,
+        fileName: params.fileName
       },
       success: (res) => {
         if (res.statusCode === 413) {
