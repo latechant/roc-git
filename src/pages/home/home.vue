@@ -18,7 +18,7 @@
     <!-- ========== 小组切换条 ========== -->
     <view class="group-switcher" @tap="onToggleGroupSwitcher">
       <view class="group-switcher__inner">
-        <text class="group-switcher__icon">👥</text>
+        <app-icon name="users" :size="14" color="#1e293b" />
         <text class="group-switcher__name">{{ currentGroupName }}</text>
         <text class="group-switcher__arrow" :class="{ 'group-switcher__arrow--up': showGroupSwitcher }">▾</text>
       </view>
@@ -116,7 +116,7 @@
 
         <!-- 空状态 -->
         <view v-else class="empty-state">
-          <text class="empty-state__icon">📁</text>
+          <app-icon name="folder" :size="32" color="#cbd5e1" />
           <text class="empty-state__text">暂无项目</text>
         </view>
       </view>
@@ -135,7 +135,7 @@
             class="task-item"
             @tap="onOpenTask(t)"
           >
-            <view class="task-item__icon">⏰</view>
+            <view class="task-item__icon"><app-icon name="clock" :size="18" color="#d97706" /></view>
             <view class="task-item__content">
               <text class="task-item__name">{{ t.name }}</text>
               <text class="task-item__desc">{{ t.projectName || '' }} · 还剩 {{ t.daysLeft || 0 }}天</text>
@@ -162,7 +162,7 @@
             :key="f.fileId || idx"
             class="audit-item"
           >
-            <view class="audit-item__icon">📄</view>
+            <view class="audit-item__icon"><app-icon name="file-text" :size="18" color="#2563eb" /></view>
             <view class="audit-item__content">
               <text class="audit-item__name">{{ f.uploaderName || '' }} · {{ f.name || '' }}</text>
               <text class="audit-item__time">{{ formatTime(f.createdAt) }}</text>
@@ -185,7 +185,7 @@
         </view>
 
         <view v-if="archivedProjects.length" class="archive-item" @tap="onOpenProject(archivedProjects[0])">
-          <view class="archive-item__icon">🏆</view>
+          <view class="archive-item__icon"><app-icon name="trophy" :size="28" color="#d97706" /></view>
           <view class="archive-item__content">
             <text class="archive-item__name">{{ archivedProjects[0].name }}</text>
             <text class="archive-item__desc">

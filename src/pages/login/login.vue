@@ -7,7 +7,9 @@
 <template>
   <view class="login-screen">
     <view class="login-card">
-      <view class="login-logo">📚</view>
+      <view class="login-logo">
+        <app-icon name="book-open" :size="56" color="#2563eb" />
+      </view>
       <view class="login-title">ROC-git</view>
       <view class="login-subtitle">课程项目协作平台</view>
 

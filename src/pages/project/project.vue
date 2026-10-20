@@ -107,16 +107,20 @@
       <view class="modal-sheet modal-sheet--sm" @tap.stop>
         <view class="menu-list">
           <view class="menu-list__item" @tap="onRename">
-            <text>✏️ 重命名</text>
+            <app-icon name="pencil" :size="16" color="#0f172a" />
+            <text>重命名</text>
           </view>
           <view class="menu-list__item" @tap="onAchievement">
-            <text>🏆 成果管理</text>
+            <app-icon name="trophy" :size="16" color="#0f172a" />
+            <text>成果管理</text>
           </view>
           <view class="menu-list__item" @tap="onShare">
-            <text>🔗 分享链接</text>
+            <app-icon name="link" :size="16" color="#0f172a" />
+            <text>分享链接</text>
           </view>
           <view class="menu-list__item menu-list__item--danger" @tap="onArchive">
-            <text>📦 项目归档</text>
+            <app-icon name="archive" :size="16" color="#dc2626" />
+            <text>项目归档</text>
           </view>
         </view>
         <view class="menu-list__cancel" @tap="showMore = false">
@@ -563,7 +567,10 @@ onShow(() => {
   padding: 14px 20px;
   font-size: 15px;
   color: #0f172a;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border-bottom: 1px solid #f8fafc;
 }
 .menu-list__item--danger {

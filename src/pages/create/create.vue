@@ -25,7 +25,7 @@
         :class="{ 'step-bar__item--active': step === idx + 1, 'step-bar__item--done': step > idx + 1 }"
       >
         <view class="step-bar__dot">
-          <text v-if="step > idx + 1">✓</text>
+          <app-icon v-if="step > idx + 1" name="check" :size="12" color="#fff" />
           <text v-else>{{ idx + 1 }}</text>
         </view>
         <text class="step-bar__label">{{ s.label }}</text>
@@ -138,7 +138,7 @@
                 <text>{{ avatarText(m.nickname) }}</text>
               </view>
               <text class="member-chip__name">{{ m.nickname }}</text>
-              <text v-if="m.selected" class="member-chip__check">✓</text>
+              <app-icon v-if="m.selected" class="member-chip__check" name="check" :size="10" color="#fff" />
             </view>
           </view>
           <text v-if="!memberPool.length" class="form-tip">暂无成员，先加入小组后再创建</text>

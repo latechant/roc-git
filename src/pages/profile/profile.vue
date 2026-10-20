@@ -52,14 +52,14 @@
         <text class="menu-section__title">我的项目</text>
 
         <view class="menu-item" @tap="onMyProjects">
-          <view class="menu-item__icon">📁</view>
+          <view class="menu-item__icon"><app-icon name="folder" :size="20" color="#64748b" /></view>
           <text class="menu-item__label">我的项目</text>
           <text class="menu-item__value">{{ projectCount }} 个进行中</text>
           <text class="menu-item__arrow">›</text>
         </view>
 
         <view class="menu-item" @tap="onActivityLog">
-          <view class="menu-item__icon">📋</view>
+          <view class="menu-item__icon"><app-icon name="clipboard-list" :size="20" color="#64748b" /></view>
           <text class="menu-item__label">操作记录</text>
           <text class="menu-item__arrow">›</text>
         </view>
@@ -69,13 +69,13 @@
         <text class="menu-section__title">归档与存储</text>
 
         <view class="menu-item" @tap="onArchive">
-          <view class="menu-item__icon">🏆</view>
+          <view class="menu-item__icon"><app-icon name="trophy" :size="20" color="#64748b" /></view>
           <text class="menu-item__label">期末归档</text>
           <text class="menu-item__arrow">›</text>
         </view>
 
         <view class="menu-item" @tap="onStorage">
-          <view class="menu-item__icon">💾</view>
+          <view class="menu-item__icon"><app-icon name="hard-drive" :size="20" color="#64748b" /></view>
           <text class="menu-item__label">存储与下载</text>
           <text class="menu-item__value">正常</text>
           <text class="menu-item__arrow">›</text>
@@ -86,7 +86,7 @@
         <text class="menu-section__title">设置</text>
 
         <view class="menu-item">
-          <view class="menu-item__icon">🔔</view>
+          <view class="menu-item__icon"><app-icon name="bell" :size="20" color="#64748b" /></view>
           <text class="menu-item__label">消息通知</text>
           <view class="menu-switch" :class="{ 'menu-switch--on': notifyEnabled }" @tap="notifyEnabled = !notifyEnabled">
             <view class="menu-switch__dot"></view>
@@ -94,7 +94,7 @@
         </view>
 
         <view class="menu-item">
-          <view class="menu-item__icon">🔕</view>
+          <view class="menu-item__icon"><app-icon name="bell-off" :size="20" color="#64748b" /></view>
           <text class="menu-item__label">免打扰模式</text>
           <view class="menu-switch" :class="{ 'menu-switch--on': dndEnabled }" @tap="dndEnabled = !dndEnabled">
             <view class="menu-switch__dot"></view>

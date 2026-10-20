@@ -36,7 +36,7 @@
 
       <!-- 空状态 -->
       <view v-if="!loading && filteredMessages.length === 0" class="empty-state empty-state--lg">
-        <text class="empty-state__icon">🔔</text>
+        <app-icon name="bell" :size="48" color="#cbd5e1" />
         <text class="empty-state__text">{{ emptyText }}</text>
       </view>
 
@@ -55,7 +55,7 @@
           @tap="onOpenMessage(msg)"
         >
           <view class="msg-item__icon-wrap">
-            <text class="msg-item__icon">{{ msgIcon(msg.type) }}</text>
+            <app-icon :name="msgIcon(msg.type)" :size="18" color="#64748b" />
             <view v-if="!msg.read" class="msg-item__dot"></view>
           </view>
           <view class="msg-item__content">
@@ -66,7 +66,7 @@
             <text class="msg-item__desc">{{ msg.description || msg.projectName || '' }}</text>
           </view>
           <view class="msg-item__delete" @tap.stop="onDelete(msg)">
-            <text class="msg-item__delete-icon">✕</text>
+            <app-icon name="x" :size="14" color="#94a3b8" />
           </view>
         </view>
       </template>
@@ -122,19 +122,19 @@ const emptyText = computed(() => {
 
 // ---------- 方法 ----------
 
-/** 消息类型 → 图标 */
+/** 消息类型 → 线性图标名 */
 function msgIcon(type) {
   const map = {
-    audit: '📝',
-    review: '📝',
-    deadline: '⏰',
-    task: '⏰',
-    version: '📄',
-    file: '📄',
-    mention: '👋',
-    system: '🔔',
+    audit: 'file-edit',
+    review: 'file-edit',
+    deadline: 'clock',
+    task: 'clock',
+    version: 'file-text',
+    file: 'file-text',
+    mention: 'hand',
+    system: 'bell',
   }
-  return map[type] || '🔔'
+  return map[type] || 'bell'
 }
 
 /** 消息类型 → Tab 分类映射 */
