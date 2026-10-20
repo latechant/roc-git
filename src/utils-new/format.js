@@ -106,34 +106,6 @@ export function fileExt(filename) {
 }
 
 /**
- * 文件图标 emoji（根据扩展名）
- * @param {String} filename
- * @returns {String} emoji
- */
-export function fileIconEmoji(filename) {
-  const ext = fileExt(filename)
-  const map = {
-    // 文档
-    'pdf': '📕',
-    'doc': '📘', 'docx': '📘',
-    'ppt': '📙', 'pptx': '📙',
-    'xls': '📗', 'xlsx': '📗',
-    'txt': '📄', 'md': '📝',
-    // 图片
-    'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️', 'webp': '🖼️', 'svg': '🖼️',
-    // 视频
-    'mp4': '🎬', 'mov': '🎬', 'avi': '🎬', 'mkv': '🎬',
-    // 音频
-    'mp3': '🎵', 'wav': '🎵', 'm4a': '🎵',
-    // 压缩
-    'zip': '📦', 'rar': '📦', '7z': '📦', 'tar': '📦', 'gz': '📦',
-    // 代码
-    'js': '💻', 'ts': '💻', 'vue': '💻', 'html': '💻', 'css': '💻', 'json': '💻', 'py': '💻', 'java': '💻',
-  }
-  return map[ext] || '📄'
-}
-
-/**
  * 阶段状态 → 徽章类型映射
  * @param {String} status 'pending' | 'ongoing' | 'completed'
  * @returns {String} badge type
