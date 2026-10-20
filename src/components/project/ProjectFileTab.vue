@@ -85,7 +85,7 @@
           <view class="upload-area" @tap="chooseFile">
             <app-icon name="upload-cloud" :size="36" color="#94a3b8" />
             <text class="upload-area__text">点击选择文件</text>
-            <text class="upload-area__hint">支持 doc、pdf、图片等格式</text>
+            <text class="upload-area__hint">文档从微信聊天选，图片从相册选</text>
           </view>
           <view class="upload-meta">
             <text class="upload-meta__label">上传到阶段</text>
@@ -524,16 +524,17 @@ function chooseFile() {
   // #endif
 
   // #ifdef MP-WEIXIN
-  // 小程序无系统文件管理器 API，提供两个入口：
-  // 1) 微信聊天文件（含文档/图片/视频）—— wx.chooseMessageFile
-  // 2) 手机相册图片 —— wx.chooseMedia
+  // 小程序无系统文件管理器 API，按来源分两个入口：
+  // 1) 微信聊天里的文档/压缩包 —— wx.chooseMessageFile type:'file'
+  //    （type 合法值仅 file/image/video，无 'all'；'file' 表示除图片视频外的所有文件）
+  // 2) 手机相册里的图片 —— wx.chooseMedia
   uni.showActionSheet({
-    itemList: ['从微信聊天选择', '从手机相册选择'],
+    itemList: ['从微信聊天选择（文档/压缩包）', '从手机相册选择（图片）'],
     success: (res) => {
       if (res.tapIndex === 0) {
         uni.chooseMessageFile({
           count: 1,
-          type: 'all',
+          type: 'file',
           success: (r) => {
             const f = r.tempFiles[0]
             tempFile.value = { name: f.name, size: f.size, path: f.path }
