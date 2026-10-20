@@ -9,38 +9,38 @@
  */
 export function copyToClipboard(text) {
   return new Promise((resolve) => {
-    // H5：优先用 Clipboard API
-    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+    // #ifdef H5
+    const fallback = () => {
+      try {
+        const ta = document.createElement('textarea')
+        ta.value = text
+        ta.style.position = 'fixed'
+        ta.style.opacity = '0'
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand('copy')
+        document.body.removeChild(ta)
+        resolve(true)
+      } catch {
+        resolve(false)
+      }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text)
         .then(() => resolve(true))
-        .catch(() => {
-          // 降级到 textarea
-          try {
-            const ta = document.createElement('textarea')
-            ta.value = text
-            ta.style.position = 'fixed'
-            ta.style.opacity = '0'
-            document.body.appendChild(ta)
-            ta.select()
-            document.execCommand('copy')
-            document.body.removeChild(ta)
-            resolve(true)
-          } catch {
-            resolve(false)
-          }
-        })
-      return
+        .catch(fallback)
+    } else {
+      fallback()
     }
-    // 小程序
-    if (typeof uni !== 'undefined' && uni.setClipboardData) {
-      uni.setClipboardData({
-        data: text,
-        success: () => resolve(true),
-        fail: () => resolve(false),
-      })
-      return
-    }
-    resolve(false)
+    // #endif
+
+    // #ifndef H5
+    uni.setClipboardData({
+      data: text,
+      success: () => resolve(true),
+      fail: () => resolve(false),
+    })
+    // #endif
   })
 }
 
@@ -50,18 +50,23 @@ export function copyToClipboard(text) {
  * @param {Number} duration
  */
 export function showToast(msg, duration = 2000) {
+  // #ifdef H5
   if (typeof uni !== 'undefined' && uni.showToast) {
     uni.showToast({ title: msg, icon: 'none', duration })
     return
   }
   // H5 降级：用页面 toast 元素
-  const el = document && document.getElementById && document.getElementById('toast')
+  const el = document.getElementById('toast')
   if (el) {
     el.textContent = msg
     el.classList.remove('hidden')
     clearTimeout(el._timer)
     el._timer = setTimeout(() => el.classList.add('hidden'), duration)
   }
+  // #endif
+  // #ifndef H5
+  uni.showToast({ title: msg, icon: 'none', duration })
+  // #endif
 }
 
 /**
